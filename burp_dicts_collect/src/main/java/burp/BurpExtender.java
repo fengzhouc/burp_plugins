@@ -58,9 +58,12 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
 
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
 
-        if (toolFlag == 4 && messageIsRequest){
-            IRequestInfo requestInfo = helpers.analyzeRequest(messageInfo);
-            parse_request(requestInfo);
+        // toolFlag https://portswigger.net/burp/extender/api/constant-values.html#burp.IBurpExtenderCallbacks
+        if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16){//proxy/spider/scanner
+            if (messageIsRequest) {
+                IRequestInfo requestInfo = helpers.analyzeRequest(messageInfo);
+                parse_request(requestInfo);
+            }
         }
     }
 
