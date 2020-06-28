@@ -217,14 +217,12 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                 jTabbedPane_output.addTab("Result", output);
                 jTabbedPane_output.addTab("Operatioin log", jScrollPane1);
                 //第二层 - 最底部的按钮
-                JPanel jPanel_button = new JPanel();
-                jPanel_button.setLayout(new BoxLayout(jPanel_button, BoxLayout.X_AXIS));
-                JButton jButton = new JButton("submit");
-                jPanel_button.add(jButton);
+                JLabel author = new JLabel("Author@alumm0x");
+
                 //第二层主窗格组合各组件
                 jPanel_main.add(jPanel_conf);
                 jPanel_main.add(jTabbedPane_output);
-                jPanel_main.add(jPanel_button);
+                jPanel_main.add(author);
                 //顶层窗格组合各组件
                 rootPane.addTab("Options", jPanel_main);
 
