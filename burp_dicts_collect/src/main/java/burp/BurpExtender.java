@@ -132,7 +132,9 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                 JButton start = new JButton("Start");
                 JButton stop = new JButton("Stop");
                 JButton save = new JButton("Save");
+                JButton clear = new JButton("Clear");
                 JLabel split = new JLabel("  |  ");
+                JLabel split1 = new JLabel("  |  ");
                 //控制开启监听的按钮
                 start.addMouseListener(new MouseAdapter() {
                     @Override
@@ -163,10 +165,19 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                         save();
                     }
                 });
+                clear.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        clear();
+                        oper_log("result clear success.");
+                    }
+                });
                 jPanel_conf.add(domain);
                 jPanel_conf.add(domain_text);
                 jPanel_conf.add(set);
+                jPanel_conf.add(split1);
                 jPanel_conf.add(save);
+                jPanel_conf.add(clear);
                 jPanel_conf.add(split);
                 jPanel_conf.add(start);
                 jPanel_conf.add(stop);
@@ -266,6 +277,13 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
         }
 
     }
+
+    private void clear(){
+        paths.clear();
+        params.clear();
+        jsName.clear();
+    }
+
 
     private void setTarget_domain(String target_domain) {
         this.target_domain = target_domain;
