@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -20,17 +22,17 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
 
     private JTabbedPane rootPane;
     private JTextField domain_text;
-    private JTextArea result_text;
+    private JTextArea path_text;
+    private JTextArea js_text;
+    private JTextArea param_text;
+    private JTextArea other_text;
     private JTextArea oper_text;
 
 
     private String target_domain = ".*";
-    private Pattern domain_regex;
+    private Pattern domain_regex = Pattern.compile(target_domain);
 
-    private Logger logpath;
-    private Logger logjs;
-    private Logger logparam;
-    private Logger logerror;
+    private String savefile = String.format("%d", new Date().getTime());
 
     private HashSet<String> paths = new HashSet<String>();
     private HashSet<String> params = new HashSet<String>();
@@ -72,15 +74,16 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
             }
             if (p.endsWith(".js")){
                 jsName.add(p);
+                js_log(p);
                 continue;
             }
             if (!p.contains(".")){
                 paths.add(p);
+                path_log(p);
                 continue;
             }
-            // 其他的输出，好检查是否有例外，优化工具
-            logerror.info(p);
-            output_log(p);
+            other_log(p);
+
         }
 
         // 添加参数名，包括了cookie
@@ -88,7 +91,7 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
         for (IParameter param :
                 paramList) {
             params.add(param.getName());
-            output_log(param.getName());
+            param_log(param.getName());
         }
 
     }
@@ -114,6 +117,7 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                 set.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
+                        savefile = String.format("%d", new Date().getTime());
                         //调用设置目标域名的方法
                         String domain_reg = domain_text.getText();
                         setTarget_domain(domain_reg);
@@ -124,6 +128,7 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                 });
                 JButton start = new JButton("Start");
                 JButton stop = new JButton("Stop");
+                JButton save = new JButton("Save");
                 JLabel split = new JLabel("  |  ");
                 //控制开启监听的按钮
                 start.addMouseListener(new MouseAdapter() {
@@ -149,9 +154,16 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                         save();
                     }
                 });
+                save.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        save();
+                    }
+                });
                 jPanel_conf.add(domain);
                 jPanel_conf.add(domain_text);
                 jPanel_conf.add(set);
+                jPanel_conf.add(save);
                 jPanel_conf.add(split);
                 jPanel_conf.add(start);
                 jPanel_conf.add(stop);
@@ -161,21 +173,45 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                 jTabbedPane_output.setPreferredSize(jTabbedPane_output.getPreferredSize());
                 //输出视图及滚动条
                 //结果的
-                JScrollPane jScrollPane = new JScrollPane();
-                result_text = new JTextArea();
-                result_text.setLineWrap(true);
-                result_text.setEditable(false);
-                jScrollPane.setViewportView(result_text);
-                jScrollPane.setVerticalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                JTabbedPane output = new JTabbedPane();
+                output.setPreferredSize(output.getPreferredSize());
+                JScrollPane path_log = new JScrollPane();
+                path_text = new JTextArea();
+                path_text.setLineWrap(true);
+                path_text.setEditable(false);
+                path_log.setViewportView(path_text);
+                path_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                JScrollPane js_log = new JScrollPane();
+                js_text = new JTextArea();
+                js_text.setLineWrap(true);
+                js_text.setEditable(false);
+                js_log.setViewportView(js_text);
+                js_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                JScrollPane param_log = new JScrollPane();
+                param_text = new JTextArea();
+                param_text.setLineWrap(true);
+                param_text.setEditable(false);
+                param_log.setViewportView(param_text);
+                param_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                JScrollPane other_log = new JScrollPane();
+                other_text = new JTextArea();
+                other_text.setLineWrap(true);
+                other_text.setEditable(false);
+                other_log.setViewportView(param_text);
+                other_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                output.addTab("path log", path_log);
+                output.addTab("param log", param_log);
+                output.addTab("js log", js_log);
+                output.addTab("other log", other_log);
                 //操作的
                 JScrollPane jScrollPane1 = new JScrollPane();
                 oper_text = new JTextArea();
                 oper_text.setLineWrap(true);
                 oper_text.setEditable(false);
                 jScrollPane1.setViewportView(oper_text);
-                jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
                 //组合
-                jTabbedPane_output.addTab("Result log", jScrollPane);
+                jTabbedPane_output.addTab("Result log", output);
                 jTabbedPane_output.addTab("Operatioin log", jScrollPane1);
                 //第二层 - 最底部的按钮
                 JPanel jPanel_button = new JPanel();
@@ -198,19 +234,33 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
 
     }
     private void save(){
-        for (String s :
-                paths) {
-            path_log(s);
+        try {
+            FileOutputStream path = new FileOutputStream(savefile + "-path.txt");
+            FileOutputStream js = new FileOutputStream(savefile + "-js.txt");
+            FileOutputStream param = new FileOutputStream(savefile + "-param.txt");
+            for (String s :
+                    paths) {
+                path.write(s.getBytes());
+            }
+            for (String s :
+                    jsName) {
+                js.write(s.getBytes());
+            }
+            for (String s :
+                    params) {
+                param.write(s.getBytes());
+            }
+            oper_log("save success, file name like '" + savefile + "-*.txt'.");
+            paths.clear();
+            params.clear();
+            jsName.clear();
+
+        } catch (FileNotFoundException e) {
+            oper_log("[error] " + e.getMessage());
+        } catch (IOException e) {
+            oper_log("[error] " + e.getMessage());
         }
-        for (String s :
-                jsName) {
-            js_log(s);
-        }
-        for (String s :
-                params) {
-            param_log(s);
-        }
-        oper_log("save success, file name like " + logerror.getName().split("-")[0] + "-*");
+
     }
 
     private void setTarget_domain(String target_domain) {
@@ -220,28 +270,22 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
     private void oper_log(String message) {
         oper_text.append(message + "\n");
     }
-    private void output_log(String message) {
-        result_text.append(message + "\n");
-    }
 
     private void path_log(String message){
-        logpath.info(message);
+        path_text.append(message + "\n");
     }
     private void js_log(String message){
-        logjs.info(message);
+        js_text.append(message + "\n");
     }
     private void param_log(String message){
-        logparam.info(message);
+        param_text.append(message + "\n");
+    }
+    private void other_log(String message){
+        other_text.append(message + "\n");
     }
 
     private void start(){
-        String time = String.format("%d", new Date().getTime());
         callbacks.registerHttpListener(this);
-        // create new log for start
-        logpath = getLog(time + "-path");
-        logjs = getLog(time + "-js");
-        logparam = getLog(time + "-param");
-        logerror = getLog(time + "-error");
     }
     private void stop(){
         callbacks.removeHttpListener(this);
