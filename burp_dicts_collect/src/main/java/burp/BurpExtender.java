@@ -211,7 +211,7 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
                 jScrollPane1.setViewportView(oper_text);
                 jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
                 //组合
-                jTabbedPane_output.addTab("Result log", output);
+                jTabbedPane_output.addTab("Result", output);
                 jTabbedPane_output.addTab("Operatioin log", jScrollPane1);
                 //第二层 - 最底部的按钮
                 JPanel jPanel_button = new JPanel();
@@ -241,14 +241,17 @@ public class BurpExtender implements IBurpExtender, IHttpListener, ITab
             for (String s :
                     paths) {
                 path.write(s.getBytes());
+                path.write("\n".getBytes());
             }
             for (String s :
                     jsName) {
                 js.write(s.getBytes());
+                js.write("\n".getBytes());
             }
             for (String s :
                     params) {
                 param.write(s.getBytes());
+                param.write("\n".getBytes());
             }
             oper_log("save success, file name like '" + savefile + "-*.txt'.");
             paths.clear();
