@@ -109,8 +109,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     files = new String[]{file, path};
                     //移除dirs中的文件
                     arrList.remove(arrList.size()-1);
-                    //将完整的路径也添加进去，path
-                    arrList.add(arrList.size()-1, path);
+                    //将完整的路径也添加进去(去掉最后的一个文件名)，path
+                    arrList.add(arrList.size()-1, path.substring(0, path.lastIndexOf("/")));
                 }else {
                     //纯api的路径，不需要处理文件的
                     //将完整的路径也添加进去，path
@@ -203,12 +203,21 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
         if (null != files && files.length != 0){
             //TODO 分类文件类型
+            //js/jsp/php/action/do/asp/aspx
             FileWriter writer = null;
             try {
                 writer = new FileWriter(f, true);
                 for (String s :
                         files) {
-                    if ("".equals(s) && s.endsWith(".css") && s.endsWith(".png") && s.endsWith(".jsp")){
+                    if ("".equals(s)
+                            || s.endsWith(".css")
+                            || s.endsWith(".png")
+                            || s.endsWith(".gif")
+                            || s.endsWith(".jpg")
+                            || s.endsWith(".ico")
+                            || s.endsWith(".woff2")
+                            || s.endsWith(".svg")
+                            || s.endsWith(".ttf")){
                         continue;
                     }
                     writer.write(s+"\r");
@@ -288,13 +297,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             case 0:
                 return "Id";
             case 1:
-                return "Host";
+                return "Host(domains.txt)";
             case 2:
-                return "Paths";
+                return "Paths(dirs.txt)";
             case 3:
-                return "Params";
+                return "Params(params.txt)";
             case 4:
-                return "Files";
+                return "Files(files.txt)";
             default:
                 return "";
         }
