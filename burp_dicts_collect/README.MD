@@ -1,17 +1,10 @@
 功能介绍
 
-主要是收集指定域名的path、param、js等信息字典
+主要是收集path、param、js等信息字典
 
-burp ui功能介绍
-
-domain输入框：设置收集的域范围，正则
-
-set按钮：设置上面填写的domain正则
-
-save按钮：保存此次收集的结果到文件中
-
-clear按钮：清除此次收集的结果
-
-start按钮：启动收集功能
-
-stop按钮：关闭收集功能
+2021.1.20修改
+重定义收集的信息
+eg：http://xxx.com/api/v1/test?param1=1
+dirDicts /api/v1/test,api,v1,test
+fileDicts /api/v1/test,test(会根据后缀分类)
+paramDicts param,api,v1,test(无后缀的)

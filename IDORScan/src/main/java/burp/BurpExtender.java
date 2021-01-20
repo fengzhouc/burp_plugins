@@ -81,8 +81,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     }
 
 
-
-
     @Override
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         if (!messageIsRequest)

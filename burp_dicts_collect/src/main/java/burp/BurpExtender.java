@@ -1,343 +1,366 @@
 package burp;
 
+import com.sun.tools.javac.util.StringUtils;
+
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
-import java.util.HashSet;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-
-public class BurpExtender implements IBurpExtender, IHttpListener, ITab
-{
-
-    private JTabbedPane rootPane;
-    private JTextField domain_text;
-    private JTextArea path_text;
-    private JTextArea js_text;
-    private JTextArea param_text;
-    private JTextArea other_text;
-    private JTextArea oper_text;
 
 
-    private String target_domain = ".*";
-    private Pattern domain_regex = Pattern.compile(target_domain);
-
-    private String savefile = String.format("%d", new Date().getTime());
-
-    private HashSet<String> paths = new HashSet<String>();
-    private HashSet<String> params = new HashSet<String>();
-    private HashSet<String> jsName = new HashSet<String>();
+public class BurpExtender extends AbstractTableModel implements IBurpExtender, IHttpListener, ITab, IMessageEditorController {
 
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
+    private JSplitPane splitPane;
+    private IMessageEditor requestViewer;
+    private IMessageEditor responseViewer;
+    private final List<LogEntry> log = new ArrayList<LogEntry>();
+    private IHttpRequestResponse currentlyDisplayedItem;
+    public PrintWriter stdout;
 
-    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
+    @Override
+    public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
+        //回调对象
         this.callbacks = callbacks;
-        this.helpers = this.callbacks.getHelpers();
-        callbacks.setExtensionName("Dict collect");
+        //获取扩展helper与stdout对象
+        this.helpers = callbacks.getHelpers();
+        this.stdout = new PrintWriter(callbacks.getStdout(), true);
 
-        PrintWriter stdout = new PrintWriter(callbacks.getStdout(), true);
-        // write a message to our output stream
-        stdout.println("Hello output new ");
+        callbacks.setExtensionName("DictCollect");
 
-        addMenuTab();
-//        start();
+        //创建UI
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                //分割界面
+                splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); //上下分割
+
+                //上面板，结果面板
+                Table logTable = new Table(BurpExtender.this);
+                JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
+                splitPane.setLeftComponent(scrollPane);
+
+                //下面板，请求响应的面板
+                JTabbedPane tabs = new JTabbedPane();
+                requestViewer = callbacks.createMessageEditor(BurpExtender.this, false);
+                responseViewer = callbacks.createMessageEditor(BurpExtender.this, false);
+                tabs.addTab("Request", requestViewer.getComponent());
+                tabs.addTab("Response", responseViewer.getComponent());
+                splitPane.setRightComponent(tabs);
+
+                //定制UI组件
+                callbacks.customizeUiComponent(splitPane);
+                callbacks.customizeUiComponent(logTable);
+                callbacks.customizeUiComponent(scrollPane);
+                callbacks.customizeUiComponent(tabs);
+
+                //添加标签
+                callbacks.addSuiteTab(BurpExtender.this);
+
+                //加载插件输出默认信息
+                String author = "alumm0x";
+
+                callbacks.printOutput("#Author:"+author);
+
+                //注册监听器
+                callbacks.registerHttpListener(BurpExtender.this);
+            }
+        });
+
 
     }
 
 
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
+        if (!messageIsRequest) {
+            int row = log.size();
+            if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16) {//proxy/spider/scanner
+                int id = getRowCount() + 1;
 
-        // toolFlag https://portswigger.net/burp/extender/api/constant-values.html#burp.IBurpExtenderCallbacks
-        if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16){//proxy/spider/scanner
-            if (messageIsRequest) {
                 IRequestInfo requestInfo = helpers.analyzeRequest(messageInfo);
-                parse_request(requestInfo);
-            }
-        }
-    }
+                URL url = requestInfo.getUrl();
+                String host = url.getHost();
+                String[] ha = host.split("\\.");
+                //子域名的数据数组
+                String[] han = Arrays.copyOfRange(ha,0, ha.length-2);
 
-    private void parse_request(IRequestInfo requestInfo) {
-        //解析url
-        String url = requestInfo.getUrl().getPath();
-        for (String p:
-                url.split("/")) {
-            if ("".equals(p)){
-                continue;
-            }
-            if (p.endsWith(".js")){
-                jsName.add(p);
-                js_log(p);
-                continue;
-            }
-            if (!p.contains(".")){
-                paths.add(p);
-                path_log(p);
-                continue;
-            }
-            other_log(p);
-
-        }
-
-        // 添加参数名，包括了cookie
-        List<IParameter> paramList = requestInfo.getParameters();
-        for (IParameter param :
-                paramList) {
-            params.add(param.getName());
-            param_log(param.getName());
-        }
-
-    }
-
-
-    private void addMenuTab(){
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //第一层tab，也是顶层窗格
-                rootPane = new JTabbedPane();
-                //第二层主窗格（tab），用来组合各种组件
-                JPanel jPanel_main = new JPanel();
-                jPanel_main.setLayout(new BoxLayout(jPanel_main, BoxLayout.Y_AXIS));
-                //第二层 - 配置的窗格
-                JPanel jPanel_conf = new JPanel();
-                jPanel_conf.setLayout(new BoxLayout(jPanel_conf, BoxLayout.X_AXIS));
-                JLabel domain = new JLabel("Domain");
-                domain_text = new JTextField("please input regex", 70);
-                //设置优选大小
-                domain_text.setMaximumSize(domain_text.getPreferredSize());
-
-                JButton set = new JButton("Set");
-                set.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        savefile = String.format("%d", new Date().getTime());
-                        //调用设置目标域名的方法
-                        String domain_reg = domain_text.getText();
-                        setTarget_domain(domain_reg);
-                        domain_regex = Pattern.compile(domain_reg);
-                        oper_log("set domain regex '" + domain_reg + "' done, gogogo ~ to click start.");
-
-                    }
-                });
-                JButton start = new JButton("Start");
-                JButton stop = new JButton("Stop");
-                JButton save = new JButton("Save");
-                JButton clear = new JButton("Clear");
-                JLabel split = new JLabel("  |  ");
-                JLabel split1 = new JLabel("  |  ");
-                //控制开启监听的按钮
-                start.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        if ("".equals(target_domain) || !target_domain.equals(domain_regex.toString())){
-                            oper_log("[error] please first set the domain !!");
-                            return;
-                        }
-                        //调用添加监听的方法
-                        start();
-                        oper_log("start success. current domain regex was " + target_domain);
-
-                    }
-                });
-                //控制开启监听的按钮
-                stop.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        //调用去除监听的方法
-                        stop();
-                        oper_log("stop success.");
-                        save();
-                    }
-                });
-                save.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        save();
-                    }
-                });
-                clear.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        clear();
-                        oper_log("result clear success.");
-                    }
-                });
-                jPanel_conf.add(domain);
-                jPanel_conf.add(domain_text);
-                jPanel_conf.add(set);
-                jPanel_conf.add(split1);
-                jPanel_conf.add(save);
-                jPanel_conf.add(clear);
-                jPanel_conf.add(split);
-                jPanel_conf.add(start);
-                jPanel_conf.add(stop);
-
-                //第二层 - 输出的窗格
-                JTabbedPane jTabbedPane_output = new JTabbedPane();
-                jTabbedPane_output.setPreferredSize(jTabbedPane_output.getPreferredSize());
-                //输出视图及滚动条
-                //结果的
-                JTabbedPane output = new JTabbedPane();
-                output.setPreferredSize(output.getPreferredSize());
-                JScrollPane path_log = new JScrollPane();
-                path_text = new JTextArea();
-                path_text.setLineWrap(true);
-                path_text.setEditable(false);
-                path_log.setViewportView(path_text);
-                path_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                JScrollPane js_log = new JScrollPane();
-                js_text = new JTextArea();
-                js_text.setLineWrap(true);
-                js_text.setEditable(false);
-                js_log.setViewportView(js_text);
-                js_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                JScrollPane param_log = new JScrollPane();
-                param_text = new JTextArea();
-                param_text.setLineWrap(true);
-                param_text.setEditable(false);
-                param_log.setViewportView(param_text);
-                param_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                JScrollPane other_log = new JScrollPane();
-                other_text = new JTextArea();
-                other_text.setLineWrap(true);
-                other_text.setEditable(false);
-                other_log.setViewportView(param_text);
-                other_log.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                output.addTab("path log", path_log);
-                output.addTab("param log", param_log);
-                output.addTab("js log", js_log);
-                output.addTab("other log", other_log);
-                //操作的
-                JScrollPane jScrollPane1 = new JScrollPane();
-                oper_text = new JTextArea();
-                oper_text.setLineWrap(true);
-                oper_text.setEditable(false);
-                jScrollPane1.setViewportView(oper_text);
-                jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                //组合
-                jTabbedPane_output.addTab("Result", output);
-                jTabbedPane_output.addTab("Operatioin log", jScrollPane1);
-                //第二层 - 最底部的按钮
-                JLabel author = new JLabel("Author@alumm0x");
-
-                //第二层主窗格组合各组件
-                jPanel_main.add(jPanel_conf);
-                jPanel_main.add(jTabbedPane_output);
-                jPanel_main.add(author);
-                //顶层窗格组合各组件
-                rootPane.addTab("Options", jPanel_main);
-
-                BurpExtender.this.callbacks.customizeUiComponent(jPanel_main);
-                BurpExtender.this.callbacks.addSuiteTab(BurpExtender.this);
-
-            }
-
-        });
-
-    }
-    private void save(){
-        try {
-            FileOutputStream path = new FileOutputStream(savefile + "-path.txt");
-            FileOutputStream js = new FileOutputStream(savefile + "-js.txt");
-            FileOutputStream param = new FileOutputStream(savefile + "-param.txt");
-            for (String s :
-                    paths) {
-                path.write(s.getBytes());
-                path.write("\n".getBytes());
-            }
-            for (String s :
-                    jsName) {
-                js.write(s.getBytes());
-                js.write("\n".getBytes());
-            }
-            for (String s :
-                    params) {
-                param.write(s.getBytes());
-                param.write("\n".getBytes());
-            }
-            oper_log("save success, file name like '" + savefile + "-*.txt'.");
-            paths.clear();
-            params.clear();
-            jsName.clear();
-
-        } catch (FileNotFoundException e) {
-            oper_log("[error] " + e.getMessage());
-        } catch (IOException e) {
-            oper_log("[error] " + e.getMessage());
-        }
-
-    }
-
-    private void clear(){
-        paths.clear();
-        params.clear();
-        jsName.clear();
-    }
-
-
-    private void setTarget_domain(String target_domain) {
-        this.target_domain = target_domain;
-    }
-
-    private void oper_log(String message) {
-        oper_text.append(message + "\n");
-    }
-
-    private void path_log(String message){
-        path_text.append(message + "\n");
-    }
-    private void js_log(String message){
-        js_text.append(message + "\n");
-    }
-    private void param_log(String message){
-        param_text.append(message + "\n");
-    }
-    private void other_log(String message){
-        other_text.append(message + "\n");
-    }
-
-    private void start(){
-        callbacks.registerHttpListener(this);
-    }
-    private void stop(){
-        callbacks.removeHttpListener(this);
-    }
-
-    private Logger getLog(String logname){
-        Logger log = Logger.getLogger(logname);
-        try {
-            FileHandler fileHandler = new FileHandler(logname, true);
-            fileHandler.setFormatter(new Formatter() {
-                @Override
-                public String format(LogRecord record) {
-                    return record.getMessage() + "\n";
+                String path = url.getPath();
+                //目录的数据数组
+                String[] dirs = path.split("/");
+                //文件的数据数组
+                String[] files = null;
+                List<String> up = Arrays.asList(dirs);
+                //up是数组转换的，不能add/remove，所以需要重新new一个ArrayList
+                List<String> arrList = new ArrayList<String>(up);
+                if (arrList.size() > 0 && arrList.get(arrList.size()-1).contains(".")){
+                    //是资源文件,生成文件数据数组
+                    String file = arrList.get(arrList.size()-1);
+                    //将完整的文件路径也加进去，path
+                    files = new String[]{file, path};
+                    //移除dirs中的文件
+                    arrList.remove(arrList.size()-1);
+                    //将完整的路径也添加进去，path
+                    arrList.add(arrList.size()-1, path);
+                }else {
+                    //纯api的路径，不需要处理文件的
+                    //将完整的路径也添加进去，path
+                    arrList.add(path);
                 }
-            });
-            log.addHandler(fileHandler);
+                dirs = arrList.toArray(new String[0]);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+                List<IParameter> params = requestInfo.getParameters();
+                List<String> pas = new ArrayList<String>();
+                for (IParameter p :
+                        params) {
+                    pas.add(p.getName());
+                }
+                //参数名的数据数组
+                String[] ps = pas.toArray(new String[0]);
+                //将结果写入文件
+                write(han, dirs, ps, files);
+                //设置面板数据
+                log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
+                        toStr(han), toStr(dirs),toStr(ps), toStr(files)));
+
+
+            }
+            fireTableRowsInserted(row, row);
         }
-        return log;
     }
+
+    private void write(String[] domains, String[] paths,String[] params, String[] files){
+        String f = "files.txt";
+        String d = "domains.txt";
+        String pa = "params.txt";
+        String ps = "paths.txt";
+        // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
+        if (domains.length != 0){
+            FileWriter writer = null;
+            try {
+                writer = new FileWriter(d, true);
+                for (String s :
+                        domains) {
+                    if ("".equals(s)){
+                        continue;
+                    }
+                    writer.write(s+"\r");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    writer.close();
+                } catch (IOException e) {}
+            }
+        }
+        if (paths.length != 0){
+            FileWriter writer = null;
+            try {
+                writer = new FileWriter(ps, true);
+                for (String s :
+                        paths) {
+                    if ("".equals(s)){
+                        continue;
+                    }
+                    writer.write(s+"\r");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    writer.close();
+                } catch (IOException e) {}
+            }
+        }
+        if (params.length != 0){
+            FileWriter writer = null;
+            try {
+                writer = new FileWriter(pa, true);
+                for (String s :
+                        params) {
+                    if ("".equals(s)){
+                        continue;
+                    }
+                    writer.write(s+"\r");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    writer.close();
+                } catch (IOException e) {}
+            }
+        }
+        if (null != files && files.length != 0){
+            //TODO 分类文件类型
+            FileWriter writer = null;
+            try {
+                writer = new FileWriter(f, true);
+                for (String s :
+                        files) {
+                    if ("".equals(s) && s.endsWith(".css") && s.endsWith(".png") && s.endsWith(".jsp")){
+                        continue;
+                    }
+                    writer.write(s+"\r");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    writer.close();
+                } catch (IOException e) {}
+            }
+        }
+
+    }
+
+    private String toStr(String[] arr){
+        if (null == arr){
+            return "";
+        }
+        StringBuffer stringBuffer = new StringBuffer();
+        for (String s : arr) {
+            stringBuffer.append(s);
+            stringBuffer.append(",");
+        }
+        return stringBuffer.toString();
+    }
+
+
 
     public String getTabCaption() {
-        return "Dict collect";
+        return "DictCollector";
     }
 
     public Component getUiComponent() {
-        return rootPane;
+        return splitPane;
     }
 
+    /*
+     * 下面是Table的一些方法，主要是结果面板的数据展示，可定制，修改如下数据即可
+     * */
+    private class Table extends JTable
+    {
+        public Table(TableModel tableModel)
+        {
+            super(tableModel);
+        }
+
+        @Override
+        public void changeSelection(int row, int col, boolean toggle, boolean extend)
+        {
+            LogEntry logEntry = log.get(row);
+            requestViewer.setMessage(logEntry.requestResponse.getRequest(), true);
+            responseViewer.setMessage(logEntry.requestResponse.getResponse(), false);
+            currentlyDisplayedItem = logEntry.requestResponse;
+
+            super.changeSelection(row, col, toggle, extend);
+        }
+    }
+    //上面板结果的数量，log是存储检测结果的
+    @Override
+    public int getRowCount()
+    {
+        return log.size();
+    }
+    //结果面板的字段数量
+    @Override
+    public int getColumnCount()
+    {
+        return 5;
+    }
+    //结果面板字段的值
+    @Override
+    public String getColumnName(int columnIndex)
+    {
+        switch (columnIndex)
+        {
+            case 0:
+                return "Id";
+            case 1:
+                return "Host";
+            case 2:
+                return "Paths";
+            case 3:
+                return "Params";
+            case 4:
+                return "Files";
+            default:
+                return "";
+        }
+    }
+    //获取数据到面板展示
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex)
+    {
+        LogEntry logEntry = log.get(rowIndex);
+
+        switch (columnIndex)
+        {
+            case 0:
+                return logEntry.id;
+            case 1:
+                return logEntry.Hosts;
+            case 2:
+                return logEntry.Paths;
+            case 3:
+                return logEntry.Params;
+            case 4:
+                return logEntry.Files;
+            default:
+                return "";
+        }
+    }
+
+    @Override
+    public IHttpService getHttpService() {
+        return null;
+    }
+
+    @Override
+    public byte[] getRequest() {
+        return new byte[0];
+    }
+
+    @Override
+    public byte[] getResponse() {
+        return new byte[0];
+    }
+
+    //存在漏洞的url信息类
+    //log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
+    //                            host,path,param,helpers.analyzeResponse(messageInfo.getResponse()).getStatusCode()));
+    private static class LogEntry
+    {
+        final int id;
+        final IHttpRequestResponsePersisted requestResponse;
+        //final URL url;
+        final String Hosts;
+        final String Paths;
+        final String Params;
+        final String Files;
+
+
+        LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String param, String files)
+        {
+            this.Files = files;
+            this.id = id;
+            this.requestResponse = requestResponse;
+            //this.Url = url;
+            this.Params = param;
+            this.Paths = path;
+            this.Hosts = host;
+        }
+    }
 
 }
