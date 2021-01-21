@@ -105,12 +105,21 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 if (arrList.size() > 0 && arrList.get(arrList.size()-1).contains(".")){
                     //是资源文件,生成文件数据数组
                     String file = arrList.get(arrList.size()-1);
-                    //将完整的文件路径也加进去，path
-                    files = new String[]{file, path};
-                    //移除dirs中的文件
-                    arrList.remove(arrList.size()-1);
-                    //将完整的路径也添加进去(去掉最后的一个文件名)，path
-                    arrList.add(arrList.size()-1, path.substring(0, path.lastIndexOf("/")));
+                    if (!file.endsWith(".css")
+                            || !file.endsWith(".png")
+                            || !file.endsWith(".gif")
+                            || !file.endsWith(".jpg")
+                            || !file.endsWith(".ico")
+                            || !file.endsWith(".woff2")
+                            || !file.endsWith(".svg")
+                            || !file.endsWith(".ttf")){
+                        //将完整的文件路径也加进去，path
+                        files = new String[]{file, path};
+                        //移除dirs中的文件
+                        arrList.remove(arrList.size()-1);
+                        //将完整的路径也添加进去(去掉最后的一个文件名)，path
+                        arrList.add(arrList.size()-1, path.substring(0, path.lastIndexOf("/")));
+                    }
                 }else {
                     //纯api的路径，不需要处理文件的
                     //将完整的路径也添加进去，path
@@ -209,15 +218,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 writer = new FileWriter(f, true);
                 for (String s :
                         files) {
-                    if ("".equals(s)
-                            || s.endsWith(".css")
-                            || s.endsWith(".png")
-                            || s.endsWith(".gif")
-                            || s.endsWith(".jpg")
-                            || s.endsWith(".ico")
-                            || s.endsWith(".woff2")
-                            || s.endsWith(".svg")
-                            || s.endsWith(".ttf")){
+                    if ("".equals(s)){
                         continue;
                     }
                     writer.write(s+"\r");
