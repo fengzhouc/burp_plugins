@@ -13,6 +13,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class BurpExtender extends AbstractTableModel implements IBurpExtender, IHttpListener, ITab, IMessageEditorController {
@@ -90,17 +92,23 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 IRequestInfo requestInfo = helpers.analyzeRequest(messageInfo);
                 URL url = requestInfo.getUrl();
                 String host = url.getHost();
-                String[] ha = host.split("\\.");
-                //剔除二级域名后的每个节点数据
-                String[] han = Arrays.copyOfRange(ha,0, ha.length-2);
-                List<String> arrDm = new ArrayList<String>(Arrays.asList(han));
-                //添加完整子域名串,但是在有多个节点数据的时候
-                if (han.length > 1) {
-                    String ats = arrayToStr(han, ".");
-                    arrDm.add(ats.substring(0, ats.length() - 1));
-                }
                 //子域名的数据数组，eg：a.b.c.d.com，a/b/c/a.b.c
-                String[] domains = arrDm.toArray(new String[0]);
+                String[] domains;
+                if (!isIP(host)){
+                    String[] ha = host.split("\\.");
+                    //剔除二级域名后的每个节点数据
+                    String[] han = Arrays.copyOfRange(ha,0, ha.length-2);
+                    List<String> arrDm = new ArrayList<String>(Arrays.asList(han));
+                    //添加完整子域名串,但是在有多个节点数据的时候
+                    if (han.length > 1) {
+                        String ats = arrayToStr(han, ".");
+                        arrDm.add(ats.substring(0, ats.length() - 1));
+                    }
+                    //子域名的数据数组，eg：a.b.c.d.com，a/b/c/a.b.c
+                    domains = arrDm.toArray(new String[0]);
+                }else {
+                    domains = new String[]{};
+                }
 
                 String path = url.getPath();
                 //目录的数据数组
@@ -156,6 +164,22 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
             fireTableRowsInserted(row, row);
         }
+    }
+
+    private boolean isIP(String addr) {
+
+        if ("".equals(addr) || addr.length() < 7 || addr.length() > 15) {
+            return false;
+        }
+        /*
+         * 判断IP格式和范围
+         */
+        String rexp = "^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$";
+        Pattern pat = Pattern.compile(rexp);
+        Matcher mat = pat.matcher(addr);
+        boolean ipAddress = mat.find();
+        return ipAddress;
+
     }
 
     private void write(String[] domains, String[] paths,String[] params, String[] files){
