@@ -104,27 +104,30 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 List<String> arrList = new ArrayList<String>(up);
                 if (arrList.size() > 0 && arrList.get(arrList.size()-1).contains(".")){
                     //是资源文件,生成文件数据数组
-                    String file = arrList.get(arrList.size()-1);
+                    String file = arrList.get(arrList.size()-1).trim();
+                    stdout.println(file);
+                    //文件名数据的类型白名单
                     if (!file.endsWith(".css")
-                            || !file.endsWith(".png")
-                            || !file.endsWith(".gif")
-                            || !file.endsWith(".jpg")
-                            || !file.endsWith(".ico")
-                            || !file.endsWith(".woff2")
-                            || !file.endsWith(".svg")
-                            || !file.endsWith(".ttf")){
+                            && !file.endsWith(".png")
+                            && !file.endsWith(".gif")
+                            && !file.endsWith(".jpg")
+                            && !file.endsWith(".ico")
+                            && !file.endsWith(".woff2")
+                            && !file.endsWith(".svg")
+                            && !file.endsWith(".ttf")){
                         //将完整的文件路径也加进去，path
                         files = new String[]{file, path};
-                        //移除dirs中的文件
-                        arrList.remove(arrList.size()-1);
-                        //将完整的路径也添加进去(去掉最后的一个文件名)，path
-                        arrList.add(arrList.size()-1, path.substring(0, path.lastIndexOf("/")));
                     }
+                    //移除dirs中的文件
+                    arrList.remove(file);
+                    //将完整的路径也添加进去(去掉最后的一个文件名)，path
+                    arrList.add(path.substring(0, path.lastIndexOf("/")));
                 }else {
                     //纯api的路径，不需要处理文件的
                     //将完整的路径也添加进去，path
                     arrList.add(path);
                 }
+                stdout.println(path + "##" + arrList.size());
                 dirs = arrList.toArray(new String[0]);
 
                 List<IParameter> params = requestInfo.getParameters();
@@ -140,7 +143,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 //设置面板数据
                 log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
                         toStr(han), toStr(dirs),toStr(ps), toStr(files)));
-
 
             }
             fireTableRowsInserted(row, row);
