@@ -91,8 +91,16 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 URL url = requestInfo.getUrl();
                 String host = url.getHost();
                 String[] ha = host.split("\\.");
-                //子域名的数据数组
+                //剔除二级域名后的每个节点数据
                 String[] han = Arrays.copyOfRange(ha,0, ha.length-2);
+                List<String> arrDm = new ArrayList<String>(Arrays.asList(han));
+                //添加完整子域名串,但是在有多个节点数据的时候
+                if (han.length > 1) {
+                    String ats = arrayToStr(han, ".");
+                    arrDm.add(ats.substring(0, ats.length() - 1));
+                }
+                //子域名的数据数组，eg：a.b.c.d.com，a/b/c/a.b.c
+                String[] domains = arrDm.toArray(new String[0]);
 
                 String path = url.getPath();
                 //目录的数据数组
@@ -105,7 +113,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 if (arrList.size() > 0 && arrList.get(arrList.size()-1).contains(".")){
                     //是资源文件,生成文件数据数组
                     String file = arrList.get(arrList.size()-1).trim();
-                    stdout.println(file);
+//                    stdout.println(file);
                     //文件名数据的类型白名单
                     if (!file.endsWith(".css")
                             && !file.endsWith(".png")
@@ -127,7 +135,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     //将完整的路径也添加进去，path
                     arrList.add(path);
                 }
-                stdout.println(path + "##" + arrList.size());
+//                stdout.println(path + "##" + arrList.size());
                 dirs = arrList.toArray(new String[0]);
 
                 List<IParameter> params = requestInfo.getParameters();
@@ -139,10 +147,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 //参数名的数据数组
                 String[] ps = pas.toArray(new String[0]);
                 //将结果写入文件
-                write(han, dirs, ps, files);
+                write(domains, dirs, ps, files);
                 //设置面板数据
                 log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
-                        toStr(han), toStr(dirs),toStr(ps), toStr(files)));
+                        arrayToStr(domains, ","), arrayToStr(dirs, ","),
+                        arrayToStr(ps, ","), arrayToStr(files, ",")));
 
             }
             fireTableRowsInserted(row, row);
@@ -236,14 +245,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     }
 
-    private String toStr(String[] arr){
+    private String arrayToStr(String[] arr, String splitSTR){
         if (null == arr){
             return "";
         }
         StringBuffer stringBuffer = new StringBuffer();
         for (String s : arr) {
             stringBuffer.append(s);
-            stringBuffer.append(",");
+            stringBuffer.append(splitSTR);
         }
         return stringBuffer.toString();
     }
