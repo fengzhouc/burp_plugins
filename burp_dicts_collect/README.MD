@@ -20,18 +20,20 @@ domainDict xxx
 #数据处理
 收集的数据还没有去重的，可以使用pydictor工具去重、合并数据
 
-合并数据(多个文件放在同一个目录)
+##合并数据(多个文件放在同一个目录)
 
 `python pydictor.py -tool combiner /my/dict/dirpath -o comb.txt`
 
-去重数据
+##去重数据
 
 `python pydictor.py -tool uniqifer comb.txt --output uniq.txt`
 
-去重并合并数据
+##去重并合并数据
 
 `python pydictor.py -tool uniqbiner /my/dict/dirpath --output uniq.txt`
 
-词频统计(去重前的数据来统计)
+##词频统计(去重前的数据来统计)
+
+修改 lib/data/data.py 中 counter_split 变量指定的分隔符 ( 默认 "\n" )，也可以统计其它字符分隔的字典词频.
 
 `python pydictor.py -tool counter vs comb.txt 1000`
