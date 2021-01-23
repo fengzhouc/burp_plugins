@@ -26,11 +26,11 @@ domainDict xxx
 
 ##去重数据
 
-`python pydictor.py -tool uniqifer comb.txt --output uniq.txt`
+`python pydictor.py -tool uniqifer comb.txt -o uniq.txt`
 
 ##去重并合并数据
 
-`python pydictor.py -tool uniqbiner /my/dict/dirpath --output uniq.txt`
+`python pydictor.py -tool uniqbiner /my/dict/dirpath -ou uniq.txt`
 
 ##词频统计(去重前的数据来统计)
 
