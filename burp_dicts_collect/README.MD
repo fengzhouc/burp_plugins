@@ -32,7 +32,7 @@ domainDict xxx
 
 `python pydictor.py -tool uniqbiner /my/dict/dirpath -ou uniq.txt`
 
-##词频统计(去重前的数据来统计)
+##词频统计
 
 修改 lib/data/data.py 中 counter_split 变量指定的分隔符 ( 默认 "\n" )，也可以统计其它字符分隔的字典词频.
 
