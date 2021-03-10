@@ -2,6 +2,7 @@ package burp;
 
 import burp.task.IDOR;
 import burp.task.JsonCsrfAndCors;
+import burp.task.Jsonp;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -87,6 +88,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 new JsonCsrfAndCors(helpers, callbacks, log, messageInfo, getRowCount()).run();
                 // 未授权访问
                 new IDOR(helpers, callbacks, log, messageInfo, getRowCount()).run();
+                // jsonp
+                new Jsonp(helpers, callbacks, log, messageInfo, getRowCount()).run();
 
             }
             fireTableRowsInserted(row, row);

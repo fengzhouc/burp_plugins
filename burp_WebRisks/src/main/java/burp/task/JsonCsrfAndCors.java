@@ -131,7 +131,7 @@ public class JsonCsrfAndCors extends VulTaskImpl {
                     //如果响应中的Access-Control-Allow-Origin跟修改的origin一样，则存在跨域
                     if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
                         if (message.equalsIgnoreCase("")) {
-                            message += " CORS Bypass";
+                            message += "CORS Bypass";
                         }else {
                             message += " & CORS Bypass";
                         }
