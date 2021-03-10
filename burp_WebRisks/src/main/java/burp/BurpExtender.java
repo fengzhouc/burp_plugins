@@ -1,5 +1,8 @@
 package burp;
 
+import burp.task.IDOR;
+import burp.task.JsonCsrfAndCors;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -7,7 +10,6 @@ import java.awt.*;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 
 public class BurpExtender extends AbstractTableModel implements IBurpExtender, IHttpListener, ITab, IMessageEditorController {
@@ -83,6 +85,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16) {//proxy4/spider8/scanner16/repeater64
                 // jsoncsrf的检测及CORS
                 new JsonCsrfAndCors(helpers, callbacks, log, messageInfo, getRowCount()).run();
+                // 未授权访问
+                new IDOR(helpers, callbacks, log, messageInfo, getRowCount()).run();
 
             }
             fireTableRowsInserted(row, row);
@@ -208,7 +212,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         final String Risk;
 
 
-        LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, Short status, String risk)
+        public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, Short status, String risk)
         {
             this.Status = status;
             this.id = id;

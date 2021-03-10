@@ -1,4 +1,8 @@
-package burp;
+package burp.task;
+
+import burp.*;
+import burp.impl.VulResult;
+import burp.impl.VulTaskImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,12 +10,12 @@ import java.util.Locale;
 
 public class JsonCsrfAndCors extends VulTaskImpl {
 
-    JsonCsrfAndCors(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo, int rows) {
+    public JsonCsrfAndCors(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo, int rows) {
         super(helpers, callbacks, log, messageInfo, rows);
     }
 
     @Override
-    VulResult run() {
+    public VulResult run() {
         String message = "";
         //返回信息
         IHttpService iHttpService = messageInfo.getHttpService();
@@ -29,10 +33,10 @@ public class JsonCsrfAndCors extends VulTaskImpl {
         //返回上面板信息
         String host = iHttpService.getHost();
         String path = analyzeRequest.getUrl().getPath();
-        //String param = param_list.toString();
         String method = analyzeRequest.getMethod();
         int id = rows + 1;
         IHttpRequestResponse messageInfo_r = null;
+        short status = status_code;
 
         //新请求body
         String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
@@ -57,7 +61,6 @@ public class JsonCsrfAndCors extends VulTaskImpl {
                 } else {
                     new_headers1.add(header);
                 }
-
             }
             //如果请求头中没有CT，则添加一个
             if (!hasCT) {
@@ -72,7 +75,7 @@ public class JsonCsrfAndCors extends VulTaskImpl {
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String response_info1 = new String(messageInfo1.getResponse());
             String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
-            List<String> response1_header_list = analyzeResponse1.getHeaders();
+            status = analyzeResponse1.getStatusCode();
 
             //如果状态码相同则可能存在问题
             if (status_code == analyzeResponse1.getStatusCode()
@@ -123,6 +126,7 @@ public class JsonCsrfAndCors extends VulTaskImpl {
                     String response_info1 = new String(messageInfo1.getResponse());
                     String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
                     List<String> response1_header_list = analyzeResponse1.getHeaders();
+                    status = analyzeResponse1.getStatusCode();
 
                     //如果响应中的Access-Control-Allow-Origin跟修改的origin一样，则存在跨域
                     if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
@@ -138,9 +142,9 @@ public class JsonCsrfAndCors extends VulTaskImpl {
         }
         if (!message.equalsIgnoreCase("")){
             log.add(new BurpExtender.LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo_r),
-                    host, path, method, status_code, message));
+                    host, path, method, status, message));
         }
 
-        return new VulResult(message, status_code, messageInfo_r, path, host);
+        return new VulResult(message, status, messageInfo_r, path, host);
     }
 }
