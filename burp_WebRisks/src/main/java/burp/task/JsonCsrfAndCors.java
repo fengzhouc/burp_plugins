@@ -96,7 +96,7 @@ public class JsonCsrfAndCors extends VulTaskImpl {
             if (credentials != null && credentials.contains("true")){
                 if (origin.contains("*")) {
                     if (message.equalsIgnoreCase("")) {
-                        message += " CORS Bypass";
+                        message += "CORS Bypass";
                     }else {
                         message += " & CORS Bypass";
                     }
