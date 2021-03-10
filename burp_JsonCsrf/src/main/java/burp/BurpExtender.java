@@ -79,7 +79,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         if (!messageIsRequest) {
             int row = log.size();
-            if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy/spider/scanner/repeater
+            String message = "";
+            if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16) {//proxy4/spider8/scanner16/repeater64
                 //返回信息
                 IHttpService iHttpService = messageInfo.getHttpService();
                 IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
@@ -112,7 +113,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     String header_first = "";
                     String CT = "Content-Type: application/x-www-form-urlencoded";
                     //新请求修改content-type
-                    boolean hasOrigin = false;
                     boolean hasCT = false;
                     for (String header :
                             new_headers) {
@@ -127,7 +127,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                     //如果请求头中没有CT，则添加一个
                     if (!hasCT){
-                        new_headers.add(CT);
+                        new_headers1.add(CT);
                     }
 
                     //新的请求包:content-type
@@ -141,21 +141,65 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     List<String> response1_header_list = analyzeResponse1.getHeaders();
 
                     //如果状态码相同则可能存在问题
-                    String message = "";
                     if (status_code == analyzeResponse1.getStatusCode()
                             && rep_body.equalsIgnoreCase(rep1_body)){
                         message = "JsonCsrf";
                     }
 
-                    if (!message.equalsIgnoreCase("")){
-                        log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo1),
-                                host, path, param, status_code, message));
-                    }
                     if (analyzeResponse1.getStatusCode() != 200){
                         log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo1),
                                 host, path, param, analyzeResponse1.getStatusCode(), ""));
                     }
 
+                }
+
+                /*
+                 * 跨域获取数据的条件
+                 * 1、Access-Control-Allow-Credentials为true
+                 * 2、Access-Control-Allow-Origin为*或者根据origin动态设置
+                 */
+                if (check(response_header_list, "Access-Control-Allow-Origin") != null){
+                    String origin = check(response_header_list, "Access-Control-Allow-Origin");
+                    String credentials = check(response_header_list, "Access-Control-Allow-Credentials");
+                    if (credentials != null && credentials.contains("true")){
+                        if (origin.contains("*")) {
+                            message += " & CORS Bypass";
+                        }else {
+                            List<String> new_headers = request_header_list;
+                            List<String> new_headers1 = new ArrayList<String>();
+                            String evilOrigin = "http://evil.com";
+                            //新请求修改origin
+                            for (String header :
+                                    new_headers) {
+                                if (header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
+                                    continue;
+                                }else {
+                                    new_headers1.add(header);
+                                }
+                            }
+                            new_headers1.add("Origin: "+evilOrigin);
+
+
+                            //新的请求包:content-type
+                            byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
+                            callbacks.printOutput(new String(req));
+                            IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+                            //新的返回包
+                            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
+                            String response_info1 = new String(messageInfo1.getResponse());
+                            String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
+                            List<String> response1_header_list = analyzeResponse1.getHeaders();
+
+                            //如果响应中的Access-Control-Allow-Origin跟修改的origin一样，则存在跨域
+                            if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
+                                message += " & CORS Bypass";
+                            }
+                        }
+                    }
+                }
+                if (!message.equalsIgnoreCase("")){
+                    log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
+                            host, path, param, status_code, message));
                 }
 
             }
@@ -169,7 +213,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             return null;
         }
         for (String s : headers) {
-            if (s.toLowerCase(Locale.ROOT).contains(header)){
+            if (s.toLowerCase(Locale.ROOT).contains(header.toLowerCase(Locale.ROOT))){
                 return s;
             }
         }
