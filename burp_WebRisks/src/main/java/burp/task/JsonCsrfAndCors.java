@@ -10,8 +10,8 @@ import java.util.Locale;
 
 public class JsonCsrfAndCors extends VulTaskImpl {
 
-    public JsonCsrfAndCors(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo, int rows) {
-        super(helpers, callbacks, log, messageInfo, rows);
+    public JsonCsrfAndCors(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
+        super(helpers, callbacks, log, messageInfo);
     }
 
     @Override
@@ -34,7 +34,6 @@ public class JsonCsrfAndCors extends VulTaskImpl {
         String host = iHttpService.getHost();
         String path = analyzeRequest.getUrl().getPath();
         String method = analyzeRequest.getMethod();
-        int id = rows + 1;
         IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
@@ -117,7 +116,7 @@ public class JsonCsrfAndCors extends VulTaskImpl {
                     new_headers1.add("Origin: "+evilOrigin);
 
 
-                    //新的请求包:content-type
+                    //新的请求包:ORIGIN
                     byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
 //                            callbacks.printOutput(new String(req));
                     IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
@@ -132,16 +131,17 @@ public class JsonCsrfAndCors extends VulTaskImpl {
                     if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
                         if (message.equalsIgnoreCase("")) {
                             message += "CORS Bypass";
+                            messageInfo_r = messageInfo1;
                         }else {
                             message += " & CORS Bypass";
+                            messageInfo_r = messageInfo1;
                         }
-                        messageInfo_r = messageInfo1;
                     }
                 }
             }
         }
         if (!message.equalsIgnoreCase("")){
-            logAdd(id, messageInfo_r, host, path, method, status, message);
+            logAdd(messageInfo_r, host, path, method, status, message);
         }
 
         return new VulResult(message, status, messageInfo_r, path, host);

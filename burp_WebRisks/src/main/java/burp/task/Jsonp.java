@@ -11,8 +11,8 @@ import java.util.Locale;
 
 public class Jsonp extends VulTaskImpl {
 
-    public Jsonp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo, int rows) {
-        super(helpers, callbacks, log, messageInfo, rows);
+    public Jsonp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
+        super(helpers, callbacks, log, messageInfo);
     }
 
     @Override
@@ -35,7 +35,6 @@ public class Jsonp extends VulTaskImpl {
         String host = iHttpService.getHost();
         String path = analyzeRequest.getUrl().getPath();
         String method = analyzeRequest.getMethod();
-        int id = rows + 1;
         IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
@@ -51,7 +50,7 @@ public class Jsonp extends VulTaskImpl {
                 || query.contains("json=")
                 || query.contains("call="))
         {
-            logAdd(id, messageInfo, host, path, method, status, "jsonp");
+            logAdd(messageInfo, host, path, method, status, "jsonp");
         }
 
         //2.url不含敏感参数,添加参数测试
@@ -83,7 +82,7 @@ public class Jsonp extends VulTaskImpl {
             // 如果返回body中有请求传入的函数qwert，则可能存在jsonp
             if (rep1_body.contains("qwert"))
             {	//id response host path status
-                logAdd(id, messageInfo1, host, path, method, status, "jsonp");
+                logAdd(messageInfo1, host, path, method, status, "jsonp");
             }
         }
 

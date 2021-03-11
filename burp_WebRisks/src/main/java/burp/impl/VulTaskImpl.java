@@ -11,14 +11,12 @@ public abstract class VulTaskImpl {
     protected IBurpExtenderCallbacks callbacks;
     protected List<BurpExtender.LogEntry> log;
     protected IHttpRequestResponse messageInfo;
-    protected int rows;
 
-    public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo, int rows) {
+    public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
         this.helpers = helpers;
         this.callbacks = callbacks;
         this.log = log;
         this.messageInfo = messageInfo;
-        this.rows = rows;
     }
 
     /*
@@ -90,7 +88,7 @@ public abstract class VulTaskImpl {
     }
     // 添加面板展示数据
     // 已经在列表的不添加
-    protected String logAdd(int id, IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk){
+    protected String logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk){
         boolean inside = false;
         for (BurpExtender.LogEntry le :
                 log) {
@@ -104,7 +102,7 @@ public abstract class VulTaskImpl {
             }
         }
         if (!inside){
-            log.add(new BurpExtender.LogEntry(id, callbacks.saveBuffersToTempFiles(requestResponse),
+            log.add(new BurpExtender.LogEntry(log.size()+1, callbacks.saveBuffersToTempFiles(requestResponse),
                     host, path, method, status, risk));
             return "success";
         }

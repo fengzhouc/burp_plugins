@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 
 public class IDOR extends VulTaskImpl {
 
-    public IDOR(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo, int rows) {
-        super(helpers, callbacks, log, messageInfo, rows);
+    public IDOR(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
+        super(helpers, callbacks, log, messageInfo);
     }
 
     @Override
@@ -38,7 +38,6 @@ public class IDOR extends VulTaskImpl {
         String path = analyzeRequest.getUrl().getPath();
         //String param = param_list.toString();
         String method = analyzeRequest.getMethod();
-        int id = rows + 1;
         IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
@@ -75,7 +74,7 @@ public class IDOR extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            logAdd(id, messageInfo_r, host, path, method, status, message);
+            logAdd(messageInfo_r, host, path, method, status, message);
         }
 
         return new VulResult(message, status_code, messageInfo_r, path, host);

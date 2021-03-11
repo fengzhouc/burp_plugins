@@ -89,13 +89,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             int row = log.size();
             if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy4/spider8/scanner16/repeater64
                 // jsoncsrf的检测及CORS
-                new JsonCsrfAndCors(helpers, callbacks, log, messageInfo, getRowCount()).run();
+                new JsonCsrfAndCors(helpers, callbacks, log, messageInfo).run();
                 // 未授权访问
-                new IDOR(helpers, callbacks, log, messageInfo, getRowCount()).run();
+                new IDOR(helpers, callbacks, log, messageInfo).run();
                 // jsonp
-                new Jsonp(helpers, callbacks, log, messageInfo, getRowCount()).run();
+                new Jsonp(helpers, callbacks, log, messageInfo).run();
                 // tomcat put jsp
-                new PutJsp(helpers, callbacks, log, messageInfo, getRowCount()).run();
+                new PutJsp(helpers, callbacks, log, messageInfo).run();
 
             }
             fireTableRowsInserted(row, row);
