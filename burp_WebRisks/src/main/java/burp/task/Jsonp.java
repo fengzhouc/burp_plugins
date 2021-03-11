@@ -51,8 +51,7 @@ public class Jsonp extends VulTaskImpl {
                 || query.contains("json=")
                 || query.contains("call="))
         {
-            log.add(new BurpExtender.LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
-                    host, path, method, status, "jsonp"));
+            logAdd(id, messageInfo, host, path, method, status, "jsonp");
         }
 
         //2.url不含敏感参数,添加参数测试
@@ -84,8 +83,7 @@ public class Jsonp extends VulTaskImpl {
             // 如果返回body中有请求传入的函数qwert，则可能存在jsonp
             if (rep1_body.contains("qwert"))
             {	//id response host path status
-                log.add(new BurpExtender.LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo1),
-                        host, path, method, status, "jsonp"));
+                logAdd(id, messageInfo1, host, path, method, status, "jsonp");
             }
         }
 

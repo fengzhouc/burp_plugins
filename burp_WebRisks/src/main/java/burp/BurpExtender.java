@@ -205,14 +205,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     //                            host,path,param,helpers.analyzeResponse(messageInfo.getResponse()).getStatusCode()));
     public static class LogEntry
     {
-        final int id;
+        public final int id;
         final IHttpRequestResponsePersisted requestResponse;
         //final URL url;
-        final String Host;
-        final String Path;
-        final String Method;
-        final Short Status;
-        final String Risk;
+        public final String Host;
+        public final String Path;
+        public final String Method;
+        public final Short Status;
+        public final String Risk;
 
 
         public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, Short status, String risk)

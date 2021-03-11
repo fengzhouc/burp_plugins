@@ -141,8 +141,7 @@ public class JsonCsrfAndCors extends VulTaskImpl {
             }
         }
         if (!message.equalsIgnoreCase("")){
-            log.add(new BurpExtender.LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo_r),
-                    host, path, method, status, message));
+            logAdd(id, messageInfo_r, host, path, method, status, message);
         }
 
         return new VulResult(message, status, messageInfo_r, path, host);
