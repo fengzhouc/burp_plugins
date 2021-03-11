@@ -3,6 +3,7 @@ package burp;
 import burp.task.IDOR;
 import burp.task.JsonCsrfAndCors;
 import burp.task.Jsonp;
+import burp.task.PutJsp;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -68,7 +69,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 //加载插件输出默认信息
                 String author = "alumm0x";
 
-                callbacks.printOutput("#Author:"+author);
+                callbacks.printOutput("#Author: "+author);
+                callbacks.printOutput("#Task: JsonCsrfAndCors");
+                callbacks.printOutput("#Task: IDOR");
+                callbacks.printOutput("#Task: Jsonp");
+                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
 
                 //注册监听器
                 callbacks.registerHttpListener(BurpExtender.this);
@@ -82,14 +87,15 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         if (!messageIsRequest) {
             int row = log.size();
-            String message = "";
-            if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16) {//proxy4/spider8/scanner16/repeater64
+            if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy4/spider8/scanner16/repeater64
                 // jsoncsrf的检测及CORS
                 new JsonCsrfAndCors(helpers, callbacks, log, messageInfo, getRowCount()).run();
                 // 未授权访问
                 new IDOR(helpers, callbacks, log, messageInfo, getRowCount()).run();
                 // jsonp
                 new Jsonp(helpers, callbacks, log, messageInfo, getRowCount()).run();
+                // tomcat put jsp
+                new PutJsp(helpers, callbacks, log, messageInfo, getRowCount()).run();
 
             }
             fireTableRowsInserted(row, row);
