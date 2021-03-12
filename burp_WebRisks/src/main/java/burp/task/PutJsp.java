@@ -19,8 +19,9 @@ public class PutJsp extends VulTaskImpl {
         /**
          * 检测逻辑
          * 1、options检测响应头Allow是否包含put
-         * 2、测试跟目录的put上传
-         * 3、步骤2不成功，可能是微服务，测试下一级目录的put上传
+         * 2、包含则测试根目录的put上传
+         * 3、步骤2不成功，可能是微服务，测试下一目录的options是否包含put
+         * 4、包含put则测试下一级目录的put上传
          * */
         /* CVE-2017-12615 tomcat 7.0.0 to 7.0.79
          * */
@@ -49,7 +50,7 @@ public class PutJsp extends VulTaskImpl {
         //获取body信息
         String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
         byte[] request_body = messageBody.getBytes();
-        //修改header
+        //修改header, 根目录的put上传
         List<String> new_headers1 = request_header_list;
         new_headers1.remove(0);
         new_headers1.add(0, "OPTIONS / HTTP/1.1");
