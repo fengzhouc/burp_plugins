@@ -19,6 +19,7 @@ public class PutJsp extends VulTaskImpl {
         /* CVE-2017-12615 tomcat 7.0.0 to 7.0.79
          * */
         String message = "";
+        VulResult result = null;
         //返回信息
         IHttpService iHttpService = messageInfo.getHttpService();
         IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
@@ -104,9 +105,9 @@ public class PutJsp extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            logAdd(messageInfo_r, host, path, method, status, message);
+            result = logAdd(messageInfo_r, host, path, method, status, message);
         }
 
-        return new VulResult(message, status_code, messageInfo_r, path, host);
+        return result;
     }
 }

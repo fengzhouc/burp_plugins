@@ -17,6 +17,7 @@ public class JsonCsrfAndCors extends VulTaskImpl {
     @Override
     public VulResult run() {
         String message = "";
+        VulResult result = null;
         //返回信息
         IHttpService iHttpService = messageInfo.getHttpService();
         IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
@@ -141,9 +142,9 @@ public class JsonCsrfAndCors extends VulTaskImpl {
             }
         }
         if (!message.equalsIgnoreCase("")){
-            logAdd(messageInfo_r, host, path, method, status, message);
+            result = logAdd(messageInfo_r, host, path, method, status, message);
         }
 
-        return new VulResult(message, status, messageInfo_r, path, host);
+        return result;
     }
 }

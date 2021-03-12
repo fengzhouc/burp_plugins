@@ -88,8 +88,9 @@ public abstract class VulTaskImpl {
     }
     // 添加面板展示数据
     // 已经在列表的不添加
-    protected String logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk){
+    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk){
         boolean inside = false;
+        int lastRow = log.size();
         for (BurpExtender.LogEntry le :
                 log) {
             if (le.Host.equalsIgnoreCase(host)
@@ -102,10 +103,10 @@ public abstract class VulTaskImpl {
             }
         }
         if (!inside){
-            log.add(new BurpExtender.LogEntry(log.size()+1, callbacks.saveBuffersToTempFiles(requestResponse),
+            log.add(new BurpExtender.LogEntry(lastRow, callbacks.saveBuffersToTempFiles(requestResponse),
                     host, path, method, status, risk));
-            return "success";
+            return new VulResult(lastRow, risk, status, requestResponse, path, host);
         }
-        return "inside";
+        return null;
     }
 }

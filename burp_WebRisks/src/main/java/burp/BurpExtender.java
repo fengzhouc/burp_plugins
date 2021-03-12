@@ -1,5 +1,6 @@
 package burp;
 
+import burp.impl.VulResult;
 import burp.task.IDOR;
 import burp.task.JsonCsrfAndCors;
 import burp.task.Jsonp;
@@ -8,6 +9,7 @@ import burp.task.PutJsp;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 //上面板，结果面板
                 Table logTable = new Table(BurpExtender.this);
+                logTable.setAutoCreateRowSorter(true); //排序报错
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
 
@@ -87,6 +90,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         if (!messageIsRequest) {
             int row = log.size();
+            VulResult result = null;
             if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy4/spider8/scanner16/repeater64
                 // jsoncsrf的检测及CORS
                 new JsonCsrfAndCors(helpers, callbacks, log, messageInfo).run();
@@ -98,7 +102,20 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 new PutJsp(helpers, callbacks, log, messageInfo).run();
 
             }
-            fireTableRowsInserted(row, row);
+            int lastRow = getRowCount();
+            /*
+            * 1、无结果, row == lastRow
+            * 2、1个或以上结果,row < lastRow
+            * 所以，有添加的时候在通过有添加数据
+            * */
+            if (row < lastRow) {
+                /*
+                 * fix：java.lang.IndexOutOfBoundsException: Invalid range
+                 * 没有添加数据还通知有数据被添加，会导致setAutoCreateRowSorter排序出现Invalid range异常
+                 */
+                //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
+                fireTableRowsInserted(row, lastRow - 1);
+            }
         }
     }
 

@@ -18,6 +18,7 @@ public class Jsonp extends VulTaskImpl {
     @Override
     public VulResult run() {
         String message = "";
+        VulResult result = null;
         //返回信息
         IHttpService iHttpService = messageInfo.getHttpService();
         IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
@@ -82,10 +83,10 @@ public class Jsonp extends VulTaskImpl {
             // 如果返回body中有请求传入的函数qwert，则可能存在jsonp
             if (rep1_body.contains("qwert"))
             {	//id response host path status
-                logAdd(messageInfo1, host, path, method, status, "jsonp");
+                result = logAdd(messageInfo1, host, path, method, status, "jsonp");
             }
         }
 
-        return new VulResult(message, status_code, messageInfo_r, path, host);
+        return result;
     }
 }
