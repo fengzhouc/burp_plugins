@@ -88,7 +88,7 @@ public class Jsonp extends VulTaskImpl {
             // 如果返回body中有请求传入的函数qwert，则可能存在jsonp
             if (rep1_body.contains("qwert"))
             {	//id response host path status
-                result = logAdd(messageInfo1, host, path, method, status, "jsonp");
+                result = logAdd(messageInfo1, host, path, method, status, "Jsonp");
             }
         }
 
