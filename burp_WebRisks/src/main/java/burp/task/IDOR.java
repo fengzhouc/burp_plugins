@@ -19,6 +19,10 @@ public class IDOR extends VulTaskImpl {
 
     @Override
     public VulResult run() {
+        /**
+         * 检测逻辑
+         * 1、删除cookie发起请求
+         * */
         String message = "";
         VulResult result = null;
         //返回信息

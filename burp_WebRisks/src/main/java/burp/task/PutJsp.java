@@ -16,6 +16,12 @@ public class PutJsp extends VulTaskImpl {
 
     @Override
     public VulResult run() {
+        /**
+         * 检测逻辑
+         * 1、options检测响应头Allow是否包含put
+         * 2、测试跟目录的put上传
+         * 3、步骤2不成功，可能是微服务，测试下一级目录的put上传
+         * */
         /* CVE-2017-12615 tomcat 7.0.0 to 7.0.79
          * */
         String message = "";

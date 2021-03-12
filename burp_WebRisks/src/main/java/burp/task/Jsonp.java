@@ -17,6 +17,11 @@ public class Jsonp extends VulTaskImpl {
 
     @Override
     public VulResult run() {
+        /**
+         * 检测逻辑
+         * 1、检查url参数是否包含回调函数字段
+         * 2、无字段则添加字段在测试
+         * */
         String message = "";
         VulResult result = null;
         //返回信息
