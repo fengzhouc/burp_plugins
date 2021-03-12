@@ -51,7 +51,7 @@ public class Jsonp extends VulTaskImpl {
                 || query.contains("json=")
                 || query.contains("call="))
         {
-            logAdd(messageInfo, host, path, method, status, "jsonp");
+            logAdd(messageInfo, host, path, method, status, "Jsonp");
         }
 
         //2.url不含敏感参数,添加参数测试
