@@ -7,10 +7,13 @@ import burp.task.Jsonp;
 import burp.task.PutJsp;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +23,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
-    private JSplitPane splitPane;
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
     private final List<LogEntry> log = new ArrayList<LogEntry>();
     private IHttpRequestResponse currentlyDisplayedItem;
     public PrintWriter stdout;
+    private JPanel contentPane;
+    private boolean kg = false; //默认关闭
+    private JLabel lbConnectStatus;
+    private Table logTable;
+    private TableRowSorter<TableModel> sorter;
+    private JTextField tfFilterText;
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -43,12 +51,67 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             @Override
             public void run()
             {
+                // 整个UI
+                contentPane = new JPanel();
+                contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+                contentPane.setLayout(new BorderLayout(0, 0));
+
+                // 设置的UI
+                JPanel panel = new JPanel();
+                FlowLayout flowLayout = (FlowLayout) panel.getLayout();
+                flowLayout.setAlignment(FlowLayout.LEFT);
+                // 设置：过滤的UI
+                JButton btnFilter = new JButton("Filter");
+                btnFilter.setToolTipText("filter data.");
+                btnFilter.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BurpExtender.this.Filter();
+                    }
+                });
+                panel.add(btnFilter);
+                tfFilterText = new JTextField();
+                tfFilterText.setColumns(20);
+                tfFilterText.setText("regex text");
+                panel.add(tfFilterText);
+
+                JButton btnConn = new JButton("OpenOrClose");
+                btnConn.setToolTipText("open or close the pligin to run.");
+                btnConn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BurpExtender.this.OpenOrClose();
+                    }
+                });
+                panel.add(btnConn);
+
+                JLabel lbConnectInfo = new JLabel("IsRun:");
+                panel.add(lbConnectInfo);
+                lbConnectStatus = new JLabel("False");
+                lbConnectStatus.setForeground(new Color(255, 0, 0));
+                panel.add(lbConnectStatus);
+
+                JButton btnClear = new JButton("Clear");
+                btnClear.setToolTipText("clear all the result.");
+                btnClear.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BurpExtender.this.ClearResult();
+                    }
+                });
+                panel.add(btnClear);
+                //添加设置的UI到总UI
+                contentPane.add(panel, BorderLayout.NORTH);
+
+                //下面是结果面板的ui
                 //分割界面
-                splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); //上下分割
+                JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); //上下分割
+                splitPane.setDividerLocation(300);
+                contentPane.add(splitPane, BorderLayout.CENTER);
 
                 //上面板，结果面板
-                Table logTable = new Table(BurpExtender.this);
-                logTable.setAutoCreateRowSorter(true); //排序报错
+                logTable = new Table(BurpExtender.this);
+//                logTable.setAutoCreateRowSorter(true); //TODO 排序后添加数据会报错
+//                sorter = new TableRowSorter<TableModel>(BurpExtender.this);
+//                logTable.setRowSorter(sorter);
+
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
 
@@ -61,6 +124,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 splitPane.setRightComponent(tabs);
 
                 //定制UI组件
+                callbacks.customizeUiComponent(contentPane);
+                callbacks.customizeUiComponent(panel);
                 callbacks.customizeUiComponent(splitPane);
                 callbacks.customizeUiComponent(logTable);
                 callbacks.customizeUiComponent(scrollPane);
@@ -74,7 +139,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 callbacks.printOutput("#Author: "+author);
                 callbacks.printOutput("#Task: JsonCsrfAndCors");
-                callbacks.printOutput("#Task: IDOR");
+//                callbacks.printOutput("#Task: IDOR"); // 误报太多, 待改进
                 callbacks.printOutput("#Task: Jsonp");
                 callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
 
@@ -85,17 +150,47 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
 
     }
+    private void OpenOrClose(){
+        // 如果现在close，则open，反之则close
+        if(kg){
+            lbConnectStatus.setText("False");
+            kg = false;
+            lbConnectStatus.setForeground(new Color(255,0,0));
+        }else{
+            lbConnectStatus.setText("True");
+            kg = true;
+            lbConnectStatus.setForeground(new Color(0,255,0));
+        }
+    }
+    //清空数据
+    private void ClearResult(){
+        log.clear();
+        //通知表格数据变更了
+        fireTableDataChanged();
+    }
+    //过滤数据的功能 TODO 待实现
+    private void Filter(){
+//        String text = tfFilterText.getText();
+//        if (text.length() == 0) {
+//            sorter.setRowFilter(null);
+//        } else {
+//            sorter.setRowFilter(RowFilter.regexFilter(text));
+//        }
+    }
 
 
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
+        if (!kg){
+            return;
+        }
         if (!messageIsRequest) {
             int row = log.size();
             VulResult result = null;
             if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy4/spider8/scanner16/repeater64
                 // jsoncsrf的检测及CORS
                 new JsonCsrfAndCors(helpers, callbacks, log, messageInfo).run();
-                // 未授权访问
-                new IDOR(helpers, callbacks, log, messageInfo).run();
+                // 未授权访问, 误报太多, 待改进
+//                new IDOR(helpers, callbacks, log, messageInfo).run();
                 // jsonp
                 new Jsonp(helpers, callbacks, log, messageInfo).run();
                 // tomcat put jsp
@@ -125,7 +220,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     }
 
     public Component getUiComponent() {
-        return splitPane;
+        return contentPane;
     }
 
     /*
@@ -187,26 +282,35 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
-        LogEntry logEntry = log.get(rowIndex);
+        // 解决setAutoCreateRowSorter排序后,获取row乱了,导致获取表中数据时出现异常
+        LogEntry logEntry = log.get(logTable.convertRowIndexToModel(rowIndex));
+        if (logEntry != null) {
 
-        switch (columnIndex)
-        {
-            case 0:
-                return logEntry.id;
-            case 1:
-                return logEntry.Host;
-            case 2:
-                return logEntry.Path;
-            case 3:
-                return logEntry.Method;
-            case 4:
-                return logEntry.Status;
-            case 5:
-                return logEntry.Risk;
-            default:
-                return "";
+            switch (columnIndex) {
+                case 0:
+                    return logEntry.id;
+                case 1:
+                    return logEntry.Host;
+                case 2:
+                    return logEntry.Path;
+                case 3:
+                    return logEntry.Method;
+                case 4:
+                    return logEntry.Status;
+                case 5:
+                    return logEntry.Risk;
+                default:
+                    return "";
+            }
+        }else {
+            return "";
         }
     }
+
+//    @Override
+//    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+//        super.setValueAt(aValue, logTable.convertRowIndexToModel(rowIndex), columnIndex);
+//    }
 
     @Override
     public IHttpService getHttpService() {
