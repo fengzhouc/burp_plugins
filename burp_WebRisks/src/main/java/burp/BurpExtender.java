@@ -30,10 +30,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public PrintWriter stdout;
     private JPanel contentPane;
     private boolean kg = false; //默认关闭
-    private JLabel lbConnectStatus;
-    private Table logTable;
-    private TableRowSorter<TableModel> sorter;
-    private JTextField tfFilterText;
+    private JLabel lbConnectStatus; //插件运行状态
+    private Table logTable; //视图table对象
+    private TableRowSorter<TableModel> sorter; //table排序对象
+    private JTextField tfFilterText; //过滤的条件输入框
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -62,7 +62,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 flowLayout.setAlignment(FlowLayout.LEFT);
                 // 设置：过滤的UI
                 JButton btnFilter = new JButton("Filter");
-                btnFilter.setToolTipText("filter data.");
+                btnFilter.setToolTipText("filter data: support regex");
                 btnFilter.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         BurpExtender.this.Filter();
@@ -108,9 +108,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 //上面板，结果面板
                 logTable = new Table(BurpExtender.this);
-//                logTable.setAutoCreateRowSorter(true); //TODO 排序后添加数据会报错
-//                sorter = new TableRowSorter<TableModel>(BurpExtender.this);
-//                logTable.setRowSorter(sorter);
+                //TODO 排序后添加数据会报错
+                sorter = new TableRowSorter<TableModel>(BurpExtender.this);
+                logTable.setRowSorter(sorter);
 
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
@@ -168,14 +168,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //通知表格数据变更了
         fireTableDataChanged();
     }
-    //过滤数据的功能 TODO 待实现
+    //过滤数据的功能 TODO 待实现,会报错
     private void Filter(){
-//        String text = tfFilterText.getText();
-//        if (text.length() == 0) {
-//            sorter.setRowFilter(null);
-//        } else {
-//            sorter.setRowFilter(RowFilter.regexFilter(text));
-//        }
+        String text = tfFilterText.getText();
+        if (text.length() == 0) {
+            sorter.setRowFilter(null);
+        } else {
+            sorter.setRowFilter(RowFilter.regexFilter(text));
+        }
     }
 
 
@@ -236,7 +236,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         @Override
         public void changeSelection(int row, int col, boolean toggle, boolean extend)
         {
-            LogEntry logEntry = log.get(row);
+            LogEntry logEntry = log.get(logTable.convertRowIndexToModel(row));
             requestViewer.setMessage(logEntry.requestResponse.getRequest(), true);
             responseViewer.setMessage(logEntry.requestResponse.getResponse(), false);
             currentlyDisplayedItem = logEntry.requestResponse;
