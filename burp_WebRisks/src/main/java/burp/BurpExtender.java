@@ -71,7 +71,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 panel.add(btnFilter);
                 tfFilterText = new JTextField();
                 tfFilterText.setColumns(20);
-                tfFilterText.setText("regex text");
+                tfFilterText.setText("");
                 panel.add(tfFilterText);
 
                 JButton btnConn = new JButton("OpenOrClose");
