@@ -31,7 +31,7 @@ public class Struts {
             callbacks.printOutput("InterruptedException: " + e.getMessage());
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
-        if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val) != null) {
+        if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
             log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "CVE-2019-0230 hack!"));
         }else {
             log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "CVE-2019-0230 pass"));
