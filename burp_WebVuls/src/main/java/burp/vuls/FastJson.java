@@ -16,7 +16,7 @@ public class FastJson {
     public static List<BurpExtender.LogEntry> log;
     public static IHttpRequestResponse messageInfo;
 
-    public static void Poc0() {
+    public static void JdbcRowSetImpl_0() {
         // TODO 待完成
         // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
@@ -51,7 +51,7 @@ public class FastJson {
         }
     }
 
-    public static void Poc1() {
+    public static void JdbcRowSetImpl_1() {
         // TODO 待完成
         // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
