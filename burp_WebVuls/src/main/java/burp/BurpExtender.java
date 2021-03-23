@@ -95,13 +95,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 btnConn.setToolTipText("start checking payload");
                 btnConn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
-                        // 更新运行状态
-                        lbConnectStatus.setText("True");
-                        lbConnectStatus.setForeground(new Color(0,255,0));
                         BurpExtender.this.Start();
-                        // 更新运行状态
-                        lbConnectStatus.setText("False");
-                        lbConnectStatus.setForeground(new Color(255,0,0));
                     }
                 });
                 panel.add(btnConn);
@@ -114,11 +108,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 });
                 panel.add(btnClear);
-                JLabel lbConnectInfo = new JLabel("IsRun:");
-                panel.add(lbConnectInfo);
-                lbConnectStatus = new JLabel("False");
-                lbConnectStatus.setForeground(new Color(255, 0, 0));
-                panel.add(lbConnectStatus);
+
+//                JLabel lbConnectInfo = new JLabel("IsRun:");
+//                panel.add(lbConnectInfo);
+//                lbConnectStatus = new JLabel("False");
+//                lbConnectStatus.setForeground(new Color(255, 0, 0));
+//                panel.add(lbConnectStatus);
                 //添加设置的UI到总UI
                 contentPane.add(panel, BorderLayout.NORTH);
 
@@ -211,7 +206,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
         }
         fireTableDataChanged();
-
+        isRun = false;
     }
     //清空数据
     private void ClearResult(){
