@@ -31,9 +31,7 @@ public class HttpRequestThread implements Runnable {
         List<String> request_header_list = analyzeRequest.getHeaders();
 
         //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        String method = analyzeRequest.getMethod();
+        String url = helpers.analyzeRequest(messageInfo).getUrl().toString();
         IHttpRequestResponse messageInfo;
         short status = status_code;
 
@@ -41,7 +39,7 @@ public class HttpRequestThread implements Runnable {
         byte[] req = helpers.buildHttpMessage(request_header_list, this.poc);
 //        callbacks.printOutput(new String(req));
         messageInfo = callbacks.makeHttpRequest(iHttpService, req);
-        resulemessageInfo = new HttpResult("", status, messageInfo, path, host, method);
+        resulemessageInfo = new HttpResult(url, messageInfo);
     }
 
     public HttpResult getResulemessageInfo(){

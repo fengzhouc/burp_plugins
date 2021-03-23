@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private IHttpRequestResponse currentlyDisplayedItem;
     public PrintWriter stdout;
     private JPanel contentPane;
+    private JLabel lbConnectStatus; //插件运行状态
+    private boolean isRun = false;
     private Table logTable; //视图table对象
     JComboBox comboBox;
     JComboBox comboBoxCve;
@@ -66,7 +69,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 FlowLayout flowLayout = (FlowLayout) panel.getLayout();
                 flowLayout.setAlignment(FlowLayout.LEFT);
                 //type的下拉框
-                JLabel lbConnectInfo = new JLabel("Type:");
+                JLabel typeJ = new JLabel("Type:");
                 comboBox = new JComboBox(type);
                 comboBox.setToolTipText("what‘s type");
                 //对应type的cve下拉框
@@ -83,7 +86,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         comboBoxCve.addItem(cves[index][i]);
                     }
                 });
-                panel.add(lbConnectInfo);
+                panel.add(typeJ);
                 panel.add(comboBox);
                 panel.add(cve);
                 panel.add(comboBoxCve);
@@ -92,7 +95,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 btnConn.setToolTipText("start checking payload");
                 btnConn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
+                        // 更新运行状态
+                        lbConnectStatus.setText("True");
+                        lbConnectStatus.setForeground(new Color(0,255,0));
                         BurpExtender.this.Start();
+                        // 更新运行状态
+                        lbConnectStatus.setText("False");
+                        lbConnectStatus.setForeground(new Color(255,0,0));
                     }
                 });
                 panel.add(btnConn);
@@ -105,6 +114,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 });
                 panel.add(btnClear);
+                JLabel lbConnectInfo = new JLabel("IsRun:");
+                panel.add(lbConnectInfo);
+                lbConnectStatus = new JLabel("False");
+                lbConnectStatus.setForeground(new Color(255, 0, 0));
+                panel.add(lbConnectStatus);
                 //添加设置的UI到总UI
                 contentPane.add(panel, BorderLayout.NORTH);
 
@@ -157,6 +171,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     }
     private void Start(){
+        isRun = true;
         //TODO 启动检测，根据需要检测的内容,通过反射的方式
         String type = comboBox.getSelectedItem().toString();
         String cve = comboBoxCve.getSelectedItem().toString();
@@ -213,23 +228,16 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         messageInfo = requestResponses[0];
         JMenuItem menuItem = new JMenuItem("Send to WebVuls");
         menus.add(menuItem);
-        //响应信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        short status_code = analyzeResponse.getStatusCode();
-        //请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
         //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        String method = analyzeRequest.getMethod();
+        String url = helpers.analyzeRequest(messageInfo).getUrl().toString();
+
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // logTable.addRowSelectionInterval();
                 int row = log.size();
                 LogEntry logEntry = new LogEntry(row, callbacks.saveBuffersToTempFiles(messageInfo),
-                        host, path, method, status_code, "Origin");
+                        url, "", "", "Origin");
                 log.add(logEntry);
                 fireTableRowsInserted(row, row);
             }
@@ -281,7 +289,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     @Override
     public int getColumnCount()
     {
-        return 6;
+        return 5;
     }
     //结果面板字段的值
     @Override
@@ -292,14 +300,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             case 0:
                 return "Id";
             case 1:
-                return "Host";
+                return "Url";
             case 2:
-                return "Path";
+                return "CVE";
             case 3:
-                return "Method";
+                return "Condition";
             case 4:
-                return "Status";
-            case 5:
                 return "Risk";
             default:
                 return "";
@@ -317,14 +323,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 case 0:
                     return logEntry.id;
                 case 1:
-                    return logEntry.Host;
+                    return logEntry.Url;
                 case 2:
-                    return logEntry.Path;
+                    return logEntry.CVE;
                 case 3:
-                    return logEntry.Method;
+                    return logEntry.Condition;
                 case 4:
-                    return logEntry.Status;
-                case 5:
                     return logEntry.Risk;
                 default:
                     return "";
@@ -357,22 +361,19 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         public final int id;
         final IHttpRequestResponsePersisted requestResponse;
         //final URL url;
-        public final String Host;
-        public final String Path;
-        public final String Method;
-        public final Short Status;
+        public final String Url;
+        public final String CVE;
+        public final String Condition;
         public final String Risk;
 
 
-        public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, Short status, String risk)
+        public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String url, String cve, String condition, String risk)
         {
-            this.Status = status;
             this.id = id;
             this.requestResponse = requestResponse;
-            //this.Url = url;
-            this.Method = method;
-            this.Path = path;
-            this.Host = host;
+            this.Url = url;
+            this.CVE = cve;
+            this.Condition = condition;
             this.Risk = risk;
         }
 

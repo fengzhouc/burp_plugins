@@ -28,8 +28,8 @@ public class Struts {
         Thread thread = new Thread(httpRequestThread);
         thread.start();
         try {
-            // 等待10s
-            thread.join(10000);
+            // 等待，直到运行结束
+            thread.join();
         } catch (InterruptedException e) {
             OutputStream out = callbacks.getStderr();
             PrintWriter p = new PrintWriter(out);
@@ -43,9 +43,9 @@ public class Struts {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "CVE-2019-0230 hack!"));
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230", "", "hack!"));
         }else {
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "CVE-2019-0230 pass"));
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230", "", "pass"));
         }
     }
 

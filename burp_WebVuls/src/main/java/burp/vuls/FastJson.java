@@ -18,6 +18,7 @@ public class FastJson {
 
     public static void Poc0() {
         // TODO 待完成
+        // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         // 据说可以覆盖所有版本
@@ -29,8 +30,8 @@ public class FastJson {
         Thread thread = new Thread(httpRequestThread);
         thread.start();
         try {
-            // 等待10s
-            Thread.sleep(10000);
+            // 等待，直到运行结束
+            thread.join();
         } catch (InterruptedException e) {
             OutputStream out = callbacks.getStderr();
             PrintWriter p = new PrintWriter(out);
@@ -44,16 +45,15 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "Poc0 hack!"));
-        } else if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0){
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc0 hack!"));
-        }else {
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc0 pass"));
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+        } else {
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 
     public static void Poc1() {
         // TODO 待完成
+        // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         // 据说可以覆盖所有版本
@@ -65,8 +65,8 @@ public class FastJson {
         try {
             Thread thread = new Thread(httpRequestThread);
             thread.start();
-            // 等待10s
-            Thread.sleep(10000);
+            // // 等待，直到运行结束
+            thread.join();
         } catch (Exception e) {
             OutputStream out = callbacks.getStderr();
             PrintWriter p = new PrintWriter(out);
@@ -80,11 +80,9 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "Poc0 hack!"));
-        } else if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0){
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc1 hack!"));
-        }else {
-            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc1 pass"));
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+        } else {
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 }
