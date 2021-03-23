@@ -67,13 +67,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 comboBox.setToolTipText("what‘s type");
                 //对应type的cve下拉框
                 JLabel cve = new JLabel("CVE:");
-                comboBoxCve = new JComboBox();
+                comboBoxCve = new JComboBox(cves[0]);
                 comboBoxCve.setToolTipText("what‘s cve");
                 // 为组合框的选择动作注册监听事件,当此组合框的选择有变化时,另一个组合框自动更新内容
                 comboBox.addActionListener(e -> {
                     comboBoxCve.removeAllItems();
                     int index = comboBox.getSelectedIndex();
-                    callbacks.printOutput(index + "");
+//                    callbacks.printOutput(index + "");
                     for(int i=0; i<cves[index].length; i++) {
 
                         comboBoxCve.addItem(cves[index][i]);
@@ -180,14 +180,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 Method method = clazz.getMethod(cve);
                 method.invoke(null);
             }
-        }catch (ClassNotFoundException | NoSuchMethodException e){
-
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+        }catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e){
+            callbacks.printOutput(e.getMessage());
         }
         fireTableDataChanged();
 
