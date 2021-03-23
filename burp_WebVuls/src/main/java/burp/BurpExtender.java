@@ -9,6 +9,9 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -32,8 +35,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     JComboBox comboBoxCve;
     IHttpRequestResponse messageInfo;
     // TODO 每次添加新的漏洞时，这里添加对应数据，type为对应的类名，cves为对应漏洞的方法名
-    private String[] type = {"Struts"};
-    private String[][] cves = {{"all", "CVE_2019_0230"}};
+    private String[] type = {"Struts", "FastJson"};
+    private String[][] cves = {{"all", "CVE_2019_0230"},
+                                {"all","Poc0","Poc1"}};
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -143,7 +147,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 String author = "alumm0x";
 
                 callbacks.printOutput("#Author: "+author);
-                callbacks.printOutput("#Task: JsonCsrfAndCors");
+//                callbacks.printOutput("#Task: JsonCsrfAndCors");
 
                 //注册监听器
                 callbacks.registerHttpListener(BurpExtender.this);
@@ -181,7 +185,15 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 method.invoke(null);
             }
         }catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e){
-            callbacks.printOutput(e.getMessage());
+            OutputStream out = callbacks.getStderr();
+            PrintWriter p = new PrintWriter(out);
+            e.printStackTrace(p);
+            try {
+                p.flush();
+                out.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
         fireTableDataChanged();
 
@@ -322,24 +334,19 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
     }
 
-//    @Override
-//    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-//        super.setValueAt(aValue, logTable.convertRowIndexToModel(rowIndex), columnIndex);
-//    }
-
     @Override
     public IHttpService getHttpService() {
-        return null;
+        return currentlyDisplayedItem.getHttpService();
     }
 
     @Override
     public byte[] getRequest() {
-        return new byte[0];
+        return currentlyDisplayedItem.getRequest();
     }
 
     @Override
     public byte[] getResponse() {
-        return new byte[0];
+        return currentlyDisplayedItem.getResponse();
     }
 
     //存在漏洞的url信息类

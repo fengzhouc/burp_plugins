@@ -10,7 +10,7 @@ public class HttpRequestThread implements Runnable {
     public IBurpExtenderCallbacks callbacks;
     public IHttpRequestResponse messageInfo;
     public byte[] poc;
-    public HttpResult resulemessageInfo;
+    public HttpResult resulemessageInfo = null;
 
     public HttpRequestThread(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, IHttpRequestResponse messageInfo, byte[] body){
         this.helpers = helpers;
@@ -39,7 +39,7 @@ public class HttpRequestThread implements Runnable {
 
         //新的请求包
         byte[] req = helpers.buildHttpMessage(request_header_list, this.poc);
-        callbacks.printOutput(new String(req));
+//        callbacks.printOutput(new String(req));
         messageInfo = callbacks.makeHttpRequest(iHttpService, req);
         resulemessageInfo = new HttpResult("", status, messageInfo, path, host, method);
     }

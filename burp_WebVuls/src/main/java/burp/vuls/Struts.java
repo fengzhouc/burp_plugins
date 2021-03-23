@@ -4,6 +4,9 @@ import burp.*;
 import burp.util.HttpRequestThread;
 import burp.util.HttpResult;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 
 public class Struts {
@@ -28,7 +31,15 @@ public class Struts {
             // 等待10s
             thread.join(10000);
         } catch (InterruptedException e) {
-            callbacks.printOutput("InterruptedException: " + e.getMessage());
+            OutputStream out = callbacks.getStderr();
+            PrintWriter p = new PrintWriter(out);
+            e.printStackTrace(p);
+            try {
+                p.flush();
+                out.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
