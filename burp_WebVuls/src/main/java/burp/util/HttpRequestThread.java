@@ -2,47 +2,44 @@ package burp.util;
 
 import burp.*;
 
-import java.util.List;
-
 public class HttpRequestThread implements Runnable {
 
-    public IExtensionHelpers helpers;
-    public IBurpExtenderCallbacks callbacks;
-    public IHttpRequestResponse messageInfo;
-    public byte[] poc;
+    public String poc;
     public HttpResult resulemessageInfo = null;
 
-    public HttpRequestThread(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, IHttpRequestResponse messageInfo, byte[] body){
-        this.helpers = helpers;
-        this.callbacks = callbacks;
-        this.messageInfo = messageInfo;
-        this.poc = body;
+    public HttpRequestThread(String poc){
+        this.poc = poc;
     }
 
     @Override
     public void run() {
         //返回信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = helpers.analyzeResponse(messageInfo.getResponse());
-        short status_code = analyzeResponse.getStatusCode();
-
-        //请求信息
-        IRequestInfo analyzeRequest = helpers.analyzeRequest(messageInfo);
-        List<String> request_header_list = analyzeRequest.getHeaders();
+        IHttpService iHttpService = BurpExtender.messageInfo.getHttpService();
 
         //返回上面板信息
-        String url = helpers.analyzeRequest(messageInfo).getUrl().toString();
-        IHttpRequestResponse messageInfo;
-        short status = status_code;
+        String url = BurpExtender.helpers.analyzeRequest(BurpExtender.messageInfo).getUrl().toString();
 
         //新的请求包
-        byte[] req = helpers.buildHttpMessage(request_header_list, this.poc);
-//        callbacks.printOutput(new String(req));
-        messageInfo = callbacks.makeHttpRequest(iHttpService, req);
+//        byte[] req = buildMessage();
+        byte[] req = BurpExtender.helpers.buildHttpMessage(BurpExtender.helpers.analyzeRequest(BurpExtender.messageInfo).getHeaders(), poc.getBytes());
+
+        BurpExtender.callbacks.printOutput(new String(req));
+        IHttpRequestResponse messageInfo = BurpExtender.callbacks.makeHttpRequest(iHttpService, req);
         resulemessageInfo = new HttpResult(url, messageInfo);
     }
 
     public HttpResult getResulemessageInfo(){
         return resulemessageInfo;
+    }
+
+    // 指定位置填充poc
+    private byte[] buildMessage(){
+        byte[] editMessage = BurpExtender.editRequestViewer.getMessage();
+        byte[] httpMessage = editMessage;
+        String request = new String(editMessage);
+        if (!request.equalsIgnoreCase("")){
+            httpMessage = request.replace("\\$poc\\$", this.poc).getBytes();
+        }
+        return httpMessage;
     }
 }

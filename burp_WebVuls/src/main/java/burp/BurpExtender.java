@@ -15,24 +15,25 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class BurpExtender extends AbstractTableModel implements IBurpExtender, IHttpListener, ITab, IMessageEditorController, IContextMenuFactory {
 
-    private IBurpExtenderCallbacks callbacks;
-    private IExtensionHelpers helpers;
+    public static IBurpExtenderCallbacks callbacks;
+    public static IExtensionHelpers helpers;
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
-    private final List<LogEntry> log = new ArrayList<LogEntry>();
+    public static final List<LogEntry> log = new ArrayList<LogEntry>();
     private IHttpRequestResponse currentlyDisplayedItem;
     public PrintWriter stdout;
     private JPanel contentPane;
-    private JLabel lbConnectStatus; //插件运行状态
+    public static IMessageEditor editRequestViewer; //发送过来的request
     private boolean isRun = false;
     private Table logTable; //视图table对象
-    JComboBox comboBox;
-    JComboBox comboBoxCve;
-    IHttpRequestResponse messageInfo;
+    private JComboBox comboBox;
+    private JComboBox comboBoxCve;
+    public static IHttpRequestResponse messageInfo;
     // TODO 每次添加新的漏洞时，这里添加对应数据，type为对应的类名，cves为对应漏洞的方法名
     private String[] type = {"Struts", "FastJson"};
     private String[][] cves = {{"all", "CVE_2019_0230"},
@@ -41,9 +42,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
         //回调对象
-        this.callbacks = callbacks;
+        BurpExtender.callbacks = callbacks;
         //获取扩展helper与stdout对象
-        this.helpers = callbacks.getHelpers();
+        BurpExtender.helpers = callbacks.getHelpers();
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
 
         callbacks.setExtensionName("WebVuls");
@@ -109,32 +110,69 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 lbConnectInfo.setForeground(new Color(255, 0, 0));
                 panel.add(lbConnectInfo);
 
-                //添加设置的UI到总UI
-                contentPane.add(panel, BorderLayout.NORTH);
-
-                JSplitPane splitPaneAll = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); //上下分割
-                contentPane.add(splitPaneAll, BorderLayout.CENTER);
-
                 //下面是结果面板的ui
                 //分割界面
                 JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); //上下分割
                 splitPane.setDividerLocation(300);
-                contentPane.add(splitPane, BorderLayout.CENTER);
-
                 //上面板，结果面板
                 logTable = new Table(BurpExtender.this);
-
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
-                splitPane.setLeftComponent(scrollPane);
-
                 //下面板，请求响应的面板
                 JTabbedPane tabs = new JTabbedPane();
                 requestViewer = callbacks.createMessageEditor(BurpExtender.this, false);
                 responseViewer = callbacks.createMessageEditor(BurpExtender.this, false);
                 tabs.addTab("Request", requestViewer.getComponent());
                 tabs.addTab("Response", responseViewer.getComponent());
+                splitPane.setLeftComponent(scrollPane);
                 splitPane.setRightComponent(tabs);
 
+                // 右request设置面板
+                JPanel rJpanel = new JPanel();
+                rJpanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+                rJpanel.setLayout(new BorderLayout(0, 0));
+                editRequestViewer = callbacks.createMessageEditor(BurpExtender.this, true);
+                JTabbedPane editTabs = new JTabbedPane();
+                editTabs.addTab("Positions", editRequestViewer.getComponent());
+                // 按钮UI
+                JPanel rJpanelb = new JPanel();
+                BoxLayout boxLayout = new BoxLayout(rJpanelb, BoxLayout.Y_AXIS);
+                rJpanelb.setLayout(boxLayout);
+                JButton rtnClear = new JButton("add$");
+                rtnClear.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        byte[] selectData = editRequestViewer.getSelectedData();
+                        byte[] newData = new String(editRequestViewer.getMessage()).replace(new String(selectData), "$poc$").getBytes();
+                        editRequestViewer.setMessage(newData, true);
+                    }
+                });
+                JButton rtnClear1 = new JButton("clear$");
+                rtnClear1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        editRequestViewer.setMessage(messageInfo.getRequest(), true);
+                    }
+                });
+                rJpanelb.add(new JPanel());
+                rJpanelb.add(rtnClear);
+                rJpanelb.add(rtnClear1);
+                rJpanelb.add(new JLabel("   "));
+                rJpanelb.add(new JLabel("   "));
+                // 组装
+                rJpanel.add(editTabs, BorderLayout.CENTER);
+                rJpanel.add(rJpanelb, BorderLayout.EAST);
+
+                // 设置左结果面板，右request设置面板
+                JSplitPane splitPaneAll = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); //左右分割
+                splitPaneAll.setDividerLocation(500);
+                splitPaneAll.setLeftComponent(splitPane);
+                splitPaneAll.setRightComponent(rJpanel);
+
+                //整个UI就是下面这两部分
+                //添加设置的UI到总UI
+                contentPane.add(panel, BorderLayout.NORTH);
+                //添加结果UI到总UI
+                contentPane.add(splitPaneAll, BorderLayout.CENTER);
 
                 //定制UI组件
                 callbacks.customizeUiComponent(contentPane);
@@ -158,24 +196,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
         });
 
-
     }
     private void Start(){
         isRun = true;
         //TODO 启动检测，根据需要检测的内容,通过反射的方式
-        String type = comboBox.getSelectedItem().toString();
-        String cve = comboBoxCve.getSelectedItem().toString();
+        String type = Objects.requireNonNull(comboBox.getSelectedItem()).toString();
+        String cve = Objects.requireNonNull(comboBoxCve.getSelectedItem()).toString();
         try{
             Class clazz = Class.forName("burp.vuls." + type);
-            // 初始化必要的变量并赋值
-            Field helpers = clazz.getDeclaredField("helpers");
-            Field callbacks = clazz.getDeclaredField("callbacks");
-            Field log = clazz.getDeclaredField("log");
-            Field messageInfo = clazz.getDeclaredField("messageInfo");
-            helpers.set(null, this.helpers);
-            callbacks.set(null, this.callbacks);
-            log.set(null, this.log);
-            messageInfo.set(null, this.messageInfo);
             // 检测所有漏洞
             if (cve.equalsIgnoreCase("all")){
                 //获取本类的所有方法，存放入数组
@@ -189,7 +217,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 Method method = clazz.getMethod(cve);
                 method.invoke(null);
             }
-        }catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e){
+        }catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e){
             OutputStream out = callbacks.getStderr();
             PrintWriter p = new PrintWriter(out);
             e.printStackTrace(p);
@@ -230,6 +258,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         url, "", "", "Origin");
                 log.add(logEntry);
                 fireTableRowsInserted(row, row);
+                // 添加目标请求数据到编辑框
+                editRequestViewer.setMessage(messageInfo.getRequest(), true);
             }
         });
         return menus;
