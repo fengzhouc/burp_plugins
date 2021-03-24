@@ -20,8 +20,8 @@ public class HttpRequestThread implements Runnable {
         String url = BurpExtender.helpers.analyzeRequest(BurpExtender.messageInfo).getUrl().toString();
 
         //新的请求包
-//        byte[] req = buildMessage();
-        byte[] req = BurpExtender.helpers.buildHttpMessage(BurpExtender.helpers.analyzeRequest(BurpExtender.messageInfo).getHeaders(), poc.getBytes());
+        byte[] req = buildMessage();
+//        byte[] req = BurpExtender.helpers.buildHttpMessage(BurpExtender.helpers.analyzeRequest(BurpExtender.messageInfo).getHeaders(), poc.getBytes());
 
         BurpExtender.callbacks.printOutput(new String(req));
         IHttpRequestResponse messageInfo = BurpExtender.callbacks.makeHttpRequest(iHttpService, req);
@@ -38,7 +38,7 @@ public class HttpRequestThread implements Runnable {
         byte[] httpMessage = editMessage;
         String request = new String(editMessage);
         if (!request.equalsIgnoreCase("")){
-            httpMessage = request.replace("\\$poc\\$", this.poc).getBytes();
+            httpMessage = request.replace("$poc$", this.poc).getBytes();
         }
         return httpMessage;
     }
