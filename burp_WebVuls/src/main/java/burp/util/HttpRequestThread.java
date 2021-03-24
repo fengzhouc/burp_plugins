@@ -21,9 +21,6 @@ public class HttpRequestThread implements Runnable {
 
         //新的请求包
         byte[] req = buildMessage();
-//        byte[] req = BurpExtender.helpers.buildHttpMessage(BurpExtender.helpers.analyzeRequest(BurpExtender.messageInfo).getHeaders(), poc.getBytes());
-
-        BurpExtender.callbacks.printOutput(new String(req));
         IHttpRequestResponse messageInfo = BurpExtender.callbacks.makeHttpRequest(iHttpService, req);
         resulemessageInfo = new HttpResult(url, messageInfo);
     }
