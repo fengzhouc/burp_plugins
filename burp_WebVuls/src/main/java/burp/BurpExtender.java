@@ -199,7 +199,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     }
     private void Start(){
         isRun = true;
-        //TODO 启动检测，根据需要检测的内容,通过反射的方式
+        //启动检测，根据需要检测的内容,通过反射的方式
         String type = Objects.requireNonNull(comboBox.getSelectedItem()).toString();
         String cve = Objects.requireNonNull(comboBoxCve.getSelectedItem()).toString();
         try{

