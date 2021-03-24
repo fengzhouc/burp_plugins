@@ -155,7 +155,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 });
                 rJpanelb.add(new JPanel());
                 rJpanelb.add(rtnClear);
-                rJpanelb.add(new JLabel("   "));
                 rJpanelb.add(rtnClear1);
                 rJpanelb.add(new JLabel("   "));
                 rJpanelb.add(new JLabel("   "));
