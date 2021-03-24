@@ -1,22 +1,18 @@
 package burp;
 
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,11 +105,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 });
                 panel.add(btnClear);
 
-//                JLabel lbConnectInfo = new JLabel("IsRun:");
-//                panel.add(lbConnectInfo);
-//                lbConnectStatus = new JLabel("False");
-//                lbConnectStatus.setForeground(new Color(255, 0, 0));
-//                panel.add(lbConnectStatus);
+                JLabel lbConnectInfo = new JLabel("注: 建议不要选择all，会卡死.");
+                lbConnectInfo.setForeground(new Color(255, 0, 0));
+                panel.add(lbConnectInfo);
+
                 //添加设置的UI到总UI
                 contentPane.add(panel, BorderLayout.NORTH);
 
