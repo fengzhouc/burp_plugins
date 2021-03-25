@@ -38,9 +38,9 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_0", "1.2.24 + JDK1.8.0_102", "hack!"));
         } else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_0", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 
@@ -72,9 +72,9 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_1", "1.2.24 + JDK1.8.0_102", "hack!"));
         } else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_1", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 
@@ -106,9 +106,9 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_2", "1.2.24 + JDK1.8.0_102", "hack!"));
         } else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_2", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 
@@ -140,9 +140,9 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_3", "1.2.24 + JDK1.8.0_102", "hack!"));
         } else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_3", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 
@@ -174,9 +174,9 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_4", "1.2.24 + JDK1.8.0_102", "hack!"));
         } else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_4", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 
