@@ -106,7 +106,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 });
                 panel.add(btnClear);
 
-                JLabel lbConnectInfo = new JLabel("注: 建议不要选择all，会卡死.");
+                JLabel lbConnectInfo = new JLabel("注: 尽量不要选择all，太多任务的话会卡死.");
                 lbConnectInfo.setForeground(new Color(255, 0, 0));
                 panel.add(lbConnectInfo);
 
