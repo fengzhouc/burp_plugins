@@ -110,29 +110,21 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 lbConnectInfo.setForeground(new Color(255, 0, 0));
                 panel.add(lbConnectInfo);
 
-                //下面是结果面板的ui
-                //分割界面
-                JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); //上下分割
-                splitPane.setDividerLocation(300);
-                //上面板，结果面板
+                //左结果面板的ui
                 logTable = new Table(BurpExtender.this);
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
-                //下面板，请求响应的面板
-                JTabbedPane tabs = new JTabbedPane();
-                requestViewer = callbacks.createMessageEditor(BurpExtender.this, false);
-                responseViewer = callbacks.createMessageEditor(BurpExtender.this, false);
-                tabs.addTab("Request", requestViewer.getComponent());
-                tabs.addTab("Response", responseViewer.getComponent());
-                splitPane.setLeftComponent(scrollPane);
-                splitPane.setRightComponent(tabs);
 
-                // 右request设置面板
+                // 右poc设置及request/response面板
                 JPanel rJpanel = new JPanel();
                 rJpanel.setBorder(new EmptyBorder(5, 5, 5, 5));
                 rJpanel.setLayout(new BorderLayout(0, 0));
                 editRequestViewer = callbacks.createMessageEditor(BurpExtender.this, true);
+                requestViewer = callbacks.createMessageEditor(BurpExtender.this, false);
+                responseViewer = callbacks.createMessageEditor(BurpExtender.this, false);
                 JTabbedPane editTabs = new JTabbedPane();
                 editTabs.addTab("Positions", editRequestViewer.getComponent());
+                editTabs.addTab("Request", requestViewer.getComponent());
+                editTabs.addTab("Response", responseViewer.getComponent());
                 // 按钮UI
                 JPanel rJpanelb = new JPanel();
                 BoxLayout boxLayout = new BoxLayout(rJpanelb, BoxLayout.Y_AXIS);
@@ -165,7 +157,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 // 设置左结果面板，右request设置面板
                 JSplitPane splitPaneAll = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); //左右分割
                 splitPaneAll.setDividerLocation(500);
-                splitPaneAll.setLeftComponent(splitPane);
+                splitPaneAll.setLeftComponent(scrollPane);
                 splitPaneAll.setRightComponent(rJpanel);
 
                 //整个UI就是下面这两部分
@@ -177,10 +169,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 //定制UI组件
                 callbacks.customizeUiComponent(contentPane);
                 callbacks.customizeUiComponent(panel);
-                callbacks.customizeUiComponent(splitPane);
+//                callbacks.customizeUiComponent(splitPane);
                 callbacks.customizeUiComponent(logTable);
                 callbacks.customizeUiComponent(scrollPane);
-                callbacks.customizeUiComponent(tabs);
+                callbacks.customizeUiComponent(editTabs);
 
                 //添加标签
                 callbacks.addSuiteTab(BurpExtender.this);

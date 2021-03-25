@@ -12,4 +12,4 @@ web漏洞收录并检测的burp插件
 
 3、选择漏洞，点击start即可
 
-![img_2.png](img_2.png)
+![img_1.png](img_1.png)
