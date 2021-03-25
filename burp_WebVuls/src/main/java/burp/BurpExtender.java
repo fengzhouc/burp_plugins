@@ -37,7 +37,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     // TODO 每次添加新的漏洞时，这里添加对应数据，type为对应的类名，cves为对应漏洞的方法名
     private String[] type = {"Struts", "FastJson"};
     private String[][] cves = {{"all", "CVE_2019_0230"},
-                                {"all","JdbcRowSetImpl_0","JdbcRowSetImpl_1","JdbcRowSetImpl_2","JdbcRowSetImpl_3","JdbcRowSetImpl_4"}};
+                                {"all","JdbcRowSetImpl_0","JdbcRowSetImpl_1","JdbcRowSetImpl_2","JdbcRowSetImpl_3","JdbcRowSetImpl_4","JndiDataSourceFactory","SimpleJndiBeanFactory"}};
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {

