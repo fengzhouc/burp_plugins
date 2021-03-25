@@ -238,18 +238,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         messageInfo = requestResponses[0];
         JMenuItem menuItem = new JMenuItem("Send to WebVuls");
         menus.add(menuItem);
-        //返回上面板信息
-        String url = helpers.analyzeRequest(messageInfo).getUrl().toString();
 
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // logTable.addRowSelectionInterval();
-                int row = log.size();
-                LogEntry logEntry = new LogEntry(row, callbacks.saveBuffersToTempFiles(messageInfo),
-                        url, "", "", "Origin");
-                log.add(logEntry);
-                fireTableRowsInserted(row, row);
                 // 添加目标请求数据到编辑框
                 editRequestViewer.setMessage(messageInfo.getRequest(), true);
             }
