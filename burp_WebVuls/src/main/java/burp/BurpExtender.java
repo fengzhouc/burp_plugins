@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,14 +28,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public PrintWriter stdout;
     private JPanel contentPane;
     public static IMessageEditor editRequestViewer; //发送过来的request
-    private boolean isRun = false;
     private Table logTable; //视图table对象
     private JComboBox comboBox;
     private JComboBox comboBoxCve;
     public static IHttpRequestResponse messageInfo;
     // TODO 每次添加新的漏洞时，这里添加对应数据，type为对应的类名，cves为对应漏洞的方法名
-    private String[] type = {"Struts", "FastJson"};
-    private String[][] cves = {{"all", "CVE_2019_0230"},
+    private final String[] type = {"Struts", "FastJson"};
+    private final String[][] cves = {{"all", "CVE_2019_0230"},
                                 {"all","JdbcRowSetImpl_0","JdbcRowSetImpl_1","JdbcRowSetImpl_2","JdbcRowSetImpl_3","JdbcRowSetImpl_4","JndiDataSourceFactory","SimpleJndiBeanFactory"}};
 
     @Override
@@ -190,7 +188,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     }
     private void Start(){
-        isRun = true;
         //启动检测，根据需要检测的内容,通过反射的方式
         String type = Objects.requireNonNull(comboBox.getSelectedItem()).toString();
         String cve = Objects.requireNonNull(comboBoxCve.getSelectedItem()).toString();
@@ -221,7 +218,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
         }
         fireTableDataChanged();
-        isRun = false;
     }
     //清空数据
     private void ClearResult(){

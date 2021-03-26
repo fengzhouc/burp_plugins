@@ -37,9 +37,9 @@ public class Struts {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230", "", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230(S2-059)", "", "hack!"));
         }else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230", "", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230(S2-059)", "", "pass"));
         }
     }
 
