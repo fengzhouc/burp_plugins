@@ -37,7 +37,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private final String[] type = {"Struts", "FastJson"};
     private final String[][] cves = {{"all", "CVE_2019_0230"},
                                 {"all","dnslogCheck", "JdbcRowSetImpl_0","JdbcRowSetImpl_1","JdbcRowSetImpl_2","JdbcRowSetImpl_3","JdbcRowSetImpl_4",
-                                        "TemplatesImpl_0", "TemplatesImpl_1",
+                                        "TemplatesImpl_0", "TemplatesImpl_1","BasicDataSource_0","BasicDataSource_1",
                                         "JndiDataSourceFactory","SimpleJndiBeanFactory"}};
 
     @Override
