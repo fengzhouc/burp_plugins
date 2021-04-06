@@ -1,7 +1,5 @@
 package burp.util;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
