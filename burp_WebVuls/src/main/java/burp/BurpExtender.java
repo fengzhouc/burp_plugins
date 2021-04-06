@@ -157,13 +157,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 loadClear1.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        // TODO 加载不到文件，卡在类加载那里，不知道为什么
-                        callbacks.printOutput("load$");
                         String cve = Objects.requireNonNull(comboBoxCve.getSelectedItem()).toString();
-                        callbacks.printOutput("cve: " + cve );
                         JarFileReader jsr = new JarFileReader();
                         String payload = jsr.read(cve + ".tpl");
-                        callbacks.printOutput("payload: " + payload);
                         byte[] selectData = editRequestViewer.getSelectedData();
                         byte[] newData = new String(editRequestViewer.getMessage()).replace(new String(selectData), payload).getBytes();
                         editRequestViewer.setMessage(newData, true);

@@ -2,10 +2,9 @@ package burp.util;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static burp.BurpExtender.callbacks;
 
@@ -16,8 +15,15 @@ public class JarFileReader {
         try{
             inputStream = JarFileReader.class.getClassLoader().getResourceAsStream(filepath);
             if (inputStream != null) {
-                fileContent = IOUtils.toString(inputStream);
-                inputStream.close();
+                StringBuilder textBuilder = new StringBuilder();
+                try (Reader reader = new BufferedReader(new InputStreamReader
+                        (inputStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+                    int c = 0;
+                    while ((c = reader.read()) != -1) {
+                        textBuilder.append((char) c);
+                    }
+                }
+                fileContent = textBuilder.toString();
             }else{
                 callbacks.printError("[*] No file was found in the jar: " + filepath);
             }
