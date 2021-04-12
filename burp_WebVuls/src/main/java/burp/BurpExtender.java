@@ -9,9 +9,12 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -83,10 +86,42 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 comboBox.addActionListener(e -> {
                     comboBoxCve.removeAllItems();
                     int index = comboBox.getSelectedIndex();
-//                    callbacks.printOutput(index + "");
                     for(int i=0; i<cves[index].length; i++) {
 
                         comboBoxCve.addItem(cves[index][i]);
+                    }
+                });
+                comboBoxCve.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        switch (e.getStateChange())
+                        {
+                            case ItemEvent.SELECTED:
+                                String type = Objects.requireNonNull(comboBox.getSelectedItem()).toString();
+                                String cve_str = Objects.requireNonNull(comboBoxCve.getSelectedItem()).toString();
+                                String poc = "";
+                                try{
+                                    Class clazz = Class.forName("burp.vuls." + type);
+                                    // 获取对应漏洞的poc
+                                    Field pocField = clazz.getField(cve_str + "_poc");
+                                    poc = (String) pocField.get(null);
+                                }catch (ClassNotFoundException | IllegalAccessException | NoSuchFieldException er){
+                                    OutputStream out = callbacks.getStderr();
+                                    PrintWriter p = new PrintWriter(out);
+                                    er.printStackTrace(p);
+                                    try {
+                                        p.flush();
+                                        out.flush();
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+                                }
+                                pocViewer.setMessage(poc.getBytes(), false);
+                                break;
+//                            case ItemEvent.DESELECTED:
+//                                callbacks.printOutput("DESELECTED " + (String) e.getItem());
+//                                break;
+                            }
                     }
                 });
                 panel.add(typeJ);

