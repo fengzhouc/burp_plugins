@@ -42,10 +42,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public static IHttpRequestResponse messageInfo;
     // TODO 每次添加新的漏洞时，这里添加对应数据，type为对应的类名，cves为对应漏洞的方法名
     private final String[] type = {"Struts", "FastJson", "Weblogic"};
-    private final String[][] cves = {{"all", "CVE_2019_0230"},
-                                {"all","dnslogCheck", "JdbcRowSetImpl_0","JdbcRowSetImpl_1","JdbcRowSetImpl_2","JdbcRowSetImpl_3","JdbcRowSetImpl_4",
-                                        "TemplatesImpl_0", "TemplatesImpl_1","BasicDataSource_0","BasicDataSource_1",
-                                        "JndiDataSourceFactory","SimpleJndiBeanFactory"},
+    private final String[][] cves = {
+            {"all", "CVE_2019_0230"},
+            {"all","dnslogCheck", "JdbcRowSetImpl_0","JdbcRowSetImpl_1","JdbcRowSetImpl_2","JdbcRowSetImpl_3","JdbcRowSetImpl_4",
+                    "TemplatesImpl_0", "TemplatesImpl_1","BasicDataSource_0","BasicDataSource_1",
+                    "JndiDataSourceFactory","SimpleJndiBeanFactory"},
             {"all", "CVE_2020_14882_14883_1", "CVE_2020_14882_14883_xml"}};
 
     @Override
