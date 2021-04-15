@@ -46,6 +46,11 @@ public class JsonCsrfAndCors extends VulTaskImpl {
         IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
+        // 后缀检查，静态资源不做测试
+        if (suffixcheck(path)){
+            return null;
+        }
+
         //新请求body
         String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
         byte[] request_body = messageBody.getBytes();

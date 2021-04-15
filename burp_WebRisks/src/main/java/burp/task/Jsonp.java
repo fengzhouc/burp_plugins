@@ -44,6 +44,11 @@ public class Jsonp extends VulTaskImpl {
         IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
+        // 后缀检查，静态资源不做测试
+        if (suffixcheck(path)){
+            return null;
+        }
+
         //获取body信息
         String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
         byte[] request_body = messageBody.getBytes();

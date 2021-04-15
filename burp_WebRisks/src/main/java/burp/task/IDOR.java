@@ -46,20 +46,31 @@ public class IDOR extends VulTaskImpl {
         IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
+        // 后缀检查，静态资源不做测试
+        if (suffixcheck(path)){
+            return null;
+        }
+
         //获取body信息
         String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
         byte[] request_body = messageBody.getBytes();
 
         //1、删除cookie，重新发起请求，与原始请求状态码一致则可能存在未授权访问
+        // 只测试原本有cookie的请求
         List<String> new_headers1 = new ArrayList<String>();
+        boolean hasCookie = false;
         for (String header :
                 request_header_list) {
             //删除cookie
             if (header.toLowerCase(Locale.ROOT).startsWith("cookie")) {
-                continue;
+                hasCookie = true;
             }else {
                 new_headers1.add(header);
             }
+        }
+        // 请求没有cookie,则不测试
+        if (!hasCookie){
+            return null;
         }
         //新的请求包
         byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);

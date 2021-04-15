@@ -1,10 +1,7 @@
 package burp;
 
 import burp.impl.VulResult;
-import burp.task.IDOR;
-import burp.task.JsonCsrfAndCors;
-import burp.task.Jsonp;
-import burp.task.PutJsp;
+import burp.task.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -110,7 +107,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 logTable = new Table(BurpExtender.this);
                 //TODO 排序后添加数据会报错
                 sorter = new TableRowSorter<TableModel>(BurpExtender.this);
-                logTable.setRowSorter(sorter);
+//                logTable.setRowSorter(sorter);
 
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
@@ -139,9 +136,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 callbacks.printOutput("#Author: "+author);
                 callbacks.printOutput("#Task: JsonCsrfAndCors");
-//                callbacks.printOutput("#Task: IDOR"); // 误报太多, 待改进
+                callbacks.printOutput("#Task: IDOR"); // 误报太多, 待改进
                 callbacks.printOutput("#Task: Jsonp");
                 callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
+                callbacks.printOutput("#Task: SecureHeader ‘X-Frame-Options’");
 
                 //注册监听器
                 callbacks.registerHttpListener(BurpExtender.this);
@@ -190,11 +188,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 // jsoncsrf的检测及CORS
                 new JsonCsrfAndCors(helpers, callbacks, log, messageInfo).run();
                 // 未授权访问, 误报太多, 待改进
-//                new IDOR(helpers, callbacks, log, messageInfo).run();
+                new IDOR(helpers, callbacks, log, messageInfo).run();
                 // jsonp
                 new Jsonp(helpers, callbacks, log, messageInfo).run();
                 // tomcat put jsp
                 new PutJsp(helpers, callbacks, log, messageInfo).run();
+                // secure headers
+                new SecureHeader(helpers, callbacks, log, messageInfo).run();
 
             }
             int lastRow = getRowCount();

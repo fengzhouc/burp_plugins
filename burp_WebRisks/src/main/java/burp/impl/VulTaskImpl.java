@@ -2,6 +2,7 @@ package burp.impl;
 
 import burp.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -75,20 +76,21 @@ public abstract class VulTaskImpl {
     //头部信息包含如下
     //1、请求头/响应头
     //2、首部
-    protected String check(List<String> headers, String header){
-        if (null == headers){
+    protected String check(List<String> headers, String header) {
+        if (null == headers) {
             return null;
         }
         for (String s : headers) {
-            if (s.toLowerCase(Locale.ROOT).contains(header.toLowerCase(Locale.ROOT))){
+            if (s.toLowerCase(Locale.ROOT).contains(header.toLowerCase(Locale.ROOT))) {
                 return s;
             }
         }
         return null;
     }
+
     // 添加面板展示数据
     // 已经在列表的不添加
-    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk){
+    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk) {
         boolean inside = false;
         int lastRow = log.size();
         for (BurpExtender.LogEntry le :
@@ -97,16 +99,35 @@ public abstract class VulTaskImpl {
                     && le.Path.equalsIgnoreCase(path)
                     && le.Method.equalsIgnoreCase(method)
                     && le.Status.equals(status)
-                    && le.Risk.equalsIgnoreCase(risk) ) {
+                    && le.Risk.equalsIgnoreCase(risk)) {
                 inside = true;
                 break;
             }
         }
-        if (!inside){
+        if (!inside) {
             log.add(new BurpExtender.LogEntry(lastRow, callbacks.saveBuffersToTempFiles(requestResponse),
                     host, path, method, status, risk));
             return new VulResult(lastRow, risk, status, requestResponse, path, host);
         }
         return null;
+    }
+
+    // 后续可以持续更新这个后缀列表
+    protected boolean suffixcheck(String path) {
+        List<String> suffixs = new ArrayList<String>();
+        suffixs.add(".js");
+        suffixs.add(".css");
+        suffixs.add(".gif");
+        suffixs.add(".png");
+        suffixs.add(".jpg");
+        suffixs.add(".woff");
+        suffixs.add(".ico");
+        for (String suffix :
+                suffixs) {
+            if (path.endsWith(suffix)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
