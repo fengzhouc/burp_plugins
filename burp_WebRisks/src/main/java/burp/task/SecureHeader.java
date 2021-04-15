@@ -46,14 +46,18 @@ public class SecureHeader extends VulTaskImpl {
 //        headers.add("X-Content-Type-Options"); // nosniff
 //        headers.add("Content-Security-Policy");
         // 检查响应头是否包含安全响应头
+        boolean without = true;
         for (String heaser :
                 response_header_list) {
             for (String check :
                     headers) {
-                    if (!heaser.toLowerCase(Locale.ROOT).contains(check.toLowerCase(Locale.ROOT))) {
-                        message = "without X-Frame-Options";
+                    if (heaser.toLowerCase(Locale.ROOT).startsWith(check.toLowerCase(Locale.ROOT))) {
+                        without = false;
                     }
                 }
+        }
+        if (without){
+            message = "without X-Frame-Options";
         }
 
         if (!message.equalsIgnoreCase("")){
