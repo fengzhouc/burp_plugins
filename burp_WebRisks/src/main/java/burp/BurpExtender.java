@@ -139,7 +139,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: IDOR"); // 误报太多, 待改进
                 callbacks.printOutput("#Task: Jsonp");
                 callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
-                callbacks.printOutput("#Task: SecureHeader ‘X-Frame-Options’");
+                callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
 
                 //注册监听器
                 callbacks.registerHttpListener(BurpExtender.this);
