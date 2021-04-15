@@ -94,6 +94,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 });
                 panel.add(btnClear);
+
+                JLabel note = new JLabel("注: 如有验证码类的业务,会出现业务功能异常,因为测试是重复发包，所以验证码失效，这类功能需要手测.");
+                note.setForeground(new Color(255, 0, 0));
+                panel.add(note);
                 //添加设置的UI到总UI
                 contentPane.add(panel, BorderLayout.NORTH);
 
