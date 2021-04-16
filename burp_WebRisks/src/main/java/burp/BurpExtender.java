@@ -14,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class BurpExtender extends AbstractTableModel implements IBurpExtender, IHttpListener, ITab, IMessageEditorController {
@@ -31,6 +33,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private Table logTable; //视图table对象
     private TableRowSorter<TableModel> sorter; //table排序对象
     private JTextField tfFilterText; //过滤的条件输入框
+    private String domain = "";
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -58,11 +61,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 FlowLayout flowLayout = (FlowLayout) panel.getLayout();
                 flowLayout.setAlignment(FlowLayout.LEFT);
                 // 设置：过滤的UI
-                JButton btnFilter = new JButton("Filter");
+                JButton btnFilter = new JButton("Domain");
                 btnFilter.setToolTipText("filter data: support regex");
                 btnFilter.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
-                        BurpExtender.this.Filter();
+                        BurpExtender.this.domain = tfFilterText.getText();
                     }
                 });
                 panel.add(btnFilter);
@@ -182,7 +185,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
 
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
-        if (!kg){
+        String host = helpers.analyzeRequest(messageInfo).getUrl().getHost();
+//        callbacks.printOutput(host);
+        Pattern pattern = Pattern.compile(domain);
+        Matcher m = pattern.matcher(host);
+        boolean m_host = m.find();
+        if (!kg || !m_host){
             return;
         }
         if (!messageIsRequest) {

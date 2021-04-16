@@ -122,6 +122,7 @@ public abstract class VulTaskImpl {
         suffixs.add(".jpg");
         suffixs.add(".woff");
         suffixs.add(".ico");
+        suffixs.add(".svg");
         for (String suffix :
                 suffixs) {
             if (path.endsWith(suffix)) {
