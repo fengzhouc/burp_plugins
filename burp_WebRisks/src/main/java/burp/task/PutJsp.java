@@ -47,16 +47,13 @@ public class PutJsp extends VulTaskImpl {
         IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
-        //获取body信息
-        String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
-        byte[] request_body = messageBody.getBytes();
         //修改header, 根目录的put上传
         List<String> new_headers1 = request_header_list;
         new_headers1.remove(0);
         new_headers1.add(0, "OPTIONS / HTTP/1.1");
 
         //新的请求包
-        byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
+        byte[] req = this.helpers.buildHttpMessage(new_headers1, "".getBytes());
         IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
@@ -87,7 +84,7 @@ public class PutJsp extends VulTaskImpl {
                 new_headers3.add(0, "OPTIONS "+path+" HTTP/1.1");
 
                 //新的请求包
-                byte[] req3 = this.helpers.buildHttpMessage(new_headers3, request_body);
+                byte[] req3 = this.helpers.buildHttpMessage(new_headers3, "".getBytes());
                 IHttpRequestResponse messageInfo3 = this.callbacks.makeHttpRequest(iHttpService, req3);
                 //新的返回包
                 IResponseInfo analyzeResponse3 = this.helpers.analyzeResponse(messageInfo3.getResponse());
