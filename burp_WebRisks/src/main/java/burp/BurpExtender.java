@@ -329,7 +329,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     @Override
     public IHttpService getHttpService() {
-        return null;
+        return currentlyDisplayedItem.getHttpService();
     }
 
     @Override
