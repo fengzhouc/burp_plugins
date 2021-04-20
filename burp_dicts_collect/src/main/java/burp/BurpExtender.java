@@ -87,7 +87,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         if (!messageIsRequest) {
             int row = log.size();
             if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16) {//proxy/spider/scanner
-                int id = getRowCount() + 1;
 
                 IRequestInfo requestInfo = helpers.analyzeRequest(messageInfo);
                 URL url = requestInfo.getUrl();
@@ -153,16 +152,40 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     pas.add(p.getName());
                 }
                 //参数名的数据数组
-                String[] ps = pas.toArray(new String[0]);
+                String[] param_list = pas.toArray(new String[0]);
                 //将结果写入文件
-                write(domains, dirs, ps, files);
+                write(domains, dirs, param_list, files);
                 //设置面板数据
-                log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
-                        arrayToStr(domains, ","), arrayToStr(dirs, ","),
-                        arrayToStr(ps, ","), arrayToStr(files, ",")));
+                logAdd(messageInfo, domains, dirs, param_list, files);
 
             }
             fireTableRowsInserted(row, row);
+        }
+    }
+
+    // 添加面板展示数据
+    // 已经在列表的不添加
+    protected void logAdd(IHttpRequestResponse requestResponse, String[] domains, String[] dirs, String[] param_list, String[] files) {
+        boolean inside = false;
+        int lastRow = log.size();
+        String host = arrayToStr(domains, ",");
+        String paths = arrayToStr(dirs, ",");
+        String params = arrayToStr(param_list, ",");
+        String fs = arrayToStr(files, ",");
+
+        for (BurpExtender.LogEntry le :
+                log) {
+            if (le.Hosts.equalsIgnoreCase(host)
+                    && le.Paths.equalsIgnoreCase(paths)
+                    && le.Params.equalsIgnoreCase(params)
+                    && le.Files.equals(fs)) {
+                inside = true;
+                break;
+            }
+        }
+        if (!inside) {
+            log.add(new LogEntry(lastRow, callbacks.saveBuffersToTempFiles(requestResponse),
+                    host, paths, params, fs));
         }
     }
 
