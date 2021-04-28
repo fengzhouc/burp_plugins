@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/burp_WebVuls.iml" filepath="$PROJECT_DIR$/burp_WebVuls.iml" />
+      <module fileurl="file://$PROJECT_DIR$/burp_WebRisks.iml" filepath="$PROJECT_DIR$/burp_WebRisks.iml" />
       <module fileurl="file://$PROJECT_DIR$/burp_dicts_collect.iml" filepath="$PROJECT_DIR$/burp_dicts_collect.iml" />
     </modules>
   </component>

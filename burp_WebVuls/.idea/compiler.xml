@@ -10,7 +10,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="burp_dicts_collect" target="1.8" />
       <module name="burp_WebVuls" target="1.8" />
     </bytecodeTargetLevel>
   </component>
