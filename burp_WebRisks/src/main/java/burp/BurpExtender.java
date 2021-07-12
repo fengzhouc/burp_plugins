@@ -33,7 +33,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private Table logTable; //视图table对象
     private TableRowSorter<TableModel> sorter; //table排序对象
     private JTextField tfFilterText; //过滤的条件输入框
-    private String domain = "/*";
+    private String domain = ".*";
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -65,7 +65,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 btnFilter.setToolTipText("filter data: support regex");
                 btnFilter.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
-                        BurpExtender.this.domain = tfFilterText.getText();
+                        String d = tfFilterText.getText();
+                        if ("".equalsIgnoreCase(d) || null != d) {
+                            BurpExtender.this.domain = d;
+                        }
                     }
                 });
                 panel.add(btnFilter);
@@ -148,6 +151,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
                 callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
                 callbacks.printOutput("#Task: Redirect");
+                callbacks.printOutput("#Task: LandrayOa");
 
                 //注册监听器
                 callbacks.registerHttpListener(BurpExtender.this);
@@ -210,6 +214,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 new SecureHeader(helpers, callbacks, log, messageInfo).run();
                 // Redirect
                 new Redirect(helpers, callbacks, log, messageInfo).run();
+                // LandrayOa
+                new LandrayOa(helpers, callbacks, log, messageInfo).run();
 
             }
             int lastRow = getRowCount();

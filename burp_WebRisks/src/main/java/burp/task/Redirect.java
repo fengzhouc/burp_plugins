@@ -55,7 +55,10 @@ public class Redirect extends VulTaskImpl {
 //        callbacks.printOutput(query);
         if (query.contains("redirect=")
                 || query.contains("redirect_url=")
-                || query.contains("redirect_uri="))
+                || query.contains("redirect_uri=")
+                || query.contains("callback=")
+                || query.contains("url=")
+                || query.contains("goto="))
         {
             List<String> new_headers = request_header_list;
             String header_first = "";
