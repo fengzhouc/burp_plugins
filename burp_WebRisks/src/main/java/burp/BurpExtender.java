@@ -24,6 +24,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private IExtensionHelpers helpers;
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
+    private IMessageEditor desViewer;
     private final List<LogEntry> log = new ArrayList<LogEntry>();
     private IHttpRequestResponse currentlyDisplayedItem;
     public PrintWriter stdout;
@@ -33,7 +34,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private Table logTable; //视图table对象
     private TableRowSorter<TableModel> sorter; //table排序对象
     private JTextField tfFilterText; //过滤的条件输入框
+    private JTextField tfFilterText_c; //Cookie
+    private JTextField tfFilterText_cve; //cve 漏洞扫描
     private String domain = ".*";
+    private String cookie = "";
+    private String url = "";
+    JSplitPane splitPane;
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -74,7 +80,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 panel.add(btnFilter);
                 tfFilterText = new JTextField();
                 tfFilterText.setColumns(20);
-                tfFilterText.setText("");
+                tfFilterText.setText("*");
                 panel.add(tfFilterText);
 
                 JButton btnConn = new JButton("OpenOrClose");
@@ -104,13 +110,74 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 JLabel note = new JLabel("注: 如有验证码类的业务,会出现业务功能异常,因为测试是重复发包，所以验证码失效，这类功能需要手测.");
                 note.setForeground(new Color(255, 0, 0));
                 panel.add(note);
+
+                // cookie设置
+                JPanel panel_c = new JPanel();
+                FlowLayout flowLayout_c = (FlowLayout) panel_c.getLayout();
+                flowLayout_c.setAlignment(FlowLayout.LEFT);
+                // 设置cookie的UI
+                JButton btnFilter_c = new JButton("Cookie");
+                btnFilter_c.setToolTipText("other user cookie ,or user Cookie.");
+                btnFilter_c.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        String d = tfFilterText_c.getText();
+                        if ("".equalsIgnoreCase(d) || null != d) {
+                            BurpExtender.this.cookie = d;
+                        }
+                    }
+                });
+                panel_c.add(btnFilter_c);
+                tfFilterText_c = new JTextField();
+                tfFilterText_c.setColumns(45);
+                tfFilterText_c.setText("");
+                panel_c.add(tfFilterText_c);
+                JLabel note_c = new JLabel("注: 越权测试需要的Cookie,或是cve扫描所需的会话Cookie");
+                note_c.setForeground(new Color(255, 0, 0));
+                panel_c.add(note_c);
+                // TODO 带规划的cve扫描区
+                // CVE扫描设置
+                JPanel panel_cve = new JPanel();
+                FlowLayout flowLayout_cve = (FlowLayout) panel_cve.getLayout();
+                flowLayout_cve.setAlignment(FlowLayout.LEFT);
+                // 设置cve的UI
+                JButton btnFilter_cve = new JButton("Url");
+                btnFilter_cve.setToolTipText("scan url");
+                btnFilter_cve.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        String d = tfFilterText_cve.getText();
+                        if ("".equalsIgnoreCase(d) || null != d) {
+                            BurpExtender.this.url = d;
+                        }
+                    }
+                });
+                panel_cve.add(btnFilter_cve);
+                tfFilterText_cve = new JTextField();
+                tfFilterText_cve.setColumns(45);
+                tfFilterText_cve.setText("");
+                panel_cve.add(tfFilterText_cve);
+                JButton button_cve = new JButton("Scan");
+                button_cve.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        // TODO 待规划
+                    }
+                });
+                panel_cve.add(button_cve);
+                JLabel note_cve = new JLabel("注: cve漏洞扫描, 待规划");
+                note_cve.setForeground(new Color(255, 0, 0));
+                panel_cve.add(note_cve);
+                //构造总设置UI
+                JPanel panel_a = new JPanel();
+                BoxLayout boxLayout = new BoxLayout(panel_a, BoxLayout.Y_AXIS);
+                panel_a.setLayout(boxLayout);
+                panel_a.add(panel);
+                panel_a.add(panel_c);
+                panel_a.add(panel_cve);
                 //添加设置的UI到总UI
-                contentPane.add(panel, BorderLayout.NORTH);
+                contentPane.add(panel_a, BorderLayout.NORTH);
 
                 //下面是结果面板的ui
                 //分割界面
-                JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); //上下分割
-                splitPane.setDividerLocation(300);
+                splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); //上下分割
                 contentPane.add(splitPane, BorderLayout.CENTER);
 
                 //上面板，结果面板
@@ -122,21 +189,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
 
-                //下面板，请求响应的面板
-                JTabbedPane tabs = new JTabbedPane();
+                //初始化下面板的Message对象
                 requestViewer = callbacks.createMessageEditor(BurpExtender.this, false);
                 responseViewer = callbacks.createMessageEditor(BurpExtender.this, false);
-                tabs.addTab("Request", requestViewer.getComponent());
-                tabs.addTab("Response", responseViewer.getComponent());
-                splitPane.setRightComponent(tabs);
+                desViewer = callbacks.createMessageEditor(BurpExtender.this, false);
 
                 //定制UI组件
                 callbacks.customizeUiComponent(contentPane);
-                callbacks.customizeUiComponent(panel);
+                callbacks.customizeUiComponent(panel_a);
                 callbacks.customizeUiComponent(splitPane);
                 callbacks.customizeUiComponent(logTable);
                 callbacks.customizeUiComponent(scrollPane);
-                callbacks.customizeUiComponent(tabs);
 
                 //添加标签
                 callbacks.addSuiteTab(BurpExtender.this);
@@ -257,10 +320,19 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         @Override
         public void changeSelection(int row, int col, boolean toggle, boolean extend)
         {
+            // 选中是显示请求跟响应
+            JTabbedPane tabs = new JTabbedPane();
+            tabs.addTab("Request", requestViewer.getComponent());
+            tabs.addTab("Response", responseViewer.getComponent());
+            tabs.addTab("Description", desViewer.getComponent());
+            splitPane.setDividerLocation(300);
+            splitPane.setRightComponent(tabs);
+
             LogEntry logEntry = log.get(logTable.convertRowIndexToModel(row));
             requestViewer.setMessage(logEntry.requestResponse.getRequest(), true);
             responseViewer.setMessage(logEntry.requestResponse.getResponse(), false);
             currentlyDisplayedItem = logEntry.requestResponse;
+            desViewer.setMessage("logEntry.Poc.getBytes()".getBytes(), false);
 
             super.changeSelection(row, col, toggle, extend);
         }
@@ -361,6 +433,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         public final String Method;
         public final Short Status;
         public final String Risk;
+        public final String Desc;
 
 
         public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, Short status, String risk)
@@ -373,6 +446,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             this.Path = path;
             this.Host = host;
             this.Risk = risk;
+            this.Desc = "";
         }
     }
 
