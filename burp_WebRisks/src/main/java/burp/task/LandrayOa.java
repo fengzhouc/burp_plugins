@@ -55,7 +55,7 @@ public class LandrayOa extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message);
+            result = logAdd(messageInfo_r, host, path, method, status, message, "");
         }
 
         return result;

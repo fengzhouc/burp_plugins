@@ -90,7 +90,7 @@ public abstract class VulTaskImpl {
 
     // 添加面板展示数据
     // 已经在列表的不添加
-    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk) {
+    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk, String desc) {
         boolean inside = false;
         int lastRow = log.size();
         for (BurpExtender.LogEntry le :
@@ -106,7 +106,7 @@ public abstract class VulTaskImpl {
         }
         if (!inside) {
             log.add(new BurpExtender.LogEntry(lastRow, callbacks.saveBuffersToTempFiles(requestResponse),
-                    host, path, method, status, risk));
+                    host, path, method, status, risk, desc));
             return new VulResult(lastRow, risk, status, requestResponse, path, host);
         }
         return null;

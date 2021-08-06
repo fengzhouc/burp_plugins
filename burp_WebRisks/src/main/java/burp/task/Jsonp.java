@@ -61,7 +61,7 @@ public class Jsonp extends VulTaskImpl {
                 || query.contains("json=")
                 || query.contains("call="))
         {
-            logAdd(messageInfo, host, path, method, status, "Jsonp");
+            logAdd(messageInfo, host, path, method, status, "Jsonp", "");
         }
 
         //2.url不含敏感参数,添加参数测试
@@ -93,7 +93,7 @@ public class Jsonp extends VulTaskImpl {
             // 如果返回body中有请求传入的函数qwert，则可能存在jsonp
             if (rep1_body.contains("qwert"))
             {	//id response host path status
-                result = logAdd(messageInfo1, host, path, method, status, "Jsonp");
+                result = logAdd(messageInfo1, host, path, method, status, "Jsonp", "");
             }
         }
 

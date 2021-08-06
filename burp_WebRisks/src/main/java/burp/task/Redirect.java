@@ -84,7 +84,7 @@ public class Redirect extends VulTaskImpl {
                     response_header_list1) {
 //                callbacks.printOutput(header);
                 if (header.contains("evil.com")) {
-                    result = logAdd(messageInfo1, host, path, method, status, "Redirect");
+                    result = logAdd(messageInfo1, host, path, method, status, "Redirect", "");
                 }
             }
         }

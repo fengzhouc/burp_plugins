@@ -68,7 +68,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 flowLayout.setAlignment(FlowLayout.LEFT);
                 // 设置：过滤的UI
                 JButton btnFilter = new JButton("Domain");
-                btnFilter.setToolTipText("filter data: support regex");
+                btnFilter.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                btnFilter.setToolTipText("配置扫描的域名,支持正则,填写后需点击此按钮");
                 btnFilter.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         String d = tfFilterText.getText();
@@ -83,8 +84,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 tfFilterText.setText("*");
                 panel.add(tfFilterText);
 
-                JButton btnConn = new JButton("OpenOrClose");
-                btnConn.setToolTipText("open or close the pligin to run.");
+                JButton btnConn = new JButton("On-Off");
+                btnConn.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                btnConn.setToolTipText("基础Web漏洞扫描器开关");
                 btnConn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         BurpExtender.this.OpenOrClose();
@@ -99,6 +101,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 panel.add(lbConnectStatus);
 
                 JButton btnClear = new JButton("Clear");
+                btnClear.setPreferredSize(new Dimension(70,28)); // 按钮大小
                 btnClear.setToolTipText("clear all the result.");
                 btnClear.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
@@ -117,7 +120,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 flowLayout_c.setAlignment(FlowLayout.LEFT);
                 // 设置cookie的UI
                 JButton btnFilter_c = new JButton("Cookie");
-                btnFilter_c.setToolTipText("other user cookie ,or user Cookie.");
+                btnFilter_c.setToolTipText("填写后需点击此按钮,才能设置Cookie");
+                btnFilter_c.setPreferredSize(new Dimension(70,28)); // 按钮大小
                 btnFilter_c.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         String d = tfFilterText_c.getText();
@@ -141,7 +145,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 flowLayout_cve.setAlignment(FlowLayout.LEFT);
                 // 设置cve的UI
                 JButton btnFilter_cve = new JButton("Url");
-                btnFilter_cve.setToolTipText("scan url");
+                btnFilter_cve.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                btnFilter_cve.setToolTipText("CVE漏洞扫描的目标url,填写后需点击此按钮");
                 btnFilter_cve.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         String d = tfFilterText_cve.getText();
@@ -156,9 +161,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 tfFilterText_cve.setText("");
                 panel_cve.add(tfFilterText_cve);
                 JButton button_cve = new JButton("Scan");
+                button_cve.setToolTipText("不设置url,则扫描下方选中的网站");
+                button_cve.setPreferredSize(new Dimension(70,28)); // 按钮大小
                 button_cve.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         // TODO 待规划
+                        // url空，即直接点击Scan，则扫描选中的域名
                     }
                 });
                 panel_cve.add(button_cve);
@@ -436,7 +444,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         public final String Desc;
 
 
-        public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, Short status, String risk)
+        public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, Short status, String risk, String desc)
         {
             this.Status = status;
             this.id = id;
@@ -446,7 +454,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             this.Path = path;
             this.Host = host;
             this.Risk = risk;
-            this.Desc = "";
+            this.Desc = desc;
         }
     }
 

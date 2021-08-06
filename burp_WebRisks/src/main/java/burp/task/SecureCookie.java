@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class SecureHeader extends VulTaskImpl {
+public class SecureCookie extends VulTaskImpl {
+    // 检查cookie安全属性httponly、secure
 
-    public SecureHeader(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
+    public SecureCookie(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
         super(helpers, callbacks, log, messageInfo);
     }
 
@@ -32,36 +33,23 @@ public class SecureHeader extends VulTaskImpl {
         String path = analyzeRequest.getUrl().getPath();
         String method = analyzeRequest.getMethod();
         IHttpRequestResponse messageInfo_r = messageInfo;
-        short status = status_code;
 
         // 后缀检查，静态资源不做测试
         if (suffixcheck(path)){
             return null;
         }
 
-        List<String> headers = new ArrayList<String>();
-//        headers.add("Strict-Transport-Securit"); // max-age=31536000;includeSubDomains;preload
-        headers.add("X-Frame-Options"); // allow-from 'url'
-//        headers.add("X-XSS-Protection"); // 1;mode=block
-//        headers.add("X-Content-Type-Options"); // nosniff
-//        headers.add("Content-Security-Policy");
-        // 检查响应头是否包含安全响应头
-        boolean without = true;
         for (String heaser :
                 response_header_list) {
-            for (String check :
-                    headers) {
-                    if (heaser.toLowerCase(Locale.ROOT).startsWith(check.toLowerCase(Locale.ROOT))) {
-                        without = false;
+                if (heaser.toLowerCase(Locale.ROOT).startsWith("Set-Cookie".toLowerCase(Locale.ROOT))) {
+                    if (!heaser.toLowerCase(Locale.ROOT).contains("httponly") || !heaser.toLowerCase(Locale.ROOT).contains("secure")){
+                        message += "without httponly or secure";
                     }
                 }
         }
-        if (without){
-            message = "without X-Frame-Options";
-        }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, "");
+            result = logAdd(messageInfo_r, host, path, method, status_code, message, "");
         }
 
         return result;
