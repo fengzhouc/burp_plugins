@@ -2,6 +2,8 @@ package burp;
 
 import burp.impl.VulResult;
 import burp.task.*;
+import burp.vuls.LandrayOa;
+import burp.vuls.PutJsp;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -37,7 +39,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JTextField tfFilterText_c; //Cookie
     private JTextField tfFilterText_cve; //cve 漏洞扫描
     private String domain = ".*";
-    private String cookie = "";
+    public static String cookie = "";
     private String url = "";
     JSplitPane splitPane;
 
@@ -165,7 +167,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 button_cve.setPreferredSize(new Dimension(70,28)); // 按钮大小
                 button_cve.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
-                        // TODO 待规划
+                        // TODO 待规划,看如何设计更以拓展，因为会很多payload
                         // url空，即直接点击Scan，则扫描选中的域名
                     }
                 });
@@ -216,12 +218,20 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 String author = "alumm0x";
 
                 callbacks.printOutput("#Author: "+author);
-                callbacks.printOutput("#Task: JsonCsrfAndCors");
+                callbacks.printOutput("    ");
+                callbacks.printOutput("##Web Basic");
+                callbacks.printOutput("#Task: JsonCsrf");
+                callbacks.printOutput("#Task: Cors");
                 callbacks.printOutput("#Task: IDOR"); // 误报太多, 待改进
+                callbacks.printOutput("#Task: IDOR_xy"); // 横纵向越权
                 callbacks.printOutput("#Task: Jsonp");
-                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
+                callbacks.printOutput("#Task: SecureCookie");
+                callbacks.printOutput("#Task: Https");
                 callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
                 callbacks.printOutput("#Task: Redirect");
+                callbacks.printOutput("    ");
+                callbacks.printOutput("##CVE");
+                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
                 callbacks.printOutput("#Task: LandrayOa");
 
                 //注册监听器
@@ -273,18 +283,30 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             int row = log.size();
             VulResult result = null;
             if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy4/spider8/scanner16/repeater64
-                // jsoncsrf的检测及CORS
-                new JsonCsrfAndCors(helpers, callbacks, log, messageInfo).run();
+                // Web基础漏洞扫描
+                // jsoncsrf的检测
+                new JsonCsrf(helpers, callbacks, log, messageInfo).run();
+                // CORS 跨域请求
+                new Cors(helpers, callbacks, log, messageInfo).run();
                 // 未授权访问, 误报太多, 待改进
                 new IDOR(helpers, callbacks, log, messageInfo).run();
+                // 横纵向越权, 纵向越权一般是测试管理后台的时候
+                new IDOR_xy(helpers, callbacks, log, messageInfo).run();
                 // jsonp
                 new Jsonp(helpers, callbacks, log, messageInfo).run();
-                // tomcat put jsp
-                new PutJsp(helpers, callbacks, log, messageInfo).run();
                 // secure headers
                 new SecureHeader(helpers, callbacks, log, messageInfo).run();
                 // Redirect
                 new Redirect(helpers, callbacks, log, messageInfo).run();
+                // cookie安全属性
+                new SecureCookie(helpers, callbacks, log, messageInfo).run();
+                // https
+                new Https(helpers, callbacks, log, messageInfo).run();
+
+
+                // 漏洞检测任务，需要调整到cve漏洞扫描模块
+                // tomcat put jsp
+                new PutJsp(helpers, callbacks, log, messageInfo).run();
                 // LandrayOa
                 new LandrayOa(helpers, callbacks, log, messageInfo).run();
 
@@ -328,7 +350,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         @Override
         public void changeSelection(int row, int col, boolean toggle, boolean extend)
         {
-            // 选中是显示请求跟响应
+            // 选中时显示请求跟响应
             JTabbedPane tabs = new JTabbedPane();
             tabs.addTab("Request", requestViewer.getComponent());
             tabs.addTab("Response", responseViewer.getComponent());
@@ -340,7 +362,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             requestViewer.setMessage(logEntry.requestResponse.getRequest(), true);
             responseViewer.setMessage(logEntry.requestResponse.getResponse(), false);
             currentlyDisplayedItem = logEntry.requestResponse;
-            desViewer.setMessage("logEntry.Poc.getBytes()".getBytes(), false);
+            desViewer.setMessage(logEntry.Desc.getBytes(), false);
 
             super.changeSelection(row, col, toggle, extend);
         }

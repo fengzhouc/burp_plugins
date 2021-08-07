@@ -64,7 +64,12 @@ public class Redirect extends VulTaskImpl {
             String header_first = "";
 
             //url有参数
-            header_first = query.replace("?", "?redirect=http://evil.com/test&redirect_url=http://evil.com/test&");
+            header_first = query.replace("?", "?redirect=http://evil.com/test&" +
+                    "redirect_url=http://evil.com/test&" +
+                    "redirect_uri=http://evil.com/test&" +
+                    "callback=http://evil.com/test&" +
+                    "url=http://evil.com/test&" +
+                    "goto=http://evil.com/test");
 
             new_headers.remove(0);
             new_headers.add(0, header_first);

@@ -7,22 +7,20 @@ import burp.impl.VulTaskImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class IDOR extends VulTaskImpl {
+public class IDOR_xy extends VulTaskImpl {
 
-    public IDOR(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
+    public IDOR_xy(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
         super(helpers, callbacks, log, messageInfo);
     }
 
     @Override
     public VulResult run() {
         /**
-         * 未授权访问
+         * 横向越权
          * 检测逻辑
-         * 1、删除cookie发起请求
+         * 1、设置别的用户cookie
+         * 2、填充cookie重放，比对响应
          * */
         String message = "";
         VulResult result = null;
@@ -65,9 +63,14 @@ public class IDOR extends VulTaskImpl {
             //删除cookie
             if (header.toLowerCase(Locale.ROOT).startsWith("cookie")) {
                 hasCookie = true;
-            }else {
-                new_headers1.add(header);
+                String cookie = BurpExtender.cookie;
+                if (cookie.equalsIgnoreCase("")){
+                    // 没有设置cookie则不进行测试
+                    return null;
+                }
+                header = "Cookie: " + BurpExtender.cookie;
             }
+            new_headers1.add(header);
         }
         // 请求没有cookie,则不测试
         if (!hasCookie){
@@ -86,7 +89,7 @@ public class IDOR extends VulTaskImpl {
         //如果状态码相同则可能存在问题
         if (status_code == analyzeResponse1.getStatusCode()
                 && rep_body.equalsIgnoreCase(rep1_body)) {
-            message = "IDOR";
+            message = "IDOR_xy";
             messageInfo_r = messageInfo1;
         }
 

@@ -1,4 +1,4 @@
-package burp.task;
+package burp.vuls;
 
 import burp.*;
 import burp.impl.VulResult;
