@@ -59,11 +59,15 @@ public class Https extends VulTaskImpl {
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
         if (analyzeResponse1.getStatusCode() == status_code){
-            message += ", and open http";
+            if (!message.equalsIgnoreCase("")) {
+                message += ", and open http";
+            }else {
+                message += "open http";
+            }
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status_code, message, "");
+            result = logAdd(messageInfo_r, host, "/", method, status_code, message, "");
         }
 
         return result;

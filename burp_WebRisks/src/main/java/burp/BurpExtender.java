@@ -222,13 +222,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("##Web Basic");
                 callbacks.printOutput("#Task: JsonCsrf");
                 callbacks.printOutput("#Task: Cors");
-                callbacks.printOutput("#Task: IDOR"); // 误报太多, 待改进
+                callbacks.printOutput("#Task: IDOR");
                 callbacks.printOutput("#Task: IDOR_xy"); // 横纵向越权
                 callbacks.printOutput("#Task: Jsonp");
                 callbacks.printOutput("#Task: SecureCookie");
                 callbacks.printOutput("#Task: Https");
                 callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
                 callbacks.printOutput("#Task: Redirect");
+                callbacks.printOutput("#Task: IndexOf");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
                 callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");

@@ -98,7 +98,7 @@ public abstract class VulTaskImpl {
             if (le.Host.equalsIgnoreCase(host)
                     && le.Path.equalsIgnoreCase(path)
                     && le.Method.equalsIgnoreCase(method)
-                    && le.Status.equals(status)
+//                    && le.Status.equals(status)
                     && le.Risk.equalsIgnoreCase(risk)) {
                 inside = true;
                 break;

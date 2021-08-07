@@ -4,8 +4,9 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
+
 
 public class IndexOf extends VulTaskImpl {
     // 目录浏览漏洞
@@ -37,14 +38,15 @@ public class IndexOf extends VulTaskImpl {
         List<String> new_headers = request_header_list;
         String header_first = "";
 
-        //url有参数
+        //去掉最后一级path
         String query = request_header_list.get(0);
-        header_first = query.replace("?", "?redirect=http://evil.com/test&" +
-                "redirect_url=http://evil.com/test&" +
-                "redirect_uri=http://evil.com/test&" +
-                "callback=http://evil.com/test&" +
-                "url=http://evil.com/test&" +
-                "goto=http://evil.com/test&");
+        String[] q = query.split("/");
+        StringBuilder p = new StringBuilder();
+        for (String v :
+                Arrays.copyOfRange(q, 0, q.length - 1)) {
+            p.append(v);
+        }
+        header_first = "/" + p.toString() + "/";
 
         new_headers.remove(0);
         new_headers.add(0, header_first);
