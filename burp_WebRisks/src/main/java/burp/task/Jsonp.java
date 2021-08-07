@@ -27,10 +27,7 @@ public class Jsonp extends VulTaskImpl {
         //返回信息
         IHttpService iHttpService = messageInfo.getHttpService();
         IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        String response_info = new String(messageInfo.getResponse());
-        String rep_body = response_info.substring(analyzeResponse.getBodyOffset());
         short status_code = analyzeResponse.getStatusCode();
-        List<String> response_header_list = analyzeResponse.getHeaders();
 
         //请求信息
         IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
@@ -41,7 +38,6 @@ public class Jsonp extends VulTaskImpl {
         String host = iHttpService.getHost();
         String path = analyzeRequest.getUrl().getPath();
         String method = analyzeRequest.getMethod();
-        IHttpRequestResponse messageInfo_r = null;
         short status = status_code;
 
         // 后缀检查，静态资源不做测试

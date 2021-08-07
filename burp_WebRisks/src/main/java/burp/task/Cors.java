@@ -28,8 +28,6 @@ public class Cors extends VulTaskImpl {
         //返回信息
         IHttpService iHttpService = messageInfo.getHttpService();
         IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        String response_info = new String(messageInfo.getResponse());
-        String rep_body = response_info.substring(analyzeResponse.getBodyOffset());
         short status_code = analyzeResponse.getStatusCode();
         List<String> response_header_list = analyzeResponse.getHeaders();
 

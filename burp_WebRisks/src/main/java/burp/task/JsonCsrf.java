@@ -19,7 +19,6 @@ public class JsonCsrf extends VulTaskImpl {
         /**
          * 检测逻辑
          * 1、jsonCsrf：修改content-type为form表单的
-         * 2、cors
          *   （1）检查响应头中是否包含Access-Control-Allow-Credentials且为true
          *   （2）再检查Access-Control-Allow-Origin是否为*
          *   （3）不满足（2）则修改/添加请求头Origin为http://evil.com，查看响应头Access-Control-Allow-Origin的值是否是http://evil.com

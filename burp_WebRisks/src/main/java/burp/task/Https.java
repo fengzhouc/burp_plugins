@@ -4,6 +4,7 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,7 +23,6 @@ public class Https extends VulTaskImpl {
         IHttpService iHttpService = messageInfo.getHttpService();
         IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
         short status_code = analyzeResponse.getStatusCode();
-        List<String> response_header_list = analyzeResponse.getHeaders();
 
         //请求信息
         IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
@@ -38,6 +38,29 @@ public class Https extends VulTaskImpl {
             message = "no use https";
         }
 
+        // 检查是否同时开启http/https
+        byte[] req = messageInfo.getRequest();
+        IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(new IHttpService() {
+            @Override
+            public String getHost() {
+                return iHttpService.getHost();
+            }
+
+            @Override
+            public int getPort() {
+                return iHttpService.getPort();
+            }
+
+            @Override
+            public String getProtocol() {
+                return "http";
+            }
+        }, req);
+        //新的返回包
+        IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
+        if (analyzeResponse1.getStatusCode() == status_code){
+            message += ", and open http";
+        }
 
         if (!message.equalsIgnoreCase("")){
             result = logAdd(messageInfo_r, host, path, method, status_code, message, "");

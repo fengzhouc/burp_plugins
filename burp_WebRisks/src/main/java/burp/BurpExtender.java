@@ -355,7 +355,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             tabs.addTab("Request", requestViewer.getComponent());
             tabs.addTab("Response", responseViewer.getComponent());
             tabs.addTab("Description", desViewer.getComponent());
-            splitPane.setDividerLocation(300);
+            splitPane.setDividerLocation(200);
             splitPane.setRightComponent(tabs);
 
             LogEntry logEntry = log.get(logTable.convertRowIndexToModel(row));

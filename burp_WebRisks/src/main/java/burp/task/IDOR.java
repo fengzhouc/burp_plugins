@@ -32,7 +32,6 @@ public class IDOR extends VulTaskImpl {
         String response_info = new String(messageInfo.getResponse());
         String rep_body = response_info.substring(analyzeResponse.getBodyOffset());
         short status_code = analyzeResponse.getStatusCode();
-        List<String> response_header_list = analyzeResponse.getHeaders();
 
         //请求信息
         IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
