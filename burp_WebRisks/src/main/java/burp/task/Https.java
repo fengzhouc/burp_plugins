@@ -48,7 +48,7 @@ public class Https extends VulTaskImpl {
 
             @Override
             public int getPort() {
-                return iHttpService.getPort();
+                return 80;
             }
 
             @Override

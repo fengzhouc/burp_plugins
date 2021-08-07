@@ -65,7 +65,7 @@ public class Redirect extends VulTaskImpl {
                     "redirect_uri=http://evil.com/test&" +
                     "callback=http://evil.com/test&" +
                     "url=http://evil.com/test&" +
-                    "goto=http://evil.com/test");
+                    "goto=http://evil.com/test&");
 
             new_headers.remove(0);
             new_headers.add(0, header_first);
