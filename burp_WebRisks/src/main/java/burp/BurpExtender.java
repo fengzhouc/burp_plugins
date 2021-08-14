@@ -137,7 +137,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 tfFilterText_c.setColumns(45);
                 tfFilterText_c.setText("");
                 panel_c.add(tfFilterText_c);
-                JLabel note_c = new JLabel("注: 越权测试需要的Cookie,或是cve扫描所需的会话Cookie");
+                JLabel note_c = new JLabel("注: 测试需要的会话凭证, eg:'Cookie: xxxxxx'.");
                 note_c.setForeground(new Color(255, 0, 0));
                 panel_c.add(note_c);
                 // TODO 带规划的cve扫描区

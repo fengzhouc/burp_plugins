@@ -62,7 +62,8 @@ public class IDOR extends VulTaskImpl {
         for (String header :
                 request_header_list) {
             //删除cookie
-            if (header.toLowerCase(Locale.ROOT).startsWith("cookie")) {
+            String key = BurpExtender.cookie.split(":")[0];
+            if (header.toLowerCase(Locale.ROOT).startsWith(key.toLowerCase(Locale.ROOT))) {
                 hasCookie = true;
             }else {
                 new_headers1.add(header);

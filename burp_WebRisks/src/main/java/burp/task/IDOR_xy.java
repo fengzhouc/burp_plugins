@@ -59,15 +59,15 @@ public class IDOR_xy extends VulTaskImpl {
         boolean hasCookie = false;
         for (String header :
                 request_header_list) {
-            //删除cookie
-            if (header.toLowerCase(Locale.ROOT).startsWith("cookie")) {
+            //替换cookie
+            String key = BurpExtender.cookie.split(":")[0];
+            if (header.toLowerCase(Locale.ROOT).startsWith(key.toLowerCase(Locale.ROOT))) {
                 hasCookie = true;
-                String cookie = BurpExtender.cookie;
-                if (cookie.equalsIgnoreCase("")){
+                if (key.equalsIgnoreCase("")){
                     // 没有设置cookie则不进行测试
                     return null;
                 }
-                header = "Cookie: " + BurpExtender.cookie;
+                header = BurpExtender.cookie;
             }
             new_headers1.add(header);
         }
