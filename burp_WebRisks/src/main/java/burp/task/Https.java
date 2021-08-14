@@ -57,13 +57,17 @@ public class Https extends VulTaskImpl {
             }
         }, req);
         //新的返回包
-        IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-        if (analyzeResponse1.getStatusCode() == status_code){
-            if (!message.equalsIgnoreCase("")) {
-                message += ", and open http";
-            }else {
-                message += "open http";
+        try {
+            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
+            if (analyzeResponse1.getStatusCode() == status_code) {
+                if (!message.equalsIgnoreCase("")) {
+                    message += ", and open http";
+                } else {
+                    message += "open http";
+                }
             }
+        }catch (NullPointerException e) {
+            // 连接不上则未开启http
         }
 
         if (!message.equalsIgnoreCase("")){
