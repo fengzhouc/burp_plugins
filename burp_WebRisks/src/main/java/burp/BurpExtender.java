@@ -39,7 +39,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JTextField tfFilterText_c; //Cookie
     private JTextField tfFilterText_cve; //cve 漏洞扫描
     private String domain = ".*";
-    public static String cookie = "";
+    public static String cookie = "cookie:xxx";
     private String url = "";
     JSplitPane splitPane;
 
