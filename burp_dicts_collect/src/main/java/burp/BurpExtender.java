@@ -1,7 +1,5 @@
 package burp;
 
-import com.sun.tools.javac.util.StringUtils;
-
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
