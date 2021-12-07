@@ -3,9 +3,7 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class BypassAuth extends VulTaskImpl {
@@ -57,6 +55,8 @@ public class BypassAuth extends VulTaskImpl {
         bypass_str.add(";");
         bypass_str.add("/./");
         bypass_str.add("////");
+        bypass_str.add("%00");
+        bypass_str.add("%20");
 
         // 将path拆解
         String[] paths = path.split("/");
