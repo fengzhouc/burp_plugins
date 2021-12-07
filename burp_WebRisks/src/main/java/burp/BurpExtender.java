@@ -175,13 +175,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 JLabel note_cve = new JLabel("注: cve漏洞扫描, 待规划");
                 note_cve.setForeground(new Color(255, 0, 0));
                 panel_cve.add(note_cve);
+                // cve UI end
                 //构造总设置UI
                 JPanel panel_a = new JPanel();
                 BoxLayout boxLayout = new BoxLayout(panel_a, BoxLayout.Y_AXIS);
                 panel_a.setLayout(boxLayout);
                 panel_a.add(panel);
                 panel_a.add(panel_c);
-                panel_a.add(panel_cve);
+//                panel_a.add(panel_cve); // cve待规划
                 //添加设置的UI到总UI
                 contentPane.add(panel_a, BorderLayout.NORTH);
 
