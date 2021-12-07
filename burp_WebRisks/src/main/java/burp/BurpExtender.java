@@ -296,15 +296,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 // jsonp
                 new Jsonp(helpers, callbacks, log, messageInfo).run();
                 // secure headers
-                new SecureHeader(helpers, callbacks, log, messageInfo).run();
+//                new SecureHeader(helpers, callbacks, log, messageInfo).run();
                 // Redirect
                 new Redirect(helpers, callbacks, log, messageInfo).run();
                 // cookie安全属性
-                new SecureCookie(helpers, callbacks, log, messageInfo).run();
+//                new SecureCookie(helpers, callbacks, log, messageInfo).run();
                 // https
-                new Https(helpers, callbacks, log, messageInfo).run();
+//                new Https(helpers, callbacks, log, messageInfo).run();
                 // index of 目录浏览
                 new IndexOf(helpers, callbacks, log, messageInfo).run();
+                // 绕过鉴权
+                new BypassAuth(helpers, callbacks, log, messageInfo).run();
 
 
                 // 漏洞检测任务，需要调整到cve漏洞扫描模块
