@@ -86,7 +86,7 @@ public class BypassAuth extends VulTaskImpl {
 
             //新的请求包
             byte[] req = this.helpers.buildHttpMessage(new_headers, request_body);
-            callbacks.printOutput(new String(req));
+//            callbacks.printOutput(new String(req));
             IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
             //新的返回包
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
