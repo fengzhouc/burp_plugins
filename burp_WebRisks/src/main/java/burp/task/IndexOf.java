@@ -55,12 +55,14 @@ public class IndexOf extends VulTaskImpl {
         byte[] req = this.helpers.buildHttpMessage(new_headers, new byte[]{});
         IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
         //新的返回包
-        IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-        //获取body信息
-        String messageBody = new String(messageInfo1.getResponse()).substring(analyzeResponse1.getBodyOffset());
-        if (messageBody.contains("Index of")){
-            message = "Index of /";
-        }
+        try {  // 因为waf的reset导致的NullPointerException
+            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
+            //获取body信息
+            String messageBody = new String(messageInfo1.getResponse()).substring(analyzeResponse1.getBodyOffset());
+            if (messageBody.contains("Index of")){
+                message = "Index of /";
+            }
+        } catch (NullPointerException e) { }
 
         if (!message.equalsIgnoreCase("")){
             result = logAdd(messageInfo_r, host, path, method, status_code, message, "");
