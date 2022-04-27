@@ -379,70 +379,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public int consolidateDuplicateIssues(IScanIssue existingIssue, IScanIssue newIssue) {
         return 0;
     }
-    public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
-        String host = helpers.analyzeRequest(messageInfo).getUrl().getHost();
-//        callbacks.printOutput(host);
-        Pattern pattern = Pattern.compile(domain);
-        Matcher m = pattern.matcher(host);
-        boolean m_host = m.find();
-        if (!kg || !m_host){
-            return;
-        }
-        if (!messageIsRequest) {
-            int row = log.size();
-            VulResult result = null;
-            if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy4/spider8/scanner16/repeater64
-                try {  // 因为waf的reset导致的NullPointerException
-                    // Web基础漏洞扫描
-                    // jsoncsrf的检测
-                    new JsonCsrf(helpers, callbacks, log, messageInfo).run();
-                    // CORS 跨域请求
-                    new Cors(helpers, callbacks, log, messageInfo).run();
-                    // 未授权访问, 误报太多, 待改进
-                    new IDOR(helpers, callbacks, log, messageInfo).run();
-                    // 横纵向越权, 纵向越权一般是测试管理后台的时候
-                    new IDOR_xy(helpers, callbacks, log, messageInfo).run();
-                    // jsonp
-                    new Jsonp(helpers, callbacks, log, messageInfo).run();
-                    // secure headers
-    //                new SecureHeader(helpers, callbacks, log, messageInfo).run();
-                    // Redirect
-                    new Redirect(helpers, callbacks, log, messageInfo).run();
-                    // cookie安全属性
-    //                new SecureCookie(helpers, callbacks, log, messageInfo).run();
-                    // https
-    //                new Https(helpers, callbacks, log, messageInfo).run();
-                    // index of 目录浏览
-                    new IndexOf(helpers, callbacks, log, messageInfo).run();
-                    // 绕过鉴权
-                    new BypassAuth(helpers, callbacks, log, messageInfo).run();
-
-
-                    // 漏洞检测任务，需要调整到cve漏洞扫描模块
-                    // tomcat put jsp
-                    new PutJsp(helpers, callbacks, log, messageInfo).run();
-                    // LandrayOa
-                    new LandrayOa(helpers, callbacks, log, messageInfo).run();
-                } catch (NullPointerException ignored) { }
-
-            }
-            int lastRow = getRowCount();
-            /*
-            * 1、无结果, row == lastRow
-            * 2、1个或以上结果,row < lastRow
-            * 所以，有添加的时候在通过有添加数据
-            * */
-            if (row < lastRow) {
-                /*
-                 * fix：java.lang.IndexOutOfBoundsException: Invalid range
-                 * 没有添加数据还通知有数据被添加，会导致setAutoCreateRowSorter排序出现Invalid range异常
-                 */
-                //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
-                fireTableRowsInserted(row, lastRow - 1);
-            }
-        }
-    }
-
 
     public String getTabCaption() {
         return "WebRisks";
@@ -451,8 +387,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public Component getUiComponent() {
         return contentPane;
     }
-
-
 
     /*
      * 下面是Table的一些方法，主要是结果面板的数据展示，可定制，修改如下数据即可
