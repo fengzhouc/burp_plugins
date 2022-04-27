@@ -1,10 +1,10 @@
 package burp.task;
 
 import burp.*;
-import burp.api.IBurpExtenderCallbacks;
-import burp.api.IExtensionHelpers;
-import burp.api.IHttpRequestResponse;
-import burp.api.IResponseInfo;
+import burp.IBurpExtenderCallbacks;
+import burp.IExtensionHelpers;
+import burp.IHttpRequestResponse;
+import burp.IResponseInfo;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import java.util.ArrayList;

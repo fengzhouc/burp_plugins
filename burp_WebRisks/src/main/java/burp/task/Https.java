@@ -1,7 +1,6 @@
 package burp.task;
 
 import burp.*;
-import burp.api.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
@@ -47,14 +46,17 @@ public class Https extends VulTaskImpl {
         }, req);
         //新的返回包
         try {
-            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-            if (analyzeResponse1.getStatusCode() == status_code) {
-                if (!message.equalsIgnoreCase("")) {
-                    message += ", and open http";
-                } else {
-                    message = "open http";
+            byte[] resp = messageInfo1.getResponse();
+            if (resp != null) {
+                IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(resp);
+                if (analyzeResponse1.getStatusCode() == status_code) {
+                    if (!message.equalsIgnoreCase("")) {
+                        message += ", and open http";
+                    } else {
+                        message = "open http";
+                    }
+                    this.messageInfo_r = messageInfo1;
                 }
-                this.messageInfo_r = messageInfo1;
             }
         }catch (NullPointerException e) {
             // 连接不上则未开启http

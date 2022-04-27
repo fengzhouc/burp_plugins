@@ -1,7 +1,6 @@
 package burp.vuls;
 
 import burp.*;
-import burp.api.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 

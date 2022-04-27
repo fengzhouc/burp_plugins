@@ -1,9 +1,9 @@
 package burp.util;
 
-import burp.api.IBurpExtenderCallbacks;
-import burp.api.IExtensionHelpers;
-import burp.api.IHttpRequestResponse;
-import burp.api.IHttpService;
+import burp.IBurpExtenderCallbacks;
+import burp.IExtensionHelpers;
+import burp.IHttpRequestResponse;
+import burp.IHttpService;
 
 import java.util.List;
 

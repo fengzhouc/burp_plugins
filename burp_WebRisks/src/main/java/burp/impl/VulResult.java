@@ -1,6 +1,6 @@
 package burp.impl;
 
-import burp.api.IHttpRequestResponse;
+import burp.IHttpRequestResponse;
 
 public class VulResult {
 

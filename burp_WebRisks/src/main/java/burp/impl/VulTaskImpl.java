@@ -1,7 +1,6 @@
 package burp.impl;
 
 import burp.*;
-import burp.api.*;
 
 import java.io.InputStream;
 import java.util.ArrayList;
