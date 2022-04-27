@@ -197,6 +197,7 @@ public abstract class VulTaskImpl {
     protected String loadPayloads(String filepath){
         StringBuilder payloads = new StringBuilder();
         InputStream inStream = VulTaskImpl.class.getResourceAsStream(filepath);
+        assert inStream != null;
         try(Scanner scanner = new Scanner(inStream)){
             while (scanner.hasNextLine()){
                 payloads.append(scanner.nextLine()).append("\n");
