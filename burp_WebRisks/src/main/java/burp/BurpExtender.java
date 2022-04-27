@@ -51,8 +51,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     //发包器,单例模式
     public static Requester requester;
     //本地缓存，存放已检测过的请求，检测过就不检测了
-    private LRUCache localCache = new LRUCache(100000);
-    private MessageDigest md = MessageDigest.getInstance("MD5");
+    private final LRUCache localCache = new LRUCache(100000);
+    private final MessageDigest md = MessageDigest.getInstance("MD5");
 
     public BurpExtender() throws NoSuchAlgorithmException {
     }
