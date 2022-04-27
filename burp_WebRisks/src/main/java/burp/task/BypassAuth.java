@@ -38,17 +38,7 @@ public class BypassAuth extends VulTaskImpl {
 
         // 将path拆解
         String[] paths = path.split("/");
-        List<String> bypass_path = new ArrayList<String>();
-        // 添加bypass，如:/api/test -> /api/xxx/../test/xxx/../
-        for (String str :
-                bypass_str) {
-            StringBuilder sb = new StringBuilder();
-            for (String p :
-                    paths) {
-                sb.append(p + str + "/");
-            }
-            bypass_path.add(sb.toString());
-        }
+        List<String> bypass_path = createPath(bypass_str, path);
         //修改api
         String query = request_header_list.get(0);
         List<String> new_headers = request_header_list;
@@ -70,19 +60,43 @@ public class BypassAuth extends VulTaskImpl {
             String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
             status = analyzeResponse1.getStatusCode();
 
-            //如果状态码相同则可能存在问题
-            if (status_code == analyzeResponse1.getStatusCode()
-                    && resp_body.equalsIgnoreCase(rep1_body)) {
+            //如果状态码200,然后响应内容不同，则存在url鉴权绕过
+            if (status == 200 && !resp_body.equalsIgnoreCase(rep1_body)) {
                 message = "BypassAuth";
                 messageInfo_r = messageInfo1;
+                break;
             }
         }
-
 
         if (!message.equalsIgnoreCase("")){
             result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;
+    }
+
+    private List<String> createPath(List<String> bypass_str, String urlpath){
+        // 将path拆解
+        String[] paths = path.split("/");
+        List<String> bypass_path = new ArrayList<String>();
+        // 添加bypass，如:/api/test
+        // /api;/test
+        // /api/xx;/../test
+        for (String str : bypass_str) {
+            for (int i = 0; i< paths.length -1; i++){
+                String bypassStr = paths[i] + str;
+                StringBuilder sb = new StringBuilder();
+                for (int j = 0; j< paths.length -1; j++) {
+                    if (i == j){
+                        sb.append(bypassStr).append("/");
+                        continue;
+                    }
+                    sb.append(paths[j]).append("/");
+                }
+                sb.append(paths[paths.length - 1]); //最后一个path不参与，直接添加
+                bypass_path.add(sb.toString());
+            }
+        }
+        return bypass_path;
     }
 }
