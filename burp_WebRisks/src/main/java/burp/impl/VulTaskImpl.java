@@ -81,52 +81,33 @@ public abstract class VulTaskImpl {
     /*
     * TODO 漏洞检测任务的具体逻辑
     * 大概模板, 根据需要上下文删除不必要的代码
-    * String message = "";
-        //返回信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        String response_info = new String(messageInfo.getResponse());
-        String rep_body = response_info.substring(analyzeResponse.getBodyOffset());
-        short status_code = analyzeResponse.getStatusCode();
-        List<String> response_header_list = analyzeResponse.getHeaders();
-        //请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
-        String request_info = new String(messageInfo.getRequest());
-        List<String> request_header_list = analyzeRequest.getHeaders();
-        //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        //String param = param_list.toString();
-        String method = analyzeRequest.getMethod();
-        int id = rows + 1;
-        IHttpRequestResponse messageInfo_r = null;
-        short status = status_code;
-        //获取body信息
-        String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
-        byte[] request_body = messageBody.getBytes();
-
-        //具体逻辑 start
-            List<String> new_headers1 = request_header_list;
-            new_headers1.remove(0);
-            new_headers1.add(0, "OPTIONS / HTTP/1.1");
-            //新的请求包
-            byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
-            IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
-            //新的返回包
-            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-            status = analyzeResponse1.getStatusCode();
-            //结果判断
-            if (status == 201){
-                    message = "PutJsp";
-                    messageInfo_r = messageInfo2;
-             }
-        //具体逻辑 end
-
-        if (!message.equalsIgnoreCase("")){
-            logAdd(id, messageInfo_r, host, path, method, status, message);
+    *
+        // 后缀检查，静态资源不做测试
+        if (isStaticSource(path)){
+            return null;
         }
-        return new VulResult(message, status_code, messageInfo_r, path, host);
-    * */
+        //具体逻辑 start
+        List<String> new_headers1 = request_header_list;
+        new_headers1.remove(0);
+        new_headers1.add(0, "OPTIONS / HTTP/1.1");
+        //新的请求包
+        byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
+        IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+        //新的返回包
+        IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
+        status = analyzeResponse1.getStatusCode();
+        //结果判断
+        if (status == 201){
+                message = "PutJsp";
+                messageInfo_r = messageInfo2;
+         }
+        //具体逻辑 end
+         if (!message.equalsIgnoreCase("")){
+            result = logAdd(messageInfo_r, host, "/", method, status_code, message, payloads);
+        }
+
+        return result;
+     **/
     public abstract VulResult run();
 
 
