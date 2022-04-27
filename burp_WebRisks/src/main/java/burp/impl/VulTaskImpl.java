@@ -125,7 +125,7 @@ public abstract class VulTaskImpl {
         suffixs.add(".svg");
         for (String suffix :
                 suffixs) {
-            if (path.endsWith(suffix)) {
+            if (path.split("/?")[0].endsWith(suffix)) { //防止参数参数影响后缀判断
                 return true;
             }
         }
