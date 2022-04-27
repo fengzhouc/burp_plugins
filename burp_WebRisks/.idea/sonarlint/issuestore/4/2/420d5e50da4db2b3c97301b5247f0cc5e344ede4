@@ -1,0 +1,19 @@
+
+m	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÕÑÜ›8³ÛÂ©/
+m	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ø˜’ö8³ÛÂ©/
+r	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(²×­Áÿÿÿÿÿ8š×âÂ©/
+f	java:S117!"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ñõè
+f	java:S117'"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ãÜãï
+H
+java:S1128
+"-Remove this unused import 'java.util.Locale'.(åğ×±ûÿÿÿÿ
+F
+java:S1128"0Remove this unused import 'java.util.ArrayList'.(÷‰îƒ
+e
+java:S1854"HRemove this useless assignment to local variable "response_header_list".(Ø˜’ö8¸ÛÂ©/
+\
+java:S1854"?Remove this useless assignment to local variable "status_code".(ÕÑÜ›8×âÂ©/
+M
+java:S1481"0Remove this unused "status_code" local variable.(ÕÑÜ›8¡×âÂ©/
+V
+java:S1481"9Remove this unused "response_header_list" local variable.(Ø˜’ö8ÀÛÂ©/

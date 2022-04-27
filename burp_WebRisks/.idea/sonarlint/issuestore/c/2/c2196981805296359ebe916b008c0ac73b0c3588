@@ -1,0 +1,52 @@
+
+g	java:S117Å"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(’ÓéÕ
+>
+java:S1604B"(Make this anonymous inner class a lambda(ÅÂ©
+>
+java:S1604R"(Make this anonymous inner class a lambda(ÄßÑõ
+>
+java:S1604a"(Make this anonymous inner class a lambda(ûò–İ
+C
+java:S16041"(Make this anonymous inner class a lambda(Õ‰²­ıÿÿÿÿ
+m
+java:S1104"RMake stdout a static final constant or non-public and provide accessors if needed.(‘Ú›úøÿÿÿÿ
+F
+java:S1948"+Make "callbacks" transient or serializable.(Šø€Òıÿÿÿÿ
+D
+java:S1948")Make "helpers" transient or serializable.(´íÜÍùÿÿÿÿ
+J
+java:S1948"/Make "requestViewer" transient or serializable.(‹Ú¸¸ùÿÿÿÿ
+K
+java:S1948"0Make "responseViewer" transient or serializable.(çÎ‹¥ûÿÿÿÿ
+S
+java:S1948"8Make "currentlyDisplayedItem" transient or serializable.(ŒÉ’ùÿÿÿÿ
+C
+java:S1948"(Make "stdout" transient or serializable.(‘Ú›úøÿÿÿÿ
+C
+java:S1948""(Make "sorter" transient or serializable.(ö§Ãºıÿÿÿÿ
+t
+java:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(û©½Üúÿÿÿÿ
+M
+java:S1135v"2Complete the task associated to this TODO comment.(Ä¥Üùÿÿÿÿ
+t
+java:S2293w"YReplace the type specification in this constructor call with the diamond operator ("<>").(±ˆÎ”şÿÿÿÿ
+P	java:S125x"<This block of commented-out lines of code should be removed.(óûşY
+i	java:S100£"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ø¡·†ıÿÿÿÿ
+i	java:S100°"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(×¸Œ‡ûÿÿÿÿ
+d	java:S100¶"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(äÜ„¶
+N
+java:S1135µ"2Complete the task associated to this TODO comment.(ıÛãúÿÿÿÿ
+W	java:S125Â"<This block of commented-out lines of code should be removed.(¹Í¯æùÿÿÿÿ
+W	java:S125Ì"<This block of commented-out lines of code should be removed.(ß¦êúÿÿÿÿ
+e	java:S116ç"ORename this field "Host" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(÷©ï
+j	java:S116è"ORename this field "Path" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(€š»«şÿÿÿÿ
+l	java:S116é"QRename this field "Method" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ô¸ÈÀÿÿÿÿÿ
+g	java:S116ê"QRename this field "Status" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(”ŸÌ•
+j	java:S116ë"ORename this field "Risk" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÃÖÁÍùÿÿÿÿ
+R	java:S125á"<This block of commented-out lines of code should be removed.(Â¹•‡
+R	java:S125æ"<This block of commented-out lines of code should be removed.(ğ•îÓ
+W	java:S125ó"<This block of commented-out lines of code should be removed.(¶‡áÿÿÿÿÿ
+B
+java:S1481Ë"+Remove this unused "result" local variable.(ªú”‚
+B
+java:S1144¶"+Remove this unused private "Filter" method.(äÜ„¶

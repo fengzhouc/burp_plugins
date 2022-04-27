@@ -28,10 +28,6 @@ public class Jsonp extends VulTaskImpl {
             return null;
         }
 
-        //获取body信息
-        String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
-        byte[] request_body = messageBody.getBytes();
-
         //1.请求的url中含Jsonp敏感参数
         String query = request_header_list.get(0);
         if (query.contains("callback=")
@@ -59,7 +55,7 @@ public class Jsonp extends VulTaskImpl {
             new_headers.add(0, header_first);
 
             //新的请求包
-            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body);
+            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body_byte);
 
             //新的返回包
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());

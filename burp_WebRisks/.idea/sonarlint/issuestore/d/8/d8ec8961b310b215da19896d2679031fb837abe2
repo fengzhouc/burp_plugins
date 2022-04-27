@@ -1,0 +1,29 @@
+
+k	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(÷×ûñûÿÿÿÿ
+f	java:S117 "QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(™‡‘¤
+f	java:S117!"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÕÑÜ›
+f	java:S117""QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ø˜’ö
+k	java:S117&"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ô¬õùÿÿÿÿ
+f	java:S117'"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÿ¶¦×
+f	java:S117."QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Íğ¶Å
+f	java:S1178"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ñï²
+k	java:S117<"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(†ö˜øÿÿÿÿ
+f	java:S117Q"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(â¶»ó
+f	java:S117R"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ïûç
+J
+java:S1128"4Remove this unused import 'java.util.regex.Matcher'.(ëÅ›ã
+H
+java:S1128
+"-Remove this unused import 'java.util.Random'.(èøÉ›ùÿÿÿÿ
+O
+java:S1128"4Remove this unused import 'java.util.regex.Pattern'.(Ã•…Äúÿÿÿÿ
+P
+java:S1854/":Remove this useless assignment to local variable "status".(”Ê£¢
+^
+java:S1854""HRemove this useless assignment to local variable "response_header_list".(Ø˜’ö
+Q	java:S125,"<This block of commented-out lines of code should be removed.(æõÖÑ
+t
+java:S2293<"YReplace the type specification in this constructor call with the diamond operator ("<>").(†ö˜øÿÿÿÿ
+V	java:S125M"<This block of commented-out lines of code should be removed.(§µ®·úÿÿÿÿ
+O
+java:S1481""9Remove this unused "response_header_list" local variable.(Ø˜’ö

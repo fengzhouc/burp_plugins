@@ -30,6 +30,8 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - SecureHeader 'X-Frame-Options'
 - Redirect
 - IndexOf
+- 反射型XSS
+- SQL注入-字符型
 
 **CVE**
 - PutJsp[CVE-2017-12615]

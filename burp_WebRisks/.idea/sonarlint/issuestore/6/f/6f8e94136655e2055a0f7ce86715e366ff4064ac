@@ -1,0 +1,29 @@
+
+k	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(÷×ûñûÿÿÿÿ
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(™‡‘¤
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÕÑÜ›
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ø˜’ö
+k	java:S117""QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ô¬õùÿÿÿÿ
+f	java:S117#"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÿ¶¦×
+f	java:S117)"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Íğ¶Å
+f	java:S1173"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ñï²
+k	java:S117?"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(•ÀÌÔûÿÿÿÿ
+f	java:S117@"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÃØÍ¼
+e	java:S117O"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÈÄ¡4
+P
+java:S1854*":Remove this useless assignment to local variable "status".(”Ê£¢
+^
+java:S1854"HRemove this useless assignment to local variable "response_header_list".(Ø˜’ö
+R
+java:S1854"<Remove this useless assignment to local variable "rep_body".(™‡‘¤
+V	java:S1257"<This block of commented-out lines of code should be removed.(ŸÊŒÿÿÿÿÿ
+V	java:S125J"<This block of commented-out lines of code should be removed.(§µ®·úÿÿÿÿ
+V	java:S125U"<This block of commented-out lines of code should be removed.(è¸õÑûÿÿÿÿ
+G
+java:S1481",Remove this unused "message" local variable.(¥İ£ ÿÿÿÿÿ
+C
+java:S1481"-Remove this unused "rep_body" local variable.(™‡‘¤
+O
+java:S1481"9Remove this unused "response_header_list" local variable.(Ø˜’ö
+H
+java:S1481)"2Remove this unused "messageInfo_r" local variable.(Íğ¶Å

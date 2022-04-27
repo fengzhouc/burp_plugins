@@ -22,12 +22,13 @@ public abstract class VulTaskImpl {
     protected IRequestInfo analyzeRequest; //请求对象
     protected String request_info; //完整请求信息，包含请求头
     protected List<String> request_header_list; //请求头信息
-    protected byte[] request_body; //请求body
+    protected String request_body_str; //请求体信息
+    protected byte[] request_body_byte; //请求body
     //响应信息
     protected IResponseInfo analyzeResponse; //响应对象
     protected String response_info; //完整响应信息，包含响应头
     protected List<String> response_header_list; //响应头信息
-    protected String resp_body; //响应体信息
+    protected String resp_body_str; //响应体信息
     protected short status_code; //响应状态码
     //返回UI面板的信息
     protected String host;
@@ -53,8 +54,8 @@ public abstract class VulTaskImpl {
         this.analyzeRequest = this.helpers.analyzeRequest(messageInfo);
         this.request_info = new String(messageInfo.getRequest());
         this.request_header_list = analyzeRequest.getHeaders();
-        String messageBody = this.request_info.substring(analyzeRequest.getBodyOffset());
-        this.request_body = messageBody.getBytes();
+        this.request_body_str = this.request_info.substring(analyzeRequest.getBodyOffset());
+        this.request_body_byte = request_body_str.getBytes();
         //响应信息
         byte[] resp = messageInfo.getResponse();
         if (resp == null){
@@ -63,7 +64,7 @@ public abstract class VulTaskImpl {
         }else{
             this.analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
             this.response_info = new String(messageInfo.getResponse());
-            this.resp_body = this.response_info.substring(this.analyzeResponse.getBodyOffset());
+            this.resp_body_str = this.response_info.substring(this.analyzeResponse.getBodyOffset());
         }
         this.response_header_list = this.analyzeResponse.getHeaders();
         this.status_code = this.analyzeResponse.getStatusCode();

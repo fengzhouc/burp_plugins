@@ -338,8 +338,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // 绕过鉴权
             new BypassAuth(helpers, callbacks, log, messageInfo).run();
             // TODO 敏感路径扫描
-            // TODO SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
-            // TODO XSS探测，同上，只做反射探测，特殊响应是否出现在响应中，在手工确认
+            // SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
+            new SqlInject(helpers, callbacks, log, messageInfo).run();
+            // 反射型XSS探测
+            new XssReflect(helpers, callbacks, log, messageInfo).run();
             // TODO 文件上传漏洞，如目录穿越、敏感文件后缀
             // TODO 敏感信息监测，如手机号、身份证、邮箱、userid等
 

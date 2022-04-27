@@ -49,7 +49,7 @@ public class IDOR extends VulTaskImpl {
             return null;
         }
         //新的请求包
-        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body);
+        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body_byte);
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
         String response_info1 = new String(messageInfo1.getResponse());
@@ -58,7 +58,7 @@ public class IDOR extends VulTaskImpl {
 
         //如果状态码相同则可能存在问题
         if (status_code == analyzeResponse1.getStatusCode()
-                && resp_body.equalsIgnoreCase(rep1_body)) {
+                && resp_body_str.equalsIgnoreCase(rep1_body)) {
             message = "IDOR";
             messageInfo_r = messageInfo1;
         }

@@ -53,7 +53,7 @@ public class BypassAuth extends VulTaskImpl {
             new_headers.add(0, header_first);
 
             //新的请求包
-            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body);
+            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body_byte);
             //新的返回包
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String response_info1 = new String(messageInfo1.getResponse());
@@ -61,7 +61,7 @@ public class BypassAuth extends VulTaskImpl {
             status = analyzeResponse1.getStatusCode();
 
             //如果状态码200,然后响应内容不同，则存在url鉴权绕过
-            if (status == 200 && !resp_body.equalsIgnoreCase(rep1_body)) {
+            if (status == 200 && !resp_body_str.equalsIgnoreCase(rep1_body)) {
                 message = "BypassAuth";
                 messageInfo_r = messageInfo1;
                 break;

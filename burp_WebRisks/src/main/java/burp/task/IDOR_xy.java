@@ -31,10 +31,6 @@ public class IDOR_xy extends VulTaskImpl {
             return null;
         }
 
-        //获取body信息
-        String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
-        byte[] request_body = messageBody.getBytes();
-
         //1、删除cookie，重新发起请求，与原始请求状态码一致则可能存在未授权访问
         // 只测试原本有cookie的请求
         List<String> new_headers1 = new ArrayList<String>();
@@ -58,7 +54,7 @@ public class IDOR_xy extends VulTaskImpl {
             return null;
         }
         //新的请求包
-        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body);
+        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body_byte);
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
         String response_info1 = new String(messageInfo1.getResponse());
@@ -67,7 +63,7 @@ public class IDOR_xy extends VulTaskImpl {
 
         //如果状态码相同则可能存在问题
         if (status_code == analyzeResponse1.getStatusCode()
-                && resp_body.equalsIgnoreCase(rep1_body)) {
+                && resp_body_str.equalsIgnoreCase(rep1_body)) {
             message = "IDOR_xy";
             messageInfo_r = messageInfo1;
         }
