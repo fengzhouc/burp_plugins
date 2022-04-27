@@ -23,8 +23,6 @@ public class JsonCsrf extends VulTaskImpl {
          *   （2）再检查Access-Control-Allow-Origin是否为*
          *   （3）不满足（2）则修改/添加请求头Origin为http://evil.com，查看响应头Access-Control-Allow-Origin的值是否是http://evil.com
          * */
-        String decs = "";
-
         // 后缀检查，静态资源不做测试
         if (isStaticSource(path)){
             return null;
@@ -58,9 +56,7 @@ public class JsonCsrf extends VulTaskImpl {
 
             if (!method.equalsIgnoreCase("get")) {
                 //新的请求包:content-type
-                byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
-//                    callbacks.printOutput(new String(req));
-                IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+                IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body);
                 //新的返回包
                 IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
                 String response_info1 = new String(messageInfo1.getResponse());
@@ -72,7 +68,6 @@ public class JsonCsrf extends VulTaskImpl {
                         && resp_body.equalsIgnoreCase(rep1_body)) {
                     message = "JsonCsrf";
                     messageInfo_r = messageInfo1;
-                    decs = "请求发送数据是json格式, 而接口没有限制Content-Type为application/json, 建议接口注解限制Content-Type";
                 }
             }
 
@@ -89,11 +84,8 @@ public class JsonCsrf extends VulTaskImpl {
                 if (origin.contains("*")) {
                     if (message.equalsIgnoreCase("")) {
                         message += "CORS Bypass";
-                        decs = "Access-Control-Allow-Origin配置为*, 允许任意跨域请求";
                     }else {
                         message += " & CORS Bypass";
-                        decs = "1、请求发送数据是json格式, 而接口没有限制Content-Type为application/json, 建议接口注解限制Content-Type\n" +
-                                "2、Access-Control-Allow-Origin配置为*, 允许任意跨域请求";
                     }
                     messageInfo_r = messageInfo;
                 }else {
@@ -127,12 +119,9 @@ public class JsonCsrf extends VulTaskImpl {
                     if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
                         if (message.equalsIgnoreCase("")) {
                             message += "CORS Bypass";
-                            decs = "Access-Control-Allow-Origin根据请求头Origin, 允许任意跨域请求";
                             messageInfo_r = messageInfo1;
                         }else {
                             message += " & CORS Bypass";
-                            decs = "1、Access-Control-Allow-Origin根据请求头Origin, 允许任意跨域请求\n" +
-                                    "2、Access-Control-Allow-Origin配置为*, 允许任意跨域请求";
                             messageInfo_r = messageInfo1;
                         }
                     }
@@ -140,7 +129,7 @@ public class JsonCsrf extends VulTaskImpl {
             }
         }
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, decs);
+            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;

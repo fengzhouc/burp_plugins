@@ -45,7 +45,7 @@ public class SecureCookie extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status_code, message, "");
+            result = logAdd(messageInfo_r, host, path, method, status_code, message, payloads);
         }
 
         return result;

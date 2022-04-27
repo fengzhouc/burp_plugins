@@ -49,9 +49,7 @@ public class Redirect extends VulTaskImpl {
             new_headers.add(0, header_first);
 
             //新的请求包
-            byte[] req = this.helpers.buildHttpMessage(new_headers, request_body);
-//           callbacks.printOutput(new String(req));
-            IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body);
 
             //新的返回包
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
@@ -63,7 +61,7 @@ public class Redirect extends VulTaskImpl {
                     response_header_list1) {
 //                callbacks.printOutput(header);
                 if (header.contains("evil.com")) {
-                    result = logAdd(messageInfo1, host, path, method, status, "Redirect", "");
+                    result = logAdd(messageInfo1, host, path, method, status, "Redirect", payloads);
                 }
             }
         }

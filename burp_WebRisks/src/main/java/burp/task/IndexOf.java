@@ -35,8 +35,7 @@ public class IndexOf extends VulTaskImpl {
         new_headers.add(0, header_first);
 
         //新的请求包
-        byte[] req = this.helpers.buildHttpMessage(new_headers, new byte[]{});
-        IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, new byte[]{});
         //新的返回包
 
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
@@ -47,7 +46,7 @@ public class IndexOf extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status_code, message, "");
+            result = logAdd(messageInfo_r, host, path, method, status_code, message, payloads);
         }
 
         return result;

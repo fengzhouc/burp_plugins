@@ -61,7 +61,7 @@ public class Https extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, "/", method, status_code, message, "");
+            result = logAdd(messageInfo_r, host, "/", method, status_code, message, payloads);
         }
 
         return result;

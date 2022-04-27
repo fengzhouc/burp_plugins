@@ -5,6 +5,7 @@ import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,8 +32,7 @@ public class PutJsp extends VulTaskImpl {
         new_headers1.add(0, "OPTIONS / HTTP/1.1");
 
         //新的请求包
-        byte[] req = this.helpers.buildHttpMessage(new_headers1, "".getBytes());
-        IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, "".getBytes());
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
         List<String> response1_header_list = analyzeResponse1.getHeaders();
@@ -87,7 +87,7 @@ public class PutJsp extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, "");
+            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;

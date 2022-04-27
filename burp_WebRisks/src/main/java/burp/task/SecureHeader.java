@@ -44,7 +44,7 @@ public class SecureHeader extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, "");
+            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;

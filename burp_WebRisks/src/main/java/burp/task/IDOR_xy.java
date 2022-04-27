@@ -54,9 +54,7 @@ public class IDOR_xy extends VulTaskImpl {
             return null;
         }
         //新的请求包
-        byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
-//        callbacks.printOutput(new String(req));
-        IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body);
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
         String response_info1 = new String(messageInfo1.getResponse());
@@ -71,7 +69,7 @@ public class IDOR_xy extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, "");
+            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;

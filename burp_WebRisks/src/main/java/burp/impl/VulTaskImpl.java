@@ -34,6 +34,7 @@ public abstract class VulTaskImpl {
     protected String method;
     protected IHttpRequestResponse messageInfo_r;
     protected short status;
+    protected String payloads; //payload列表，自己手动尝试
 
 
     public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
@@ -72,6 +73,7 @@ public abstract class VulTaskImpl {
         //String param = param_list.toString();
         this.method = analyzeRequest.getMethod();
         this.status = status_code;
+        this.payloads = "";
     }
 
     /*
@@ -144,7 +146,7 @@ public abstract class VulTaskImpl {
 
     // 添加面板展示数据
     // 已经在列表的不添加
-    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk, String desc) {
+    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk, String payloads) {
         boolean inside = false;
         int lastRow = log.size();
         for (BurpExtender.LogEntry le :
@@ -160,7 +162,7 @@ public abstract class VulTaskImpl {
         }
         if (!inside) {
             log.add(new BurpExtender.LogEntry(lastRow, callbacks.saveBuffersToTempFiles(requestResponse),
-                    host, path, method, status, risk, desc));
+                    host, path, method, status, risk, payloads));
             return new VulResult(lastRow, risk, status, requestResponse, path, host);
         }
         return null;

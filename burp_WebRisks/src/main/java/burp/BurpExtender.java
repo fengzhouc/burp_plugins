@@ -2,6 +2,7 @@ package burp;
 
 import burp.impl.VulResult;
 import burp.task.*;
+import burp.util.Requester;
 import burp.vuls.LandrayOa;
 import burp.vuls.PutJsp;
 
@@ -43,6 +44,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private String url = "";
     JSplitPane splitPane;
 
+    //发包器,单例模式
+    public static Requester requester;
+
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
         //回调对象
@@ -50,6 +54,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //获取扩展helper与stdout对象
         this.helpers = callbacks.getHelpers();
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
+        requester = Requester.getInstance(this.callbacks, this.helpers);
 
         callbacks.setExtensionName("WebRisks");
 
@@ -444,7 +449,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             JTabbedPane tabs = new JTabbedPane();
             tabs.addTab("Request", requestViewer.getComponent());
             tabs.addTab("Response", responseViewer.getComponent());
-            tabs.addTab("Description", desViewer.getComponent());
+            tabs.addTab("Payload", desViewer.getComponent());
             splitPane.setDividerLocation(200);
             splitPane.setRightComponent(tabs);
 

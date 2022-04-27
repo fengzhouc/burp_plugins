@@ -23,8 +23,6 @@ public class Cors extends VulTaskImpl {
          *   （2）再检查Access-Control-Allow-Origin是否为*
          *   （3）不满足（2）则修改/添加请求头Origin为http://evil.com，查看响应头Access-Control-Allow-Origin的值是否是http://evil.com
          * */
-        String decs = "";
-
         // 后缀检查，静态资源不做测试
         if (isStaticSource(path)){
             return null;
@@ -45,7 +43,6 @@ public class Cors extends VulTaskImpl {
             if (credentials != null && credentials.contains("true")){
                 if (origin.contains("*")) {
                     message += "CORS Bypass";
-                    decs = "Access-Control-Allow-Origin配置为*, 允许任意跨域请求";
                     messageInfo_r = messageInfo;
                 }else {
                     List<String> new_headers = request_header_list;
@@ -62,9 +59,7 @@ public class Cors extends VulTaskImpl {
 
 
                     //新的请求包:ORIGIN
-                    byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body);
-//                            callbacks.printOutput(new String(req));
-                    IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
+                    IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body);
                     //新的返回包
                     IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
                     String response_info1 = new String(messageInfo1.getResponse());
@@ -75,14 +70,13 @@ public class Cors extends VulTaskImpl {
                     //如果响应中的Access-Control-Allow-Origin跟修改的origin一样，则存在跨域
                     if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
                         message += "CORS Bypass";
-                        decs = "Access-Control-Allow-Origin根据请求头Origin, 允许任意跨域请求";
                         messageInfo_r = messageInfo1;
                     }
                 }
             }
         }
         if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, decs);
+            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;
