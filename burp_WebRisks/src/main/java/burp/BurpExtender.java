@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class BurpExtender extends AbstractTableModel implements IBurpExtender, IHttpListener, ITab, IMessageEditorController {
+public class BurpExtender extends AbstractTableModel implements IBurpExtender, IScannerCheck, ITab, IMessageEditorController {
 
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
@@ -237,7 +237,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: LandrayOa");
 
                 //注册监听器
-                callbacks.registerHttpListener(BurpExtender.this);
+//                callbacks.registerHttpListener(BurpExtender.this);
+                callbacks.registerScannerCheck(BurpExtender.this);
             }
         });
 
@@ -271,7 +272,84 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
     }
 
+    @Override
+    public List<IScanIssue> doPassiveScan(IHttpRequestResponse messageInfo) {
 
+        String host = helpers.analyzeRequest(messageInfo).getUrl().getHost();
+//        callbacks.printOutput(host);
+        Pattern pattern = Pattern.compile(domain);
+        Matcher m = pattern.matcher(host);
+        boolean m_host = m.find();
+        if (!kg || !m_host){ //是否开启插件，开启后匹配设置的domain才会尽心扫描
+            return null;
+        }
+
+        int row = log.size();
+        VulResult result = null;
+        try {  // 因为waf的reset导致的NullPointerException
+            // Web基础漏洞扫描
+            // jsoncsrf的检测
+            new JsonCsrf(helpers, callbacks, log, messageInfo).run();
+            // CORS 跨域请求
+            new Cors(helpers, callbacks, log, messageInfo).run();
+            // 未授权访问, 误报太多, 待改进
+            new IDOR(helpers, callbacks, log, messageInfo).run();
+            // 横纵向越权, 纵向越权一般是测试管理后台的时候
+            new IDOR_xy(helpers, callbacks, log, messageInfo).run();
+            // jsonp
+            new Jsonp(helpers, callbacks, log, messageInfo).run();
+            // secure headers
+            new SecureHeader(helpers, callbacks, log, messageInfo).run();
+            // Redirect
+            new Redirect(helpers, callbacks, log, messageInfo).run();
+            // cookie安全属性
+            new SecureCookie(helpers, callbacks, log, messageInfo).run();
+            // https
+            new Https(helpers, callbacks, log, messageInfo).run();
+            // index of 目录浏览
+            new IndexOf(helpers, callbacks, log, messageInfo).run();
+            // 绕过鉴权
+            new BypassAuth(helpers, callbacks, log, messageInfo).run();
+            // TODO 敏感路径扫描
+            // TODO SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
+            // TODO XSS探测，同上，只做反射探测，特殊响应是否出现在响应中，在手工确认
+
+
+            // 漏洞检测任务，需要调整到cve漏洞扫描模块
+            // tomcat put jsp
+            new PutJsp(helpers, callbacks, log, messageInfo).run();
+            // LandrayOa
+            new LandrayOa(helpers, callbacks, log, messageInfo).run();
+        } catch (NullPointerException ignored) { }
+
+
+        int lastRow = getRowCount();
+        /*
+         * 1、无结果, row == lastRow
+         * 2、1个或以上结果,row < lastRow
+         * 所以，有添加的时候在通过有添加数据
+         * */
+        if (row < lastRow) {
+            /*
+             * fix：java.lang.IndexOutOfBoundsException: Invalid range
+             * 没有添加数据还通知有数据被添加，会导致setAutoCreateRowSorter排序出现Invalid range异常
+             */
+            //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
+            fireTableRowsInserted(row, lastRow - 1);
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
+        return null;
+    }
+
+    @Override
+    public int consolidateDuplicateIssues(IScanIssue existingIssue, IScanIssue newIssue) {
+        return 0;
+    }
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         String host = helpers.analyzeRequest(messageInfo).getUrl().getHost();
 //        callbacks.printOutput(host);
@@ -285,36 +363,38 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             int row = log.size();
             VulResult result = null;
             if (toolFlag == 4 || toolFlag == 8 || toolFlag == 16 || toolFlag == 64) {//proxy4/spider8/scanner16/repeater64
-                // Web基础漏洞扫描
-                // jsoncsrf的检测
-                new JsonCsrf(helpers, callbacks, log, messageInfo).run();
-                // CORS 跨域请求
-                new Cors(helpers, callbacks, log, messageInfo).run();
-                // 未授权访问, 误报太多, 待改进
-                new IDOR(helpers, callbacks, log, messageInfo).run();
-                // 横纵向越权, 纵向越权一般是测试管理后台的时候
-                new IDOR_xy(helpers, callbacks, log, messageInfo).run();
-                // jsonp
-                new Jsonp(helpers, callbacks, log, messageInfo).run();
-                // secure headers
-//                new SecureHeader(helpers, callbacks, log, messageInfo).run();
-                // Redirect
-                new Redirect(helpers, callbacks, log, messageInfo).run();
-                // cookie安全属性
-//                new SecureCookie(helpers, callbacks, log, messageInfo).run();
-                // https
-//                new Https(helpers, callbacks, log, messageInfo).run();
-                // index of 目录浏览
-                new IndexOf(helpers, callbacks, log, messageInfo).run();
-                // 绕过鉴权
-                new BypassAuth(helpers, callbacks, log, messageInfo).run();
+                try {  // 因为waf的reset导致的NullPointerException
+                    // Web基础漏洞扫描
+                    // jsoncsrf的检测
+                    new JsonCsrf(helpers, callbacks, log, messageInfo).run();
+                    // CORS 跨域请求
+                    new Cors(helpers, callbacks, log, messageInfo).run();
+                    // 未授权访问, 误报太多, 待改进
+                    new IDOR(helpers, callbacks, log, messageInfo).run();
+                    // 横纵向越权, 纵向越权一般是测试管理后台的时候
+                    new IDOR_xy(helpers, callbacks, log, messageInfo).run();
+                    // jsonp
+                    new Jsonp(helpers, callbacks, log, messageInfo).run();
+                    // secure headers
+    //                new SecureHeader(helpers, callbacks, log, messageInfo).run();
+                    // Redirect
+                    new Redirect(helpers, callbacks, log, messageInfo).run();
+                    // cookie安全属性
+    //                new SecureCookie(helpers, callbacks, log, messageInfo).run();
+                    // https
+    //                new Https(helpers, callbacks, log, messageInfo).run();
+                    // index of 目录浏览
+                    new IndexOf(helpers, callbacks, log, messageInfo).run();
+                    // 绕过鉴权
+                    new BypassAuth(helpers, callbacks, log, messageInfo).run();
 
 
-                // 漏洞检测任务，需要调整到cve漏洞扫描模块
-                // tomcat put jsp
-                new PutJsp(helpers, callbacks, log, messageInfo).run();
-                // LandrayOa
-                new LandrayOa(helpers, callbacks, log, messageInfo).run();
+                    // 漏洞检测任务，需要调整到cve漏洞扫描模块
+                    // tomcat put jsp
+                    new PutJsp(helpers, callbacks, log, messageInfo).run();
+                    // LandrayOa
+                    new LandrayOa(helpers, callbacks, log, messageInfo).run();
+                } catch (NullPointerException ignored) { }
 
             }
             int lastRow = getRowCount();
@@ -342,6 +422,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public Component getUiComponent() {
         return contentPane;
     }
+
+
 
     /*
      * 下面是Table的一些方法，主要是结果面板的数据展示，可定制，修改如下数据即可
