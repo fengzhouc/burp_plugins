@@ -58,7 +58,6 @@ public class Https extends VulTaskImpl {
             }
         }catch (NullPointerException e) {
             // 连接不上则未开启http
-            this.messageInfo_r = messageInfo;
         }
 
         if (!message.equalsIgnoreCase("")){
