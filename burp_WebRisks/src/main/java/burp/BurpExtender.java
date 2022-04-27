@@ -1,5 +1,6 @@
 package burp;
 
+import burp.api.*;
 import burp.impl.VulResult;
 import burp.task.*;
 import burp.util.Requester;

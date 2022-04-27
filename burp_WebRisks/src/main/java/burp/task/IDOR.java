@@ -1,15 +1,16 @@
 package burp.task;
 
 import burp.*;
+import burp.api.IBurpExtenderCallbacks;
+import burp.api.IExtensionHelpers;
+import burp.api.IHttpRequestResponse;
+import burp.api.IResponseInfo;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class IDOR extends VulTaskImpl {
 

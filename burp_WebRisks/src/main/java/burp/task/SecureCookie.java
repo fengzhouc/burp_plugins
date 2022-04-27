@@ -1,10 +1,12 @@
 package burp.task;
 
 import burp.*;
+import burp.api.IBurpExtenderCallbacks;
+import burp.api.IExtensionHelpers;
+import burp.api.IHttpRequestResponse;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;

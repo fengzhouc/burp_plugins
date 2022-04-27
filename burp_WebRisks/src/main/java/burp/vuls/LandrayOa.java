@@ -1,13 +1,12 @@
 package burp.vuls;
 
 import burp.*;
+import burp.api.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class LandrayOa extends VulTaskImpl {
 

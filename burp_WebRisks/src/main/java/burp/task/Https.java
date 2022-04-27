@@ -1,10 +1,10 @@
 package burp.task;
 
 import burp.*;
+import burp.api.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 

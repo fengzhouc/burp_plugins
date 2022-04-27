@@ -1,11 +1,13 @@
 package burp.vuls;
 
 import burp.*;
+import burp.api.IBurpExtenderCallbacks;
+import burp.api.IExtensionHelpers;
+import burp.api.IHttpRequestResponse;
+import burp.api.IResponseInfo;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
