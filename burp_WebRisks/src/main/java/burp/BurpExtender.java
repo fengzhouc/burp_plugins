@@ -247,6 +247,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
                 callbacks.printOutput("#Task: Redirect");
                 callbacks.printOutput("#Task: IndexOf");
+                callbacks.printOutput("#Task: SqlInject");
+                callbacks.printOutput("#Task: XssEeflect");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
                 callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");

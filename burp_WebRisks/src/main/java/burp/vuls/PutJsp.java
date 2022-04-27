@@ -1,10 +1,6 @@
 package burp.vuls;
 
 import burp.*;
-import burp.IBurpExtenderCallbacks;
-import burp.IExtensionHelpers;
-import burp.IHttpRequestResponse;
-import burp.IResponseInfo;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
