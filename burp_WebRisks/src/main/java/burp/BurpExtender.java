@@ -122,7 +122,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 flowLayout_c.setAlignment(FlowLayout.LEFT);
                 // 设置cookie的UI
                 JButton btnFilter_c = new JButton("Cookie");
-                btnFilter_c.setToolTipText("填写后需点击此按钮,才能设置Cookie");
+                btnFilter_c.setToolTipText("填写后需点击此按钮,才能设置Cookie,格式 cookie:xxx,token也可以");
                 btnFilter_c.setPreferredSize(new Dimension(70,28)); // 按钮大小
                 btnFilter_c.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
