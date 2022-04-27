@@ -179,7 +179,7 @@ public abstract class VulTaskImpl {
         suffixs.add(".svg");
         for (String suffix :
                 suffixs) {
-            callbacks.printOutput(path);
+//            callbacks.printOutput(path);
             if (path.split("\\?")[0].endsWith(suffix)) { //防止查询参数影响后缀判断
                 return true;
             }
