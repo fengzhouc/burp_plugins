@@ -51,7 +51,7 @@ public class Redirect extends VulTaskImpl {
             //新的请求包
             IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body);
 
-            //新的返回包
+            //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             List<String> response_header_list1 = analyzeResponse1.getHeaders();
             status = analyzeResponse1.getStatusCode();

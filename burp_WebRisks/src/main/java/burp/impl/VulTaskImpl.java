@@ -2,9 +2,11 @@ package burp.impl;
 
 import burp.*;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 
 public abstract class VulTaskImpl {
 
@@ -188,5 +190,18 @@ public abstract class VulTaskImpl {
             }
         }
         return false;
+    }
+
+    //从resource中加载payloa文件
+    //filepath:/com/sss/sss.bb
+    protected String loadPayloads(String filepath){
+        StringBuilder payloads = new StringBuilder();
+        InputStream inStream = VulTaskImpl.class.getResourceAsStream(filepath);
+        try(Scanner scanner = new Scanner(inStream)){
+            while (scanner.hasNextLine()){
+                payloads.append(scanner.nextLine()).append("\n");
+            }
+        }
+        return payloads.toString();
     }
 }
