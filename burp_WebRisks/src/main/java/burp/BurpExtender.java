@@ -2,6 +2,7 @@ package burp;
 
 import burp.impl.VulResult;
 import burp.task.*;
+import burp.util.LRUCache;
 import burp.util.Requester;
 import burp.vuls.LandrayOa;
 import burp.vuls.PutJsp;
@@ -15,6 +16,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -46,6 +50,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     //发包器,单例模式
     public static Requester requester;
+    //本地缓存，存放已检测过的请求，检测过就不检测了
+    private LRUCache localCache = new LRUCache(100000);
+    private MessageDigest md = MessageDigest.getInstance("MD5");
+
+    public BurpExtender() throws NoSuchAlgorithmException {
+    }
+
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -259,6 +270,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             lbConnectStatus.setText("True");
             kg = true;
             lbConnectStatus.setForeground(new Color(0,255,0));
+            localCache.clear(); //重启时清空缓存
         }
     }
     //清空数据
@@ -279,9 +291,19 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse messageInfo) {
-
+        byte[] requestInfo = messageInfo.getRequest();
+        //计算MD5
+        md.update(requestInfo);
+        String md5 = new BigInteger(1, md.digest()).toString(16);
+        if (localCache.get(md5) != null){ //如果在缓存中则返回
+            // callbacks.printError("inCache");
+            return null;
+        }
+        //进入测试，则存入缓存中
+        localCache.put(md5, "in");
+        //正式进入测试
         String host = helpers.analyzeRequest(messageInfo).getUrl().getHost();
-//        callbacks.printOutput(host);
+        // callbacks.printOutput(host);
         Pattern pattern = Pattern.compile(domain);
         Matcher m = pattern.matcher(host);
         boolean m_host = m.find();
