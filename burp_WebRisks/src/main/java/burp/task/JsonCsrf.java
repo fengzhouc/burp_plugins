@@ -23,27 +23,6 @@ public class JsonCsrf extends VulTaskImpl {
          *   （2）再检查Access-Control-Allow-Origin是否为*
          *   （3）不满足（2）则修改/添加请求头Origin为http://evil.com，查看响应头Access-Control-Allow-Origin的值是否是http://evil.com
          * */
-        String message = "";
-        VulResult result = null;
-        //返回信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        String response_info = new String(messageInfo.getResponse());
-        String rep_body = response_info.substring(analyzeResponse.getBodyOffset());
-        short status_code = analyzeResponse.getStatusCode();
-        List<String> response_header_list = analyzeResponse.getHeaders();
-
-        //请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
-        String request_info = new String(messageInfo.getRequest());
-        List<String> request_header_list = analyzeRequest.getHeaders();
-
-        //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        String method = analyzeRequest.getMethod();
-        IHttpRequestResponse messageInfo_r = null;
-        short status = status_code;
         String decs = "";
 
         // 后缀检查，静态资源不做测试
@@ -90,7 +69,7 @@ public class JsonCsrf extends VulTaskImpl {
 
                 //如果状态码相同则可能存在问题
                 if (status_code == analyzeResponse1.getStatusCode()
-                        && rep_body.equalsIgnoreCase(rep1_body)) {
+                        && resp_body.equalsIgnoreCase(rep1_body)) {
                     message = "JsonCsrf";
                     messageInfo_r = messageInfo1;
                     decs = "请求发送数据是json格式, 而接口没有限制Content-Type为application/json, 建议接口注解限制Content-Type";

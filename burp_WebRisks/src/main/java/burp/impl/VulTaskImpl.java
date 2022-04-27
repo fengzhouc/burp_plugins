@@ -12,12 +12,65 @@ public abstract class VulTaskImpl {
     protected IBurpExtenderCallbacks callbacks;
     protected List<BurpExtender.LogEntry> log;
     protected IHttpRequestResponse messageInfo;
+    //每个task的相同变量
+    protected String message; //漏洞信息
+    protected VulResult result; //返回结果
+    protected IHttpService iHttpService; //构造新的请求包需要
+    //请求信息
+    protected IRequestInfo analyzeRequest; //请求对象
+    protected String request_info; //完整请求信息，包含请求头
+    protected List<String> request_header_list; //请求头信息
+    protected byte[] request_body; //请求body
+    //响应信息
+    protected IResponseInfo analyzeResponse; //响应对象
+    protected String response_info; //完整响应信息，包含响应头
+    protected List<String> response_header_list; //响应头信息
+    protected String resp_body; //响应体信息
+    protected short status_code; //响应状态码
+    //返回UI面板的信息
+    protected String host;
+    protected String path;
+    //String param;
+    protected String method;
+    protected IHttpRequestResponse messageInfo_r = null;
+    protected short status;
+
 
     public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
         this.helpers = helpers;
         this.callbacks = callbacks;
         this.log = log;
         this.messageInfo = messageInfo;
+
+        this.message = "";
+        this.result = null;
+        //返回信息
+        this.iHttpService = messageInfo.getHttpService();
+        //请求信息
+        this.analyzeRequest = this.helpers.analyzeRequest(messageInfo);
+        this.request_info = new String(messageInfo.getRequest());
+        this.request_header_list = analyzeRequest.getHeaders();
+        String messageBody = this.request_info.substring(analyzeRequest.getBodyOffset());
+        this.request_body = messageBody.getBytes();
+        //响应信息
+        byte[] resp = messageInfo.getResponse();
+        if (resp == null){
+            this.analyzeResponse = this.helpers.analyzeResponse(new byte[]{}); //响应为空则设置空，防止NullPointerException
+            this.response_info = new String(new byte[]{});
+        }else{
+            this.analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
+            this.response_info = new String(messageInfo.getResponse());
+            this.resp_body = this.response_info.substring(this.analyzeResponse.getBodyOffset());
+        }
+        this.response_header_list = this.analyzeResponse.getHeaders();
+        this.status_code = this.analyzeResponse.getStatusCode();
+
+        //返回上面板信息
+        this.host = iHttpService.getHost();
+        this.path = analyzeRequest.getUrl().getPath();
+        //String param = param_list.toString();
+        this.method = analyzeRequest.getMethod();
+        this.status = status_code;
     }
 
     /*

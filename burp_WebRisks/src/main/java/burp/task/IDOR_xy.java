@@ -22,28 +22,6 @@ public class IDOR_xy extends VulTaskImpl {
          * 1、设置别的用户cookie
          * 2、填充cookie重放，比对响应
          * */
-        String message = "";
-        VulResult result = null;
-        //返回信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        String response_info = new String(messageInfo.getResponse());
-        String rep_body = response_info.substring(analyzeResponse.getBodyOffset());
-        short status_code = analyzeResponse.getStatusCode();
-
-        //请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
-        String request_info = new String(messageInfo.getRequest());
-        List<String> request_header_list = analyzeRequest.getHeaders();
-
-        //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        //String param = param_list.toString();
-        String method = analyzeRequest.getMethod();
-        IHttpRequestResponse messageInfo_r = null;
-        short status = status_code;
-
         // 后缀检查，静态资源不做测试
         if (suffixcheck(path)){
             return null;
@@ -87,7 +65,7 @@ public class IDOR_xy extends VulTaskImpl {
 
         //如果状态码相同则可能存在问题
         if (status_code == analyzeResponse1.getStatusCode()
-                && rep_body.equalsIgnoreCase(rep1_body)) {
+                && resp_body.equalsIgnoreCase(rep1_body)) {
             message = "IDOR_xy";
             messageInfo_r = messageInfo1;
         }

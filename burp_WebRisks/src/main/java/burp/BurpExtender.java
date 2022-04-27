@@ -313,6 +313,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // TODO 敏感路径扫描
             // TODO SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
             // TODO XSS探测，同上，只做反射探测，特殊响应是否出现在响应中，在手工确认
+            // TODO 文件上传漏洞，如目录穿越、敏感文件后缀
 
 
             // 漏洞检测任务，需要调整到cve漏洞扫描模块

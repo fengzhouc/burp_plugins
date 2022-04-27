@@ -23,25 +23,6 @@ public class Cors extends VulTaskImpl {
          *   （2）再检查Access-Control-Allow-Origin是否为*
          *   （3）不满足（2）则修改/添加请求头Origin为http://evil.com，查看响应头Access-Control-Allow-Origin的值是否是http://evil.com
          * */
-        String message = "";
-        VulResult result = null;
-        //返回信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        short status_code = analyzeResponse.getStatusCode();
-        List<String> response_header_list = analyzeResponse.getHeaders();
-
-        //请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
-        String request_info = new String(messageInfo.getRequest());
-        List<String> request_header_list = analyzeRequest.getHeaders();
-
-        //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        String method = analyzeRequest.getMethod();
-        IHttpRequestResponse messageInfo_r = null;
-        short status = status_code;
         String decs = "";
 
         // 后缀检查，静态资源不做测试
@@ -73,9 +54,7 @@ public class Cors extends VulTaskImpl {
                     //新请求修改origin
                     for (String header :
                             new_headers) {
-                        if (header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
-                            continue;
-                        }else {
+                        if (!header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
                             new_headers1.add(header);
                         }
                     }

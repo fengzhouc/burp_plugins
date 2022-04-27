@@ -22,24 +22,6 @@ public class Jsonp extends VulTaskImpl {
          * 1、检查url参数是否包含回调函数字段
          * 2、无字段则添加字段在测试
          * */
-        String message = "";
-        VulResult result = null;
-        //返回信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        short status_code = analyzeResponse.getStatusCode();
-
-        //请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
-        String request_info = new String(messageInfo.getRequest());
-        List<String> request_header_list = analyzeRequest.getHeaders();
-
-        //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        String method = analyzeRequest.getMethod();
-        short status = status_code;
-
         // 后缀检查，静态资源不做测试
         if (suffixcheck(path)){
             return null;

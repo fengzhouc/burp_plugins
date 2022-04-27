@@ -25,28 +25,6 @@ public class PutJsp extends VulTaskImpl {
          * */
         /* CVE-2017-12615 tomcat 7.0.0 to 7.0.79
          * */
-        String message = "";
-        VulResult result = null;
-        //返回信息
-        IHttpService iHttpService = messageInfo.getHttpService();
-        IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
-        String response_info = new String(messageInfo.getResponse());
-        String rep_body = response_info.substring(analyzeResponse.getBodyOffset());
-        short status_code = analyzeResponse.getStatusCode();
-        List<String> response_header_list = analyzeResponse.getHeaders();
-
-        //请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
-        String request_info = new String(messageInfo.getRequest());
-        List<String> request_header_list = analyzeRequest.getHeaders();
-
-        //返回上面板信息
-        String host = iHttpService.getHost();
-        String path = analyzeRequest.getUrl().getPath();
-        String method = analyzeRequest.getMethod();
-        IHttpRequestResponse messageInfo_r = null;
-        short status = status_code;
-
         //修改header, 根目录的put上传
         List<String> new_headers1 = request_header_list;
         new_headers1.remove(0);
