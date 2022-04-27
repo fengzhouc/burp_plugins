@@ -52,11 +52,13 @@ public class Https extends VulTaskImpl {
                 if (!message.equalsIgnoreCase("")) {
                     message += ", and open http";
                 } else {
-                    message += "open http";
+                    message = "open http";
                 }
+                this.messageInfo_r = messageInfo1;
             }
         }catch (NullPointerException e) {
             // 连接不上则未开启http
+            this.messageInfo_r = messageInfo;
         }
 
         if (!message.equalsIgnoreCase("")){

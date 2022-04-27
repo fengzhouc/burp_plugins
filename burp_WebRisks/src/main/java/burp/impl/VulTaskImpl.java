@@ -32,7 +32,7 @@ public abstract class VulTaskImpl {
     protected String path;
     //String param;
     protected String method;
-    protected IHttpRequestResponse messageInfo_r = null;
+    protected IHttpRequestResponse messageInfo_r;
     protected short status;
 
 
@@ -64,6 +64,7 @@ public abstract class VulTaskImpl {
         }
         this.response_header_list = this.analyzeResponse.getHeaders();
         this.status_code = this.analyzeResponse.getStatusCode();
+        this.messageInfo_r = messageInfo; //默认赋值为原始的，避免请求不同导致的NullPointerException
 
         //返回上面板信息
         this.host = iHttpService.getHost();
