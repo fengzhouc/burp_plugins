@@ -137,7 +137,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 tfFilterText_c.setColumns(45);
                 tfFilterText_c.setText("");
                 panel_c.add(tfFilterText_c);
-                JLabel note_c = new JLabel("注: 测试需要的他人会话凭证, eg:'Cookie: xxxxxx' 或是 'x-auth-token: xxx'.");
+                JLabel note_c = new JLabel("注: 测试需要他人的会话凭证, eg:'Cookie: xxxxxx' 或是 'x-auth-token: xxx'.");
                 note_c.setForeground(new Color(255, 0, 0));
                 panel_c.add(note_c);
                 // TODO 带规划的cve扫描区
@@ -314,6 +314,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // TODO SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
             // TODO XSS探测，同上，只做反射探测，特殊响应是否出现在响应中，在手工确认
             // TODO 文件上传漏洞，如目录穿越、敏感文件后缀
+            // TODO 敏感信息监测，如手机号、身份证、邮箱、userid等
 
 
             // 漏洞检测任务，需要调整到cve漏洞扫描模块
