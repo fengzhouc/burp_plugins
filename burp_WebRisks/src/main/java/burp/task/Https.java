@@ -18,7 +18,7 @@ public class Https extends VulTaskImpl {
     @Override
     public VulResult run() {
         // 后缀检查，静态资源不做测试
-        if (suffixcheck(path)){
+        if (isStaticSource(path)){
             return null;
         }
 

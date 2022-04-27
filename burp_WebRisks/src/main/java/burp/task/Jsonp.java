@@ -23,7 +23,7 @@ public class Jsonp extends VulTaskImpl {
          * 2、无字段则添加字段在测试
          * */
         // 后缀检查，静态资源不做测试
-        if (suffixcheck(path)){
+        if (isStaticSource(path)){
             return null;
         }
 

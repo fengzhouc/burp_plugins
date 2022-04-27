@@ -167,7 +167,7 @@ public abstract class VulTaskImpl {
     }
 
     // 后续可以持续更新这个后缀列表
-    protected boolean suffixcheck(String path) {
+    protected boolean isStaticSource(String path) {
         List<String> suffixs = new ArrayList<String>();
         suffixs.add(".js");
         suffixs.add(".css");
@@ -179,7 +179,8 @@ public abstract class VulTaskImpl {
         suffixs.add(".svg");
         for (String suffix :
                 suffixs) {
-            if (path.split("/?")[0].endsWith(suffix)) { //防止参数参数影响后缀判断
+            callbacks.printOutput(path);
+            if (path.split("\\?")[0].endsWith(suffix)) { //防止查询参数影响后缀判断
                 return true;
             }
         }
