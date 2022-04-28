@@ -301,9 +301,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // callbacks.printError("inCache");
             return null;
         }
-        //进入测试，则存入缓存中
-        localCache.put(md5, "in");
-        //正式进入测试
+        //检查插件是否开启
         String host = helpers.analyzeRequest(messageInfo).getUrl().getHost();
         // callbacks.printOutput(host);
         Pattern pattern = Pattern.compile(domain);
@@ -312,7 +310,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         if (!kg || !m_host){ //是否开启插件，开启后匹配设置的domain才会尽心扫描
             return null;
         }
-
+        //正式进入测试
         int row = log.size();
         VulResult result = null;
         try {  // 因为waf的reset导致的NullPointerException
@@ -353,6 +351,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             new PutJsp(helpers, callbacks, log, messageInfo).run();
             // LandrayOa
             new LandrayOa(helpers, callbacks, log, messageInfo).run();
+
+            //跑完，则存入缓存中
+            localCache.put(md5, "in");
         } catch (NullPointerException ignored) { }
 
 

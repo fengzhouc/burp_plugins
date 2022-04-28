@@ -21,7 +21,7 @@ public class BypassAuth extends VulTaskImpl {
         if (isStaticSource(path)){
             return null;
         }
-        payloads = loadPayloads("/payloads/BypassAuth.bb");
+        payloads = loadPayloads("/payloads/BypassAuth.bbm");
         List<String> bypass_str = new ArrayList<String>();
         bypass_str.add("/xxx/../");
         bypass_str.add("/;xxx/");

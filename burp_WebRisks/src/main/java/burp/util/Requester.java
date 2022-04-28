@@ -26,6 +26,7 @@ public class Requester {
         return requester;
     }
 
+    // TODO 改用第三方的发包器呢
     public IHttpRequestResponse send(IHttpService iHttpService, List<String> headers, byte[] body){
         //新的请求包
         byte[] req = this.helpers.buildHttpMessage(headers, body);

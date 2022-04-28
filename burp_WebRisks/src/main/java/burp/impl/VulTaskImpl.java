@@ -1,12 +1,13 @@
 package burp.impl;
 
 import burp.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 public abstract class VulTaskImpl {
 
@@ -80,7 +81,7 @@ public abstract class VulTaskImpl {
     }
 
     /*
-    * TODO 漏洞检测任务的具体逻辑
+    * 漏洞检测任务的具体逻辑
     * 大概模板, 根据需要上下文删除不必要的代码
     *
         // 后缀检查，静态资源不做测试
@@ -186,5 +187,42 @@ public abstract class VulTaskImpl {
             }
         }
         return payloads.toString();
+    }
+
+    // 解析json，然后添加注入字符
+    // https://blog.csdn.net/zitong_ccnu/article/details/47375379
+    protected String createJsonBody(String body, String injectStr){
+        //{"key":"value","key":"value"}
+        Map<String, String> map = new HashMap<String, String>();
+        ObjectMapper mapper = new ObjectMapper();
+        map = jsonToMap(body);
+        Map<String, String> finalMap = map;
+        map.replaceAll((k, v) -> finalMap.get(k) + injectStr); //replaceAll内置函数替换所有值
+        try {
+            return mapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            callbacks.printError(e.toString());
+        }
+        return "";
+    }
+
+    private Map<String, String> jsonToMap(String json){
+        Map<String, String> map = new HashMap<String, String>();
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            map = mapper.readValue(json, new TypeReference<HashMap<String, String>>(){});
+            return map;
+        } catch (IOException e) {
+            callbacks.printError(e.toString());
+        }
+        return map;
+    }
+    protected String createFormBody(String body, String injectStr){
+        String[] qs = body.split("&");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String param : qs){
+            stringBuilder.append(param).append(injectStr).append("&");
+        }
+        return stringBuilder.toString();
     }
 }

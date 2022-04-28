@@ -19,12 +19,13 @@ public class XssReflect extends VulTaskImpl {
          * 1、所有参数都添加特使flag
          * 2、然后检查响应头是否存在flag
          * */
-
+        callbacks.printError("XssReflect");
         String xssflag = "_xssflag";
         // 后缀检查，静态资源不做测试
         if (isStaticSource(path)){
             return null;
         }
+        payloads = loadPayloads("/payloads/XssReflect.bbm");
 
         //反射型只测查询参数
         String query = request_header_list.get(0);
@@ -49,7 +50,7 @@ public class XssReflect extends VulTaskImpl {
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String resp = new String(messageInfo1.getResponse());
-            String resp1_body = resp.substring(this.analyzeResponse.getBodyOffset());
+            String resp1_body = resp.substring(analyzeResponse1.getBodyOffset());
             status = analyzeResponse1.getStatusCode();
 
             // 检查响应中是否存在flag
