@@ -54,7 +54,7 @@ public class SqlInject extends VulTaskImpl {
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String resp = new String(messageInfo1.getResponse());
-            String resp1_body = resp.substring(this.analyzeResponse.getBodyOffset());
+            String resp1_body = resp.substring(analyzeResponse1.getBodyOffset());
             status = analyzeResponse1.getStatusCode();
 
             // 检查响应中是否存在flag
