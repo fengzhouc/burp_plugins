@@ -4,6 +4,7 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class XssReflect extends VulTaskImpl {
@@ -22,32 +23,26 @@ public class XssReflect extends VulTaskImpl {
         callbacks.printError("XssReflect checking");
         String xssflag = "_xssflag";
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
         payloads = loadPayloads("/payloads/XssReflect.bbm");
 
         //反射型只测查询参数
-        String query = request_header_list.get(0);
-        if (query.contains("?"))
+        String req_line = request_header_list.get(0);
+        if (query != null)
         {
-            String queryParam = query.split("\\?")[1];
-            String[] qs = queryParam.split("&");
-            StringBuilder stringBuilder = new StringBuilder();
-            for (String param : qs){
-                stringBuilder.append(param).append(xssflag).append("&");
-            }
             List<String> new_headers = request_header_list;
             String header_first = "";
-            header_first = query.replace(queryParam, stringBuilder.toString());
+            header_first = req_line.replace(query, createFormBody(query, xssflag));
             //替换请求包中的url
             new_headers.remove(0);
             new_headers.add(0, header_first);
 
             //新的请求包
-            callbacks.printError("XssReflect-before: \n" + new_headers.toString());
             IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, request_body_byte);
-            callbacks.printError("XssReflect-end: \n" + new String(messageInfo1.getResponse()));
 
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());

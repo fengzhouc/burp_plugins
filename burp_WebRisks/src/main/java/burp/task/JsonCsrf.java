@@ -24,7 +24,9 @@ public class JsonCsrf extends VulTaskImpl {
          *   （3）不满足（2）则修改/添加请求头Origin为http://evil.com，查看响应头Access-Control-Allow-Origin的值是否是http://evil.com
          * */
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
 

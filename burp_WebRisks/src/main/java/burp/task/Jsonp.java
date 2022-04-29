@@ -20,7 +20,11 @@ public class Jsonp extends VulTaskImpl {
          * 2、无字段则添加字段在测试
          * */
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        if (isStaticSource(path, null)){
+            return null;
+        }
+        //jsonp只检测get请求
+        if (!analyzeRequest.getMethod().equalsIgnoreCase("get")){
             return null;
         }
 

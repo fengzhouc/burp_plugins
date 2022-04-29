@@ -18,7 +18,9 @@ public class BypassAuth extends VulTaskImpl {
          * 绕过鉴权
          * */
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
         payloads = loadPayloads("/payloads/BypassAuth.bbm");
@@ -73,7 +75,7 @@ public class BypassAuth extends VulTaskImpl {
 
     private List<String> createPath(List<String> bypass_str, String urlpath){
         // 将path拆解
-        String[] paths = path.split("/");
+        String[] paths = urlpath.split("/");
         List<String> bypass_path = new ArrayList<String>();
         // 添加bypass，如:/api/test
         // /api;/test

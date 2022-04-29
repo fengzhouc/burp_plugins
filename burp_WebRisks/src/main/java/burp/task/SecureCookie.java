@@ -4,6 +4,7 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -19,7 +20,9 @@ public class SecureCookie extends VulTaskImpl {
     @Override
     public VulResult run() {
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
 

@@ -18,7 +18,9 @@ public class SecureHeader extends VulTaskImpl {
     public VulResult run() {
 
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
 

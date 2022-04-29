@@ -17,34 +17,44 @@ public class IndexOf extends VulTaskImpl {
 
     @Override
     public VulResult run() {
-        // 检查是否存在目录浏览
-        List<String> new_headers = request_header_list;
-        String header_first = "";
+        if (path.equalsIgnoreCase("/")) {
+            // 检查是否存在目录浏览
+            List<String> new_headers = request_header_list;
+            String header_first = "";
 
-        //去掉最后一级path
-        String query = request_header_list.get(0);
-        String[] q = query.split("/");
-        StringBuilder p = new StringBuilder();
-        for (String v :
-                Arrays.copyOfRange(q, 0, q.length - 1)) {
-            p.append(v);
+            //去掉最后一级path
+            String[] q = query.split("/");
+            StringBuilder p = new StringBuilder();
+            for (int i = 0; i < q.length - 1; i++) {
+                p.append(q[0]);
+            }
+            header_first = "/" + p.toString() + "/";
+
+            new_headers.remove(0);
+            new_headers.add(0, header_first);
+
+            //新的请求包
+            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, new byte[]{});
+            //新的返回包
+            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
+            //获取body信息
+            String messageBody = new String(messageInfo1.getResponse()).substring(analyzeResponse1.getBodyOffset());
+            if (messageBody.contains("Index of")) {
+                message = "Index of /";
+            }
+
+            if (!message.equalsIgnoreCase("")) {
+                result = logAdd(messageInfo_r, host, path, method, status_code, message, payloads);
+            }
+
+            return result;
         }
-        header_first = "/" + p.toString() + "/";
-
-        new_headers.remove(0);
-        new_headers.add(0, header_first);
-
-        //新的请求包
-        IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, new byte[]{});
-        //新的返回包
-        IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-        //获取body信息
-        String messageBody = new String(messageInfo1.getResponse()).substring(analyzeResponse1.getBodyOffset());
-        if (messageBody.contains("Index of")){
+        //如果就是/，则直接检查响应
+        if (resp_body_str.contains("Index of")) {
             message = "Index of /";
         }
 
-        if (!message.equalsIgnoreCase("")){
+        if (!message.equalsIgnoreCase("")) {
             result = logAdd(messageInfo_r, host, path, method, status_code, message, payloads);
         }
 

@@ -4,6 +4,7 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SqlInject extends VulTaskImpl {
@@ -19,30 +20,29 @@ public class SqlInject extends VulTaskImpl {
          * 1、所有参数都添加特殊字符
          * 2、然后检查响应是否不同或者存在关键字
          * */
-        callbacks.printError("SqlInject checking");
         String injectStr = helpers.urlEncode("'\"\\\"");
 
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
         payloads = loadPayloads("/payloads/SqlInject.bbm");
         //反射型只测查询参数
-        String query = request_header_list.get(0);
-        if (query.contains("?"))
+        String req_line = request_header_list.get(0);
+        if (query != null)
         {
-            String queryParam = query.split("\\?")[1];
             List<String> new_headers = request_header_list;
             String header_first = "";
-            header_first = query.replace(queryParam, createFormBody(queryParam, injectStr));
+            header_first = req_line.replace(query, createFormBody(query, injectStr));
             //替换请求包中的url
             new_headers.remove(0);
             new_headers.add(0, header_first);
 
             //新的请求包
-            callbacks.printError("SqlInject-before: \n" + new_headers.toString() + "\n" + request_body_str);
+            callbacks.printError("sqlinject-query: " + header_first);
             IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, request_body_byte);
-            callbacks.printError("SqlInject-end: \n" + messageInfo1.getHttpService().toString());
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String resp = new String(messageInfo1.getResponse());
@@ -50,7 +50,7 @@ public class SqlInject extends VulTaskImpl {
             status = analyzeResponse1.getStatusCode();
 
             // 检查响应中是否存在flag
-            if (resp1_body.contains("SQL")) {
+            if (resp1_body.contains("SQL syntax")) {
                 result = logAdd(messageInfo1, host, path, method, status, "SqlInject", payloads);
             }
         }
@@ -75,9 +75,8 @@ public class SqlInject extends VulTaskImpl {
                     break;
             }
             //新的请求包
-            callbacks.printError("SqlInject-before: \n" + request_header_list.toString() + "\n" + req_body);
+            callbacks.printError("sqlinject-body: " + path + "\n" + req_body);
             IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, request_header_list, req_body.getBytes());
-            callbacks.printError("SqlInject-end: \n" + new String(messageInfo1.getResponse()));
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String resp = new String(messageInfo1.getResponse());
@@ -86,7 +85,7 @@ public class SqlInject extends VulTaskImpl {
 
             // 检查响应中是否存在flag
             // TODO 关键字是否全
-            if (resp1_body.contains("SQL")) {
+            if (resp1_body.contains("SQL syntax")) {
                 result = logAdd(messageInfo1, host, path, method, status, "SqlInject", payloads);
             }
         }

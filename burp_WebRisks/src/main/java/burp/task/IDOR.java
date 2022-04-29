@@ -22,7 +22,9 @@ public class IDOR extends VulTaskImpl {
          * 1、删除cookie发起请求
          * */
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
 

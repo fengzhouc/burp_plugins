@@ -23,7 +23,9 @@ public class IDOR_xy extends VulTaskImpl {
          * 2、填充cookie重放，比对响应
          * */
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path)){
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
+        if (isStaticSource(path, add)){
             return null;
         }
 

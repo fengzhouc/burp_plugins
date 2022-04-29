@@ -7,21 +7,21 @@ import burp.IHttpService;
 
 import java.util.List;
 
-public class Requester {
+public class OkHttpRequester {
 
     //单例模式
-    private static Requester requester = null;
+    private static OkHttpRequester requester = null;
     IBurpExtenderCallbacks callbacks;
     IExtensionHelpers helpers;
 
-    private Requester(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers){
+    private OkHttpRequester(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers){
         this.callbacks = callbacks;
         this.helpers = helpers;
     }
 
-    public static Requester getInstance(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers){
+    public static OkHttpRequester getInstance(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers){
         if (requester == null){
-            requester = new Requester(callbacks, helpers);
+            requester = new OkHttpRequester(callbacks, helpers);
         }
         return requester;
     }
@@ -33,7 +33,7 @@ public class Requester {
     public IHttpRequestResponse send(IHttpService iHttpService, List<String> headers, byte[] body){
         //新的请求包
         byte[] req = this.helpers.buildHttpMessage(headers, body);
-//        callbacks.printError("send: \n" + new String(req));
+        callbacks.printError("send: \n" + new String(req));
         //返回响应
         return this.callbacks.makeHttpRequest(iHttpService, req);
     }

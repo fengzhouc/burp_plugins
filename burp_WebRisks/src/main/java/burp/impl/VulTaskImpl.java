@@ -23,6 +23,7 @@ public abstract class VulTaskImpl {
     //请求信息
     protected IRequestInfo analyzeRequest; //请求对象
     protected String url; //请求的url
+    protected String query;//查询参数
     protected String request_info; //完整请求信息，包含请求头
     protected List<String> request_header_list; //请求头信息
     protected String request_body_str; //请求体信息
@@ -60,6 +61,7 @@ public abstract class VulTaskImpl {
         //请求信息
         this.analyzeRequest = this.helpers.analyzeRequest(messageInfo);
         this.url = analyzeRequest.getUrl().toString();
+        this.query = analyzeRequest.getUrl().getQuery();
         this.request_info = new String(messageInfo.getRequest());
         this.request_header_list = analyzeRequest.getHeaders();
         this.request_body_str = this.request_info.substring(analyzeRequest.getBodyOffset());
@@ -161,9 +163,8 @@ public abstract class VulTaskImpl {
     }
 
     // 后续可以持续更新这个后缀列表
-    protected boolean isStaticSource(String path) {
+    protected boolean isStaticSource(String path, List<String> add) {
         List<String> suffixs = new ArrayList<String>();
-        suffixs.add(".js");
         suffixs.add(".css");
         suffixs.add(".gif");
         suffixs.add(".png");
@@ -172,6 +173,7 @@ public abstract class VulTaskImpl {
         suffixs.add(".woff2");
         suffixs.add(".ico");
         suffixs.add(".svg");
+        suffixs.addAll(add);
         for (String suffix :
                 suffixs) {
 //            callbacks.printOutput(path);
@@ -227,9 +229,10 @@ public abstract class VulTaskImpl {
     protected String createFormBody(String body, String injectStr){
         String[] qs = body.split("&");
         StringBuilder stringBuilder = new StringBuilder();
-        for (String param : qs){
-            stringBuilder.append(param).append(injectStr).append("&");
+        for (int i = 0;i<qs.length -1;i++){
+            stringBuilder.append(qs[i]).append(injectStr).append("&");
         }
+        stringBuilder.append(qs[qs.length-1]); //最后的参数不添加&
         return stringBuilder.toString();
     }
 }
