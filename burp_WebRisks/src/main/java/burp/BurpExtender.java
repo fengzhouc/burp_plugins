@@ -48,10 +48,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private String url = "";
     JSplitPane splitPane;
 
-    //发包器,单例模式
-    public static Requester requester;
     //本地缓存，存放已检测过的请求，检测过就不检测了
-    private final LRUCache localCache = new LRUCache(100000);
+    private final LRUCache localCache = new LRUCache(10000);
     private final MessageDigest md = MessageDigest.getInstance("MD5");
 
     public BurpExtender() throws NoSuchAlgorithmException {
@@ -65,7 +63,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //获取扩展helper与stdout对象
         this.helpers = callbacks.getHelpers();
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
-        requester = Requester.getInstance(this.callbacks, this.helpers);
 
         callbacks.setExtensionName("WebRisks");
 
@@ -273,6 +270,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             kg = true;
             lbConnectStatus.setForeground(new Color(0,255,0));
             localCache.clear(); //重启时清空缓存
+            callbacks.printOutput("clear cache success.");
         }
     }
     //清空数据
@@ -293,6 +291,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse messageInfo) {
+        String url = this.helpers.analyzeRequest(messageInfo).getUrl().toString();
+        callbacks.printOutput("in: " + url);
         byte[] requestInfo = messageInfo.getRequest();
         //计算MD5
         md.update(requestInfo);
@@ -316,27 +316,27 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         try {  // 因为waf的reset导致的NullPointerException
             // Web基础漏洞扫描
             // jsoncsrf的检测
-            new JsonCsrf(helpers, callbacks, log, messageInfo).run();
+//            new JsonCsrf(helpers, callbacks, log, messageInfo).run();
             // CORS 跨域请求
-            new Cors(helpers, callbacks, log, messageInfo).run();
+//            new Cors(helpers, callbacks, log, messageInfo).run();
             // 未授权访问, 误报太多, 待改进
-            new IDOR(helpers, callbacks, log, messageInfo).run();
+//            new IDOR(helpers, callbacks, log, messageInfo).run();
             // 横纵向越权, 纵向越权一般是测试管理后台的时候
-            new IDOR_xy(helpers, callbacks, log, messageInfo).run();
+//            new IDOR_xy(helpers, callbacks, log, messageInfo).run();
             // jsonp
-            new Jsonp(helpers, callbacks, log, messageInfo).run();
+//            new Jsonp(helpers, callbacks, log, messageInfo).run();
             // secure headers
-            new SecureHeader(helpers, callbacks, log, messageInfo).run();
+            // new SecureHeader(helpers, callbacks, log, messageInfo).run();
             // Redirect
-            new Redirect(helpers, callbacks, log, messageInfo).run();
+//            new Redirect(helpers, callbacks, log, messageInfo).run();
             // cookie安全属性
-            new SecureCookie(helpers, callbacks, log, messageInfo).run();
+//            new SecureCookie(helpers, callbacks, log, messageInfo).run();
             // https
-            new Https(helpers, callbacks, log, messageInfo).run();
+//            new Https(helpers, callbacks, log, messageInfo).run();
             // index of 目录浏览
-            new IndexOf(helpers, callbacks, log, messageInfo).run();
+//            new IndexOf(helpers, callbacks, log, messageInfo).run();
             // 绕过鉴权
-            new BypassAuth(helpers, callbacks, log, messageInfo).run();
+//            new BypassAuth(helpers, callbacks, log, messageInfo).run();
             // TODO 敏感路径扫描
             // SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
             new SqlInject(helpers, callbacks, log, messageInfo).run();
@@ -348,13 +348,16 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
             // 漏洞检测任务，需要调整到cve漏洞扫描模块
             // tomcat put jsp
-            new PutJsp(helpers, callbacks, log, messageInfo).run();
+//            new PutJsp(helpers, callbacks, log, messageInfo).run();
             // LandrayOa
-            new LandrayOa(helpers, callbacks, log, messageInfo).run();
+//            new LandrayOa(helpers, callbacks, log, messageInfo).run();
 
             //跑完，则存入缓存中
             localCache.put(md5, "in");
-        } catch (NullPointerException ignored) { }
+            callbacks.printError("put cache, \n" + new String(requestInfo));
+        } catch (NullPointerException ignored) {
+            callbacks.printOutput("NullPointerException: " + url);
+        }
 
 
         int lastRow = getRowCount();

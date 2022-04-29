@@ -30,7 +30,7 @@ public class PutJsp extends VulTaskImpl {
         new_headers1.add(0, "OPTIONS / HTTP/1.1");
 
         //新的请求包
-        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, "".getBytes());
+        IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers1, "".getBytes());
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
         List<String> response1_header_list = analyzeResponse1.getHeaders();

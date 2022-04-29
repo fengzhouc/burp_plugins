@@ -19,7 +19,7 @@ public class XssReflect extends VulTaskImpl {
          * 1、所有参数都添加特使flag
          * 2、然后检查响应头是否存在flag
          * */
-        callbacks.printError("XssReflect");
+        callbacks.printError("XssReflect checking");
         String xssflag = "_xssflag";
         // 后缀检查，静态资源不做测试
         if (isStaticSource(path)){
@@ -45,7 +45,9 @@ public class XssReflect extends VulTaskImpl {
             new_headers.add(0, header_first);
 
             //新的请求包
-            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body_byte);
+            callbacks.printError("XssReflect-before: \n" + new_headers.toString());
+            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, request_body_byte);
+            callbacks.printError("XssReflect-end: \n" + new String(messageInfo1.getResponse()));
 
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
@@ -58,7 +60,7 @@ public class XssReflect extends VulTaskImpl {
                 result = logAdd(messageInfo1, host, path, method, status, "XssReflect", payloads);
             }
         }
-
+        callbacks.printError("XssReflect checked");
         return result;
     }
 }

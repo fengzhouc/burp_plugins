@@ -50,7 +50,7 @@ public class IDOR_xy extends VulTaskImpl {
             return null;
         }
         //新的请求包
-        IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers1, request_body_byte);
+        IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers1, request_body_byte);
         //新的返回包
         IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
         String response_info1 = new String(messageInfo1.getResponse());

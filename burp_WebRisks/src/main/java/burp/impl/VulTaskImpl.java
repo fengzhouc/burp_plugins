@@ -1,6 +1,7 @@
 package burp.impl;
 
 import burp.*;
+import burp.util.Requester;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,7 @@ public abstract class VulTaskImpl {
     protected IHttpService iHttpService; //构造新的请求包需要
     //请求信息
     protected IRequestInfo analyzeRequest; //请求对象
+    protected String url; //请求的url
     protected String request_info; //完整请求信息，包含请求头
     protected List<String> request_header_list; //请求头信息
     protected String request_body_str; //请求体信息
@@ -40,12 +42,16 @@ public abstract class VulTaskImpl {
     protected short status;
     protected String payloads; //payload列表，自己手动尝试
 
+    //发包器,单例模式
+    protected Requester requester;
+
 
     public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
         this.helpers = helpers;
         this.callbacks = callbacks;
         this.log = log;
         this.messageInfo = messageInfo;
+        this.requester = Requester.getInstance(this.callbacks, this.helpers);
 
         this.message = "";
         this.result = null;
@@ -53,6 +59,7 @@ public abstract class VulTaskImpl {
         this.iHttpService = messageInfo.getHttpService();
         //请求信息
         this.analyzeRequest = this.helpers.analyzeRequest(messageInfo);
+        this.url = analyzeRequest.getUrl().toString();
         this.request_info = new String(messageInfo.getRequest());
         this.request_header_list = analyzeRequest.getHeaders();
         this.request_body_str = this.request_info.substring(analyzeRequest.getBodyOffset());

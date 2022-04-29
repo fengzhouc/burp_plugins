@@ -4,8 +4,6 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 public class SqlInject extends VulTaskImpl {
@@ -21,13 +19,8 @@ public class SqlInject extends VulTaskImpl {
          * 1、所有参数都添加特殊字符
          * 2、然后检查响应是否不同或者存在关键字
          * */
-        callbacks.printError("SqlInject");
-        String injectStr = "null";
-        try {//进行编码，不然请求会错误
-            injectStr = URLEncoder.encode("'\"\\\"", "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            callbacks.printError(e.toString());
-        }
+        callbacks.printError("SqlInject checking");
+        String injectStr = helpers.urlEncode("'\"\\\"");
 
         // 后缀检查，静态资源不做测试
         if (isStaticSource(path)){
@@ -47,9 +40,9 @@ public class SqlInject extends VulTaskImpl {
             new_headers.add(0, header_first);
 
             //新的请求包
-            callbacks.printError("before: " + new_headers.toString());
-            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, new_headers, request_body_byte);
-            callbacks.printError("end: " + messageInfo1.getHttpService().toString());
+            callbacks.printError("SqlInject-before: \n" + new_headers.toString() + "\n" + request_body_str);
+            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, request_body_byte);
+            callbacks.printError("SqlInject-end: \n" + messageInfo1.getHttpService().toString());
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String resp = new String(messageInfo1.getResponse());
@@ -72,7 +65,7 @@ public class SqlInject extends VulTaskImpl {
                     contentype = "form";
                 }
             }
-            String req_body = "";
+            String req_body = request_body_str;
             switch (contentype){
                 case "json":
                     req_body = createJsonBody(request_body_str, injectStr);
@@ -82,9 +75,9 @@ public class SqlInject extends VulTaskImpl {
                     break;
             }
             //新的请求包
-            callbacks.printError("before: " + request_header_list.toString());
-            IHttpRequestResponse messageInfo1 = BurpExtender.requester.send(this.iHttpService, request_header_list, req_body.getBytes());
-            callbacks.printError("end: " + messageInfo1.getHttpService().toString());
+            callbacks.printError("SqlInject-before: \n" + request_header_list.toString() + "\n" + req_body);
+            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, request_header_list, req_body.getBytes());
+            callbacks.printError("SqlInject-end: \n" + new String(messageInfo1.getResponse()));
             //以下进行判断
             IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
             String resp = new String(messageInfo1.getResponse());
@@ -97,7 +90,7 @@ public class SqlInject extends VulTaskImpl {
                 result = logAdd(messageInfo1, host, path, method, status, "SqlInject", payloads);
             }
         }
-
+        callbacks.printError("SqlInject checked");
         return result;
     }
 
