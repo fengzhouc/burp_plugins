@@ -359,7 +359,7 @@ public abstract class VulTaskImpl {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(ok_method + " " + ok_url + " " + ok_protocol).append("\r\n");
-        stringBuilder.append(ok_reqHeaders);
+        stringBuilder.append(ok_reqHeaders); // Header默认将Cookie视为敏感数据，toString会给脱敏了，所以ui上看不到cookie
         stringBuilder.append("\r\n");
         stringBuilder.append(ok_reqBody);
 

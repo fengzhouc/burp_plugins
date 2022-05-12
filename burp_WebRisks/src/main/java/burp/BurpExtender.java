@@ -46,7 +46,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JTextField tfFilterText_c; //Cookie
     private JTextField tfFilterText_cve; //cve 漏洞扫描
     private String domain = ".*";
-    public static String cookie = "Cookie:xxx";
+    public static String cookie = "Cookie: xxx";
     private String url = "";
     private String vulsChecked = "none"; //是否已经检测cve漏洞
     private final BlockingQueue<VulTaskImpl> queue = new LinkedBlockingDeque<>(); //任务队列
@@ -145,7 +145,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     public void actionPerformed(ActionEvent arg0) {
                         String d = tfFilterText_c.getText();
                         if (null != d) {
-                            BurpExtender.this.cookie = d;
+                            cookie = d;
                         }
                     }
                 });
@@ -236,6 +236,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 String author = "alumm0x";
 
                 callbacks.printOutput("#Author: "+author);
+                callbacks.printOutput("#Github: https://github.com/fengzhouc/burp_plugins");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##Web Basic");
                 callbacks.printOutput("#Task: JsonCsrf");
@@ -243,13 +244,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: IDOR");
                 callbacks.printOutput("#Task: IDOR_xy"); // 横纵向越权
                 callbacks.printOutput("#Task: Jsonp");
-                callbacks.printOutput("#Task: SecureCookie");
                 callbacks.printOutput("#Task: Https");
                 callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
                 callbacks.printOutput("#Task: Redirect");
                 callbacks.printOutput("#Task: IndexOf");
                 callbacks.printOutput("#Task: SqlInject");
-                callbacks.printOutput("#Task: XssEeflect");
+                callbacks.printOutput("#Task: XssReflect");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -307,7 +307,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         Pattern pattern = Pattern.compile(domain);
         Matcher m = pattern.matcher(host);
         boolean m_host = m.find();
-        if (!kg || !m_host){ //是否开启插件，开启后匹配设置的domain才会尽心扫描
+        if (!kg || !m_host){ //是否开启插件，开启后匹配设置的domain才会进行扫描
             return null;
         }
 
@@ -341,8 +341,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
         // Redirect
         tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
-        // cookie安全属性
-        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
+        // cookie安全属性,废弃掉，该用okhttp后，cookie会被脱敏，导致无法检测
+//        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
         // https
         tasks.add(new Https(helpers, callbacks, log, messageInfo));
         // index of 目录浏览
@@ -370,7 +370,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // tomcat put jsp //废弃不要了
             // tasks.add(new PutJsp(helpers, callbacks, log, messageInfo));
             // LandrayOa
-            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
+//            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
 
             //检测过则添加标记
             vulsChecked += "_" + urlo.getHost() + urlo.getPort();

@@ -3,8 +3,11 @@ package burp.util;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OkHttpRequester {
 

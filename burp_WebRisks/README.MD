@@ -26,7 +26,6 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - IDOR
 - IDOR_xy
 - Jsonp
-- SecureCookie
 - Https
 - SecureHeader 'X-Frame-Options'
 - Redirect
@@ -35,7 +34,6 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - SQL注入-字符型
 
 **CVE**
-- PutJsp[CVE-2017-12615]
 - LandrayOa
 
 ## 注意事项

@@ -6,6 +6,7 @@ import burp.impl.VulTaskImpl;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Cookie;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +29,10 @@ public class IDOR_xy extends VulTaskImpl {
          * 1、设置别的用户cookie
          * 2、填充cookie重放，比对响应
          * */
+        // 没有设置越权测试的cookie则不测试
+        if (BurpExtender.cookie.equalsIgnoreCase("Cookie: xxx")){
+            return null;
+        }
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
@@ -38,24 +43,16 @@ public class IDOR_xy extends VulTaskImpl {
         //1、删除cookie，重新发起请求，与原始请求状态码一致则可能存在未授权访问
         // 只测试原本有cookie的请求
         List<String> new_headers1 = new ArrayList<String>();
-        boolean hasCookie = false;
         for (String header :
                 request_header_list) {
             //替换cookie
-            String key = BurpExtender.cookie.split(":")[0];
+            String[] auth = BurpExtender.cookie.split(":");
+            String key = auth[0];
+            String value = auth[1];
             if (header.toLowerCase(Locale.ROOT).startsWith(key.toLowerCase(Locale.ROOT))) {
-                hasCookie = true;
-                if (key.equalsIgnoreCase("")){
-                    // 没有设置cookie则不进行测试
-                    return null;
-                }
-                header = BurpExtender.cookie;
+                header = key + ":" + value;
             }
             new_headers1.add(header);
-        }
-        // 请求没有cookie,则不测试
-        if (!hasCookie){
-            return null;
         }
         //新的请求包
         okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new IDORxyCallback(this));

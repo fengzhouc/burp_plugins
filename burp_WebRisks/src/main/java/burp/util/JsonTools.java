@@ -7,6 +7,7 @@ public class JsonTools {
     //存储json参数名的，用于bean参数注入
     //TODO 注入的参数值，为了保证业务处理，最好是根据原数据类型去生成，怎么搞？？
     // 改为map，保存原value，在原值基础上进行修改？？
+    // 数据共三种情况：布尔/数字/字符串
     public List<String> paramKeys;
     // 保存篡改的json串
     public final StringBuilder stringBuilder;
