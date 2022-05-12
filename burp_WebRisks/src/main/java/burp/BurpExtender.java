@@ -4,9 +4,7 @@ import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import burp.task.*;
 import burp.util.LRUCache;
-import burp.util.Requester;
 import burp.vuls.LandrayOa;
-import burp.vuls.PutJsp;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -36,7 +34,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
     private IMessageEditor desViewer;
-    private final List<LogEntry> log = new ArrayList<LogEntry>();
+    private final List<LogEntry> log = new ArrayList<>();
     private IHttpRequestResponse currentlyDisplayedItem;
     public PrintWriter stdout;
     private JPanel contentPane;
@@ -48,7 +46,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JTextField tfFilterText_c; //Cookie
     private JTextField tfFilterText_cve; //cve 漏洞扫描
     private String domain = ".*";
-    public static String cookie = "cookie:xxx";
+    public static String cookie = "Cookie:xxx";
     private String url = "";
     private String vulsChecked = "none"; //是否已经检测cve漏洞
     private final BlockingQueue<VulTaskImpl> queue = new LinkedBlockingDeque<>(); //任务队列
@@ -94,7 +92,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 btnFilter.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         String d = tfFilterText.getText();
-                        if ("".equalsIgnoreCase(d) || null != d) {
+                        if (null != d) {
                             BurpExtender.this.domain = d;
                         }
                     }
@@ -146,7 +144,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 btnFilter_c.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         String d = tfFilterText_c.getText();
-                        if ("".equalsIgnoreCase(d) || null != d) {
+                        if (null != d) {
                             BurpExtender.this.cookie = d;
                         }
                     }
@@ -171,7 +169,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 btnFilter_cve.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         String d = tfFilterText_cve.getText();
-                        if ("".equalsIgnoreCase(d) || null != d) {
+                        if (null != d) {
                             BurpExtender.this.url = d;
                         }
                     }
@@ -213,7 +211,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 //上面板，结果面板
                 logTable = new Table(BurpExtender.this);
                 //TODO 排序后添加数据会报错
-                sorter = new TableRowSorter<TableModel>(BurpExtender.this);
+                sorter = new TableRowSorter<>(BurpExtender.this);
 //                logTable.setRowSorter(sorter);
 
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
@@ -330,32 +328,32 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         // TODO 下面这里不行，会因为某个任务异常而导致后续任务不执行
         // Web基础漏洞扫描
         // jsoncsrf的检测
-//        tasks.add(new JsonCsrf(helpers, callbacks, log, messageInfo));
+        tasks.add(new JsonCsrf(helpers, callbacks, log, messageInfo));
         // CORS 跨域请求
-//        tasks.add(new Cors(helpers, callbacks, log, messageInfo));
+        tasks.add(new Cors(helpers, callbacks, log, messageInfo));
         // 未授权访问, 误报太多, 待改进
-//        tasks.add(new IDOR(helpers, callbacks, log, messageInfo));
+        tasks.add(new IDOR(helpers, callbacks, log, messageInfo));
         // 横纵向越权, 纵向越权一般是测试管理后台的时候
-//        tasks.add(new IDOR_xy(helpers, callbacks, log, messageInfo));
+        tasks.add(new IDOR_xy(helpers, callbacks, log, messageInfo));
         // jsonp
-//        tasks.add(new Jsonp(helpers, callbacks, log, messageInfo));
+        tasks.add(new Jsonp(helpers, callbacks, log, messageInfo));
         // secure headers
-//        tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
+        tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
         // Redirect
-//        tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
+        tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
         // cookie安全属性
-//        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
+        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
         // https
-//        tasks.add(new Https(helpers, callbacks, log, messageInfo));
+        tasks.add(new Https(helpers, callbacks, log, messageInfo));
         // index of 目录浏览
-//        tasks.add(new IndexOf(helpers, callbacks, log, messageInfo));
+        tasks.add(new IndexOf(helpers, callbacks, log, messageInfo));
         // 绕过鉴权
-//        tasks.add(new BypassAuth(helpers, callbacks, log, messageInfo));
+        tasks.add(new BypassAuth(helpers, callbacks, log, messageInfo));
         // TODO 敏感路径扫描
         // SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
         tasks.add(new SqlInject(helpers, callbacks, log, messageInfo));
         // 反射型XSS探测
-//        tasks.add(new XssReflect(helpers, callbacks, log, messageInfo));
+        tasks.add(new XssReflect(helpers, callbacks, log, messageInfo));
         // TODO 文件上传漏洞，如目录穿越、敏感文件后缀
         // TODO 敏感信息监测，如手机号、身份证、邮箱、userid等
         // TODO bean注入探测，也就是参数爆破啦，不过这个参数不是预制的，而是根据应用抓出来的，所以这个任务不在缓存控制，会一直重复
@@ -370,9 +368,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         // 每个域名只检查一次
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {
             // tomcat put jsp //废弃不要了
-//            tasks.add(new PutJsp(helpers, callbacks, log, messageInfo));
+            // tasks.add(new PutJsp(helpers, callbacks, log, messageInfo));
             // LandrayOa
-//            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
+            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
 
             //检测过则添加标记
             vulsChecked += "_" + urlo.getHost() + urlo.getPort();
