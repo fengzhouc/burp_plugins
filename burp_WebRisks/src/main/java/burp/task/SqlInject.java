@@ -3,7 +3,13 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HttpRequestResponseFactory;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,67 +36,58 @@ public class SqlInject extends VulTaskImpl {
         }
         payloads = loadPayloads("/payloads/SqlInject.bbm");
         //反射型只测查询参数
-        String req_line = request_header_list.get(0);
         if (query != null)
         {
-            List<String> new_headers = request_header_list;
-            String header_first = "";
-            header_first = req_line.replace(query, createFormBody(query, injectStr));
-            //替换请求包中的url
-            new_headers.remove(0);
-            new_headers.add(0, header_first);
-
+            String new_query = createFormBody(query, injectStr);
             //新的请求包
-            callbacks.printError("sqlinject-query: " + header_first);
-            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, request_body_byte);
-            //以下进行判断
-            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-            String resp = new String(messageInfo1.getResponse());
-            String resp1_body = resp.substring(analyzeResponse1.getBodyOffset());
-            status = analyzeResponse1.getStatusCode();
-
-            // 检查响应中是否存在flag
-            if (resp1_body.contains("SQL syntax")) {
-                result = logAdd(messageInfo1, host, path, method, status, "SqlInject", payloads);
-            }
+            okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new SqlInjectCallback(this));
         }
         //如果有body参数，需要多body参数进行测试
         if (request_body_str.length() > 0){
             String contentype = "";
-            for (String header :
-                    request_header_list) {
-                if (header.contains("json")){
-                    contentype = "json";
-                }else if (header.contains("form")){
-                    contentype = "form";
-                }
+            if (contentYtpe.contains("application/json")){
+                contentype = "json";
+            }else if (contentYtpe.contains("application/x-www-form-urlencoded")){
+                contentype = "form";
             }
             String req_body = request_body_str;
             switch (contentype){
                 case "json":
-                    req_body = createJsonBody(request_body_str, injectStr);
+                    String is = "\\\'\\\""; //json格式的使用转义后的，避免json格式不正确
+                    req_body = createJsonBody(request_body_str, is);
                     break;
                 case "form":
                     req_body = createFormBody(request_body_str, injectStr);
                     break;
             }
             //新的请求包
-            callbacks.printError("sqlinject-body: " + path + "\n" + req_body);
-            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, request_header_list, req_body.getBytes());
-            //以下进行判断
-            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-            String resp = new String(messageInfo1.getResponse());
-            String resp1_body = resp.substring(analyzeResponse1.getBodyOffset());
-            status = analyzeResponse1.getStatusCode();
-
-            // 检查响应中是否存在flag
-            // TODO 关键字是否全
-            if (resp1_body.contains("SQL syntax")) {
-                result = logAdd(messageInfo1, host, path, method, status, "SqlInject", payloads);
-            }
+            okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new SqlInjectCallback(this));
         }
-        callbacks.printError("SqlInject checked");
         return result;
     }
 
+}
+
+class SqlInjectCallback implements Callback {
+
+    VulTaskImpl vulTask;
+
+    public SqlInjectCallback(VulTaskImpl vulTask){
+        this.vulTask = vulTask;
+    }
+    @Override
+    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        vulTask.callbacks.printError("[SqlInjectCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+    }
+
+    @Override
+    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+        // 检查响应中是否存在flag
+        // TODO 关键字是否全
+        if (vulTask.ok_respBody.contains("SQL syntax")) {
+            vulTask.message = "SqlInject";
+            vulTask.log();
+        }
+    }
 }

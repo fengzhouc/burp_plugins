@@ -1,50 +1,75 @@
 package burp.impl;
 
 import burp.*;
+import burp.util.HttpRequestResponseFactory;
+import burp.util.JsonTools;
+import burp.util.OkHttpRequester;
 import burp.util.Requester;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.*;
+import okio.Buffer;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public abstract class VulTaskImpl {
 
     protected IExtensionHelpers helpers;
-    protected IBurpExtenderCallbacks callbacks;
+    public IBurpExtenderCallbacks callbacks;
     protected List<BurpExtender.LogEntry> log;
     protected IHttpRequestResponse messageInfo;
     //每个task的相同变量
-    protected String message; //漏洞信息
+    public String message; //漏洞信息
     protected VulResult result; //返回结果
-    protected IHttpService iHttpService; //构造新的请求包需要
-    //请求信息
+    public IHttpService iHttpService; //构造新的请求包需要
+    //请求信息，用作重新发包
     protected IRequestInfo analyzeRequest; //请求对象
     protected String url; //请求的url
-    protected String query;//查询参数
-    protected String request_info; //完整请求信息，包含请求头
+    protected String query = "";//查询参数
     protected List<String> request_header_list; //请求头信息
-    protected String request_body_str; //请求体信息
-    protected byte[] request_body_byte; //请求body
-    //响应信息
+    protected String contentYtpe;
+    protected String request_body_str = ""; //请求体参数
+    protected byte[] request_body_byte; //请求体参数byte
+    public String request_info; //完整请求信息，包含请求头
+
+    //响应信息,用作任务的前置条件判断
     protected IResponseInfo analyzeResponse; //响应对象
-    protected String response_info; //完整响应信息，包含响应头
+    protected short status_code;
     protected List<String> response_header_list; //响应头信息
-    protected String resp_body_str; //响应体信息
-    protected short status_code; //响应状态码
+    public String resp_body_str; //响应体信息
+    protected String response_info; //完整响应信息，包含响应头
+
     //返回UI面板的信息
-    protected String host;
-    protected String path;
-    //String param;
-    protected String method;
-    protected IHttpRequestResponse messageInfo_r;
-    protected short status;
-    protected String payloads; //payload列表，自己手动尝试
+    public String host;
+    public String path;
+    public String method;
+    public IHttpRequestResponse messageInfo_r;
+    public short status;
+    public String payloads; //payload列表，自己手动尝试
+
+    //okhttp的请求信息
+    private RequestBody ok_requestBodyObj;
+    private String ok_method;
+    private String ok_url;
+    private String ok_protocol; //响应也是用这个
+    public Headers ok_reqHeaders;
+    private String ok_reqBody;
+    public byte[] ok_reqInfo;
+    //okhttp的响应信息
+    private ResponseBody ok_responseBodyObj;
+    public int ok_code;
+    private String ok_message;
+    public Headers ok_respHeaders;
+    public String ok_respBody = "";
+    public byte[] ok_respInfo;
 
     //发包器,单例模式
     protected Requester requester;
+    protected OkHttpRequester okHttpRequester;
 
 
     public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
@@ -53,6 +78,7 @@ public abstract class VulTaskImpl {
         this.log = log;
         this.messageInfo = messageInfo;
         this.requester = Requester.getInstance(this.callbacks, this.helpers);
+        this.okHttpRequester = OkHttpRequester.getInstance(this.callbacks, this.helpers);
 
         this.message = "";
         this.result = null;
@@ -60,10 +86,43 @@ public abstract class VulTaskImpl {
         this.iHttpService = messageInfo.getHttpService();
         //请求信息
         this.analyzeRequest = this.helpers.analyzeRequest(messageInfo);
-        this.url = analyzeRequest.getUrl().toString();
-        this.query = analyzeRequest.getUrl().getQuery();
+        String q = analyzeRequest.getUrl().getQuery();
+        if (q != null) {
+            this.query = q;
+            this.url = analyzeRequest.getUrl().toString().split("\\?")[0]; //默认带查询参数的，去掉参数参数
+        }else {
+            this.url = analyzeRequest.getUrl().toString(); //默认带查询参数的，去掉参数参数
+        }
         this.request_info = new String(messageInfo.getRequest());
+        switch (analyzeRequest.getContentType()){
+            case 0:
+            case 1:
+                // byte CONTENT_TYPE_URL_ENCODED = 1;
+                // byte CONTENT_TYPE_NONE = 0;
+                this.contentYtpe = "application/x-www-form-urlencoded";
+                break;
+            case 2:
+                //byte CONTENT_TYPE_MULTIPART = 2;
+                this.contentYtpe = "multipart/form-data";
+                break;
+            case 3:
+                //byte CONTENT_TYPE_XML = 3;
+                this.contentYtpe = "application/xml";
+                break;
+            case 4:
+                //byte CONTENT_TYPE_JSON = 4;byte CONTENT_TYPE_AMF = 5;
+                this.contentYtpe = "application/json";
+                break;
+            case 5:
+                //byte CONTENT_TYPE_AMF = 5;
+                this.contentYtpe = "application/x-amf";
+                break;
+            default:
+                //byte CONTENT_TYPE_UNKNOWN = -1;
+                this.contentYtpe = "UNKNOWN";
+        }
         this.request_header_list = analyzeRequest.getHeaders();
+        this.request_header_list.remove(0);//删除首行的GET / HTTP/1.1,不然okhttp会报错
         this.request_body_str = this.request_info.substring(analyzeRequest.getBodyOffset());
         this.request_body_byte = request_body_str.getBytes();
         //响应信息
@@ -71,21 +130,22 @@ public abstract class VulTaskImpl {
         if (resp == null){
             this.analyzeResponse = this.helpers.analyzeResponse(new byte[]{}); //响应为空则设置空，防止NullPointerException
             this.response_info = new String(new byte[]{});
+            this.status_code = 0;
         }else{
             this.analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
+            this.status_code = this.analyzeResponse.getStatusCode();
             this.response_info = new String(messageInfo.getResponse());
             this.resp_body_str = this.response_info.substring(this.analyzeResponse.getBodyOffset());
         }
         this.response_header_list = this.analyzeResponse.getHeaders();
-        this.status_code = this.analyzeResponse.getStatusCode();
         this.messageInfo_r = messageInfo; //默认赋值为原始的，避免请求不同导致的NullPointerException
 
         //返回上面板信息
-        this.host = iHttpService.getHost();
-        this.path = analyzeRequest.getUrl().getPath();
+        this.host = this.iHttpService.getHost();
+        this.path = this.analyzeRequest.getUrl().getPath();
         //String param = param_list.toString();
-        this.method = analyzeRequest.getMethod();
-        this.status = status_code;
+        this.method = this.analyzeRequest.getMethod();
+        this.status = this.analyzeResponse.getStatusCode();
         this.payloads = "";
     }
 
@@ -126,7 +186,7 @@ public abstract class VulTaskImpl {
     //头部信息包含如下
     //1、请求头/响应头
     //2、首部
-    protected String check(List<String> headers, String header) {
+    public String check(List<String> headers, String header) {
         if (null == headers) {
             return null;
         }
@@ -140,9 +200,9 @@ public abstract class VulTaskImpl {
 
     // 添加面板展示数据
     // 已经在列表的不添加
-    protected VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, Short status, String risk, String payloads) {
+    public VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, short status, String risk, String payloads) {
         boolean inside = false;
-        int lastRow = log.size();
+        int row = log.size();
         for (BurpExtender.LogEntry le :
                 log) {
             if (le.Host.equalsIgnoreCase(host)
@@ -155,11 +215,21 @@ public abstract class VulTaskImpl {
             }
         }
         if (!inside) {
-            log.add(new BurpExtender.LogEntry(lastRow, callbacks.saveBuffersToTempFiles(requestResponse),
+            log.add(new BurpExtender.LogEntry(row, callbacks.saveBuffersToTempFiles(requestResponse),
                     host, path, method, status, risk, payloads));
-            return new VulResult(lastRow, risk, status, requestResponse, path, host);
+//            callbacks.printOutput("[logAdd]\n" + new String(requestResponse.getRequest()));
+//            callbacks.printOutput(String.valueOf(log.size()));
+            return new VulResult(row, risk, status, requestResponse, path, host);
         }
         return null;
+    }
+    //添加结果，将okhttp的请求信息封装成burp的类型
+    public void log(){
+        IHttpRequestResponse messageInfo_r = new HttpRequestResponseFactory();;//根据响应构造burp的IHttpRequestResponse对象
+        messageInfo_r.setRequest(ok_reqInfo);
+        messageInfo_r.setResponse(ok_respInfo);
+        messageInfo_r.setHttpService(iHttpService);
+        logAdd(messageInfo_r, host, path, method, (short) ok_code, message, payloads);
     }
 
     // 后续可以持续更新这个后缀列表
@@ -201,31 +271,28 @@ public abstract class VulTaskImpl {
     // 解析json，然后添加注入字符
     // https://blog.csdn.net/zitong_ccnu/article/details/47375379
     protected String createJsonBody(String body, String injectStr){
-        //{"key":"value","key":"value"}
-        Map<String, String> map = new HashMap<String, String>();
-        ObjectMapper mapper = new ObjectMapper();
-        map = jsonToMap(body);
-        Map<String, String> finalMap = map;
-        map.replaceAll((k, v) -> finalMap.get(k) + injectStr); //replaceAll内置函数替换所有值
         try {
-            return mapper.writeValueAsString(map);
-        } catch (JsonProcessingException e) {
-            callbacks.printError(e.toString());
+            if (body.startsWith("{")){
+                JSONObject jsonObject = new JSONObject(body);
+                Map<String, Object> jsonMap = jsonObject.toMap();
+                JsonTools jsonTools = new JsonTools();
+                jsonTools.jsonObjInject(jsonMap, injectStr);
+                return jsonTools.stringBuilder.toString();
+            }else if (body.startsWith("[")){
+                JSONArray jsonArray = new JSONArray(body);
+                List<Object> jsonList = jsonArray.toList();
+                JsonTools jsonTools = new JsonTools();
+                jsonTools.jsonArrInject(jsonList, injectStr);
+                return jsonTools.stringBuilder.toString();
+            }
+        } catch (Exception e) {
+            callbacks.printError("createJsonBody:\n" + e +
+                    "\nerrorData:\n" + body);
         }
-        return "";
+        //非json数据直接原文返回
+        return body;
     }
 
-    private Map<String, String> jsonToMap(String json){
-        Map<String, String> map = new HashMap<String, String>();
-        ObjectMapper mapper = new ObjectMapper();
-        try{
-            map = mapper.readValue(json, new TypeReference<HashMap<String, String>>(){});
-            return map;
-        } catch (IOException e) {
-            callbacks.printError(e.toString());
-        }
-        return map;
-    }
     protected String createFormBody(String body, String injectStr){
         String[] qs = body.split("&");
         StringBuilder stringBuilder = new StringBuilder();
@@ -234,5 +301,81 @@ public abstract class VulTaskImpl {
         }
         stringBuilder.append(qs[qs.length-1]); //最后的参数不添加&
         return stringBuilder.toString();
+    }
+
+    //因为okhttp的response是一次性的，使用后会导致后续使用会报空指针异常
+    public void setOkhttpMessage(Call call, Response response){
+        //okhttp的请求信息
+        this.ok_requestBodyObj = call.request().body();
+        this.ok_method = response.request().method();
+        this.ok_url = call.request().url().url().getPath() + "?" + call.request().url().url().getQuery();
+        this.ok_protocol = response.protocol().toString().toUpperCase();//HTTP/1.1必须要大写
+        this.ok_reqHeaders = call.request().headers();
+        this.ok_reqBody = "";
+        //okhttp的响应信息
+        this.ok_responseBodyObj = response.body();
+        this.ok_code = response.code();
+        this.ok_message = response.message();
+        this.ok_respHeaders = response.headers();
+        this.ok_respBody = "";
+        try {
+            // okhttp响应正文乱码,因为没法处理压缩内容的解码
+            // https://wenku.baidu.com/view/6d3d3afda68da0116c175f0e7cd184254b351b68.html
+            // https://blog.csdn.net/xx326664162/article/details/81661861?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_ecpm_v1~rank_v31_ecpm-3-81661861-null-null.pc_agg_new_rank&utm_term=okhttp%E5%93%8D%E5%BA%94%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B9%B1%E7%A0%81&spm=1000.2123.3001.4430
+            this.ok_respBody = Objects.requireNonNull(ok_responseBodyObj).string(); //只能调用一次，即关闭response,所以最后调用
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.ok_reqInfo = okhttpReqToburpReq();
+        this.ok_respInfo = okhttpRespToburpResp();
+
+        callbacks.printOutput("####################Request and Response###########################\n" +
+                "VulTaskImpl-reqInfo \n" + new String(ok_reqInfo) +
+                "\n-----------------------------------------------\n"+
+                "VulTaskImpl-respInfo \n" + ok_code + " " + ok_message
+        );
+    }
+    //将okhttp的请求信息转换成burp的格式，以便展示
+    private byte[] okhttpReqToburpReq(){
+        //获取requestBody
+        Buffer buffer = new Buffer();
+        try {//为空会报错，但是get请求体就是为空的
+            ok_requestBodyObj.writeTo(buffer);
+            //编码设为UTF-8
+            Charset charset = StandardCharsets.UTF_8; //默认UTF-8
+            MediaType contentType = ok_requestBodyObj.contentType();
+            if (contentType != null) {
+                Charset charset0 = contentType.charset(StandardCharsets.UTF_8);
+                if (charset0 != null){ //有些contentType是没带charset的
+                    charset = charset0;
+                }
+            }
+            //拿到requestBody
+            ok_reqBody = buffer.readString(charset);
+        } catch (Exception e) {
+            //保持默认值空字符串即可
+            //callbacks.printError("[okhttpReqToburpReq] " + e.getMessage());
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(ok_method + " " + ok_url + " " + ok_protocol).append("\r\n");
+        stringBuilder.append(ok_reqHeaders);
+        stringBuilder.append("\r\n");
+        stringBuilder.append(ok_reqBody);
+
+//        callbacks.printOutput("[okhttpReqToburpReq] \r\n" + stringBuilder);
+        return stringBuilder.toString().getBytes(StandardCharsets.UTF_8);
+
+    }
+    //将okhttp的响应信息转换成burp的格式，以便展示
+    private byte[] okhttpRespToburpResp(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(ok_protocol + " " + ok_code + " " + ok_message).append("\r\n");
+        stringBuilder.append(ok_respHeaders);
+        stringBuilder.append("\r\n");
+        stringBuilder.append(ok_respBody);
+
+//        callbacks.printOutput("[okhttpRespToburpResp] \r\n" + stringBuilder);
+        return  stringBuilder.toString().getBytes(StandardCharsets.UTF_8);
     }
 }

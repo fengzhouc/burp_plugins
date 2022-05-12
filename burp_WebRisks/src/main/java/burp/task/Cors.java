@@ -3,8 +3,15 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HttpRequestResponseFactory;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,10 +37,6 @@ public class Cors extends VulTaskImpl {
             return null;
         }
 
-        //新请求body
-        String messageBody = request_info.substring(analyzeRequest.getBodyOffset());
-        byte[] request_body = messageBody.getBytes();
-
         /*
          * ajax请求跨域获取数据的条件
          * 1、Access-Control-Allow-Credentials为true
@@ -58,29 +61,35 @@ public class Cors extends VulTaskImpl {
                         }
                     }
                     new_headers1.add("Origin: "+evilOrigin);
-
-
-                    //新的请求包:ORIGIN
-                    IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers1, request_body);
-                    //新的返回包
-                    IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-                    String response_info1 = new String(messageInfo1.getResponse());
-                    String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
-                    List<String> response1_header_list = analyzeResponse1.getHeaders();
-                    status = analyzeResponse1.getStatusCode();
-
-                    //如果响应中的Access-Control-Allow-Origin跟修改的origin一样，则存在跨域
-                    if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
-                        message += "CORS Bypass";
-                        messageInfo_r = messageInfo1;
-                    }
+                    okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new CorsCallback(this));
                 }
             }
         }
-        if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
-        }
 
         return result;
+    }
+}
+
+class CorsCallback implements Callback {
+
+    VulTaskImpl vulTask;
+
+    public CorsCallback(VulTaskImpl vulTask){
+        this.vulTask = vulTask;
+    }
+    @Override
+    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        vulTask.callbacks.printError("[CorsCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+    }
+
+    @Override
+    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        List<String> hds = Arrays.asList(response.headers().toString().split("\n"));
+//        vulTask.callbacks.printOutput("CorsCallback\n" + call.request());
+        if (vulTask.check(hds, "Access-Control-Allow-Origin").contains("http://evil.com")){
+            vulTask.message += "CORS Bypass";
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            vulTask.log();
+        }
     }
 }

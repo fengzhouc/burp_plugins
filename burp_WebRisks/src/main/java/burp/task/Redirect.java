@@ -3,7 +3,13 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HttpRequestResponseFactory;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +34,6 @@ public class Redirect extends VulTaskImpl {
         }
 
         //1.请求的url中含redirect敏感参数
-        String query = request_header_list.get(0);
 //        callbacks.printOutput(query);
         if (query.contains("redirect=")
                 || query.contains("redirect_url=")
@@ -37,38 +42,49 @@ public class Redirect extends VulTaskImpl {
                 || query.contains("url=")
                 || query.contains("goto="))
         {
-            List<String> new_headers = request_header_list;
-            String header_first = "";
-
-            //url有参数
-            header_first = query.replace("?", "?redirect=http://evil.com/test&" +
+            String new_query = "redirect=http://evil.com/test&" +
                     "redirect_url=http://evil.com/test&" +
                     "redirect_uri=http://evil.com/test&" +
                     "callback=http://evil.com/test&" +
                     "url=http://evil.com/test&" +
-                    "goto=http://evil.com/test&");
-
-            new_headers.remove(0);
-            new_headers.add(0, header_first);
+                    "goto=http://evil.com/test&";
 
             //新的请求包
-            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, request_body_byte);
-
-            //以下进行判断
-            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-            List<String> response_header_list1 = analyzeResponse1.getHeaders();
-            status = analyzeResponse1.getStatusCode();
-
-            // 如果响应头中Location的值中是否包含传入的url http://evil.com/test，则可能存在Redirect
-            for (String header :
-                    response_header_list1) {
-//                callbacks.printOutput(header);
-                if (header.contains("evil.com")) {
-                    result = logAdd(messageInfo1, host, path, method, status, "Redirect", payloads);
-                }
-            }
+            okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new RedirectCallback(this));
         }
 
         return result;
+    }
+}
+
+class RedirectCallback implements Callback {
+
+    VulTaskImpl vulTask;
+
+    public RedirectCallback(VulTaskImpl vulTask){
+        this.vulTask = vulTask;
+    }
+    @Override
+    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        vulTask.callbacks.printError("[RedirectCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+    }
+
+    @Override
+    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+
+        //检查响应头Location
+        if (response.isRedirect()){
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            String location = vulTask.ok_respHeaders.get("Location");
+            if (location != null &&location.contains("evil.com")) {
+                vulTask.message = "Redirect";
+            }
+        }else if (vulTask.ok_respBody.contains("evil.com")) { //检查响应体中，有些是页面加载后重定向
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            vulTask.message = "Redirect";
+        }
+        if (!vulTask.message.equalsIgnoreCase("")){
+            vulTask.log();
+        }
     }
 }

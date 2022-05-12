@@ -3,8 +3,16 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HttpRequestResponseFactory;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,50 +33,48 @@ public class Https extends VulTaskImpl {
         }
 
         String protocol = iHttpService.getProtocol();
-        if (!protocol.toLowerCase(Locale.ROOT).startsWith("https")){
-            message = "no use https";
+        if (protocol.toLowerCase(Locale.ROOT).startsWith("https")){
+            message = "use https";
         }
-
         // 检查是否同时开启http/https
-        byte[] req = messageInfo.getRequest();
-        IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(new IHttpService() {
-            @Override
-            public String getHost() {
-                return iHttpService.getHost();
+        String url = "http://" + iHttpService.getHost() + ":80" + path;
+        List<String> new_header = new ArrayList<>();
+        for (String header :
+                request_header_list) {
+            if (!header.contains("Host")){
+                new_header.add(header);
             }
-
-            @Override
-            public int getPort() {
-                return 80;
-            }
-
-            @Override
-            public String getProtocol() {
-                return "http";
-            }
-        }, req);
-        //新的返回包
-        try {
-            byte[] resp = messageInfo1.getResponse();
-            if (resp != null) {
-                IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(resp);
-                if (analyzeResponse1.getStatusCode() == status_code) {
-                    if (!message.equalsIgnoreCase("")) {
-                        message += ", and open http";
-                    } else {
-                        message = "open http";
-                    }
-                    this.messageInfo_r = messageInfo1;
-                }
-            }
-        }catch (NullPointerException e) {
-            // 连接不上则未开启http
         }
+        new_header.add("Host: " + iHttpService.getHost() + ":80");
 
-        if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, "/", method, status_code, message, payloads);
-        }
+        okHttpRequester.send(url, method, new_header, query, request_body_str, contentYtpe, new HttpsCallback(this));
 
         return result;
+    }
+}
+
+class HttpsCallback implements Callback {
+
+    VulTaskImpl vulTask;
+
+    public HttpsCallback(VulTaskImpl vulTask){
+        this.vulTask = vulTask;
+    }
+    @Override
+    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        vulTask.callbacks.printError("[HttpsCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+    }
+
+    @Override
+    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        if (response.isSuccessful()){
+            if (!vulTask.message.equalsIgnoreCase("")) {
+                vulTask.message += ", and open http";
+            } else {
+                vulTask.message = "open http";
+            }
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            vulTask.log();
+        }
     }
 }

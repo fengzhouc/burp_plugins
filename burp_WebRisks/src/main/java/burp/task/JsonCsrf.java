@@ -3,7 +3,13 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HttpRequestResponseFactory;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,82 +60,39 @@ public class JsonCsrf extends VulTaskImpl {
 
             if (!method.equalsIgnoreCase("get")) {
                 //新的请求包:content-type
-                IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers1, request_body_byte);
-                //新的返回包
-                IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-                String response_info1 = new String(messageInfo1.getResponse());
-                String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
-                status = analyzeResponse1.getStatusCode();
-
-                //如果状态码相同则可能存在问题
-                if (status_code == analyzeResponse1.getStatusCode()
-                        && resp_body_str.equalsIgnoreCase(rep1_body)) {
-                    message = "JsonCsrf";
-                    messageInfo_r = messageInfo1;
-                }
+                okHttpRequester.send(url, method, new_headers1, query, request_body_str, "application/x-www-form-urlencoded", new JsonCsrfCallback(this));
             }
 
-        }
-        /*
-         * 跨域获取数据的条件
-         * 1、Access-Control-Allow-Credentials为true
-         * 2、Access-Control-Allow-Origin为*或者根据origin动态设置
-         */
-        if (check(response_header_list, "Access-Control-Allow-Origin") != null){
-            String origin = check(response_header_list, "Access-Control-Allow-Origin");
-            String credentials = check(response_header_list, "Access-Control-Allow-Credentials");
-            if (credentials != null && credentials.contains("true")){
-                if (origin.contains("*")) {
-                    if (message.equalsIgnoreCase("")) {
-                        message += "CORS Bypass";
-                    }else {
-                        message += " & CORS Bypass";
-                    }
-                    messageInfo_r = messageInfo;
-                }else {
-                    List<String> new_headers = request_header_list;
-                    List<String> new_headers1 = new ArrayList<String>();
-                    String evilOrigin = "http://evil.com";
-                    //新请求修改origin
-                    for (String header :
-                            new_headers) {
-                        if (header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
-                            continue;
-                        }else {
-                            new_headers1.add(header);
-                        }
-                    }
-                    new_headers1.add("Origin: "+evilOrigin);
-
-
-                    //新的请求包:ORIGIN
-                    byte[] req = this.helpers.buildHttpMessage(new_headers1, request_body_byte);
-//                            callbacks.printOutput(new String(req));
-                    IHttpRequestResponse messageInfo1 = this.callbacks.makeHttpRequest(iHttpService, req);
-                    //新的返回包
-                    IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-                    String response_info1 = new String(messageInfo1.getResponse());
-                    String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
-                    List<String> response1_header_list = analyzeResponse1.getHeaders();
-                    status = analyzeResponse1.getStatusCode();
-
-                    //如果响应中的Access-Control-Allow-Origin跟修改的origin一样，则存在跨域
-                    if (check(response1_header_list, "Access-Control-Allow-Origin").contains(evilOrigin)){
-                        if (message.equalsIgnoreCase("")) {
-                            message += "CORS Bypass";
-                            messageInfo_r = messageInfo1;
-                        }else {
-                            message += " & CORS Bypass";
-                            messageInfo_r = messageInfo1;
-                        }
-                    }
-                }
-            }
-        }
-        if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
         return result;
+    }
+}
+
+class JsonCsrfCallback implements Callback {
+
+    VulTaskImpl vulTask;
+
+    public JsonCsrfCallback(VulTaskImpl vulTask){
+        this.vulTask = vulTask;
+    }
+    @Override
+    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        vulTask.callbacks.printError("[JsonCsrfCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+    }
+
+    @Override
+    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//        vulTask.callbacks.printOutput("JsonCsrfCallback\n" + call.request());
+        if (response.isSuccessful()){
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            //如果状态码相同则可能存在问题
+            if (vulTask.status == vulTask.ok_code
+                    && vulTask.resp_body_str.equalsIgnoreCase(vulTask.ok_respBody)) {
+                vulTask.message = "JsonCsrf";
+                vulTask.log();
+            }
+
+        }
     }
 }

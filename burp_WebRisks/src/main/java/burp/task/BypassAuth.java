@@ -3,8 +3,18 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HttpRequestResponseFactory;
+import burp.util.OkHttpRequester;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BypassAuth extends VulTaskImpl {
 
@@ -15,8 +25,12 @@ public class BypassAuth extends VulTaskImpl {
     @Override
     public VulResult run() {
         /**
-         * 绕过鉴权
-         * */
+         * 绕过url鉴权
+         */
+        //条件：403/401禁止访问的才需要测试
+        if (401 == status || 403 == status){
+            return null;
+        }
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
@@ -35,41 +49,15 @@ public class BypassAuth extends VulTaskImpl {
         bypass_str.add("%20");
 
         // 将path拆解
-        String[] paths = path.split("/");
         List<String> bypass_path = createPath(bypass_str, path);
-        //修改api
-        String query = request_header_list.get(0);
-        List<String> new_headers = request_header_list;
-        String header_first = "";
+        String url = "";
 
         for (String bypass :
                 bypass_path) {
             //url有参数
-            header_first = query.replace(path, bypass);
-
-            new_headers.remove(0);
-            new_headers.add(0, header_first);
-
-            //新的请求包
-            IHttpRequestResponse messageInfo1 = requester.send(this.iHttpService, new_headers, request_body_byte);
-            //新的返回包
-            IResponseInfo analyzeResponse1 = this.helpers.analyzeResponse(messageInfo1.getResponse());
-            String response_info1 = new String(messageInfo1.getResponse());
-            String rep1_body = response_info1.substring(analyzeResponse1.getBodyOffset());
-            status = analyzeResponse1.getStatusCode();
-
-            //如果状态码200,然后响应内容不同，则存在url鉴权绕过
-            if (status == 200 && !resp_body_str.equalsIgnoreCase(rep1_body)) {
-                message = "BypassAuth";
-                messageInfo_r = messageInfo1;
-                break;
-            }
+            url = this.url.replace(path, bypass);
+            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthCallback(this));
         }
-
-        if (!message.equalsIgnoreCase("")){
-            result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
-        }
-
         return result;
     }
 
@@ -81,20 +69,42 @@ public class BypassAuth extends VulTaskImpl {
         // /api;/test
         // /api/xx;/../test
         for (String str : bypass_str) {
-            for (int i = 0; i< paths.length -1; i++){
+            for (int i = 0; i< paths.length; i++){
                 String bypassStr = paths[i] + str;
                 StringBuilder sb = new StringBuilder();
-                for (int j = 0; j< paths.length -1; j++) {
+                for (int j = 0; j< paths.length; j++) {
                     if (i == j){
-                        sb.append(bypassStr).append("/");
+                        sb.append("/").append(bypassStr);
                         continue;
                     }
-                    sb.append(paths[j]).append("/");
+                    sb.append("/").append(paths[j]);
                 }
-                sb.append(paths[paths.length - 1]); //最后一个path不参与，直接添加
                 bypass_path.add(sb.toString());
             }
         }
         return bypass_path;
+    }
+}
+
+class BypassAuthCallback implements Callback {
+
+    VulTaskImpl vulTask;
+
+    public BypassAuthCallback(VulTaskImpl vulTask){
+        this.vulTask = vulTask;
+    }
+    @Override
+    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        vulTask.callbacks.printError("[BypassAuthCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+    }
+
+    @Override
+    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        //如果状态码200,然后响应内容不同，则存在url鉴权绕过
+        if (response.isSuccessful()) {
+            vulTask.message = "BypassAuth";
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            vulTask.log();
+        }
     }
 }
