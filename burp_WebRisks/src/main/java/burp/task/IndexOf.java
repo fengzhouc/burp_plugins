@@ -34,6 +34,7 @@ public class IndexOf extends VulTaskImpl {
             for (int i = 0; i < q.length - 1; i++) {
                 p.append("/").append(q[i]);
             }
+            this.path = p.toString(); //因为这里更改了请求的url，为了保持ui上显示一致
             String url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + p;
             okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IndexOfCallback(this));
         }
