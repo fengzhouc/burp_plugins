@@ -49,7 +49,7 @@ class LandrayOaCallback implements Callback {
             // 检查响应体是否有内容
             if (vulTask.ok_respBody.length() > 0) {
                 vulTask.message = "LandrayOa Vul";
-                vulTask.log();
+                vulTask.log(call);
             }
         }
     }
