@@ -30,7 +30,6 @@ public class Ssrf extends VulTaskImpl {
          * 1、所有参数都添加特殊字符
          * 2、然后检查响应是否不同或者存在关键字
          * */
-        String injectStr = helpers.urlEncode("'\"\\\"");
 
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
@@ -43,13 +42,13 @@ public class Ssrf extends VulTaskImpl {
         //如果有body参数，需要多body参数进行测试
         if (request_body_str.length() > 0){
             //1.先检测是否存在url地址的参数，正则匹配
-            String regex = "http[s]?://(.*?)/.*"; //分组获取域名
+            String regex = "http[s]?://(.*?)[/&\"]+?"; //分组获取域名
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(request_body_str);
             if (!matcher.find()){//没匹配到则不进行后续验证
                 return null;
             }
-            String domain = matcher.group();
+            String domain = matcher.group(1);
             // 修改为别的域名
             String req_body = request_body_str.replace(domain, evilHost);
             //新的请求包
