@@ -29,27 +29,26 @@ public class BypassAuth extends VulTaskImpl {
          * 绕过url鉴权
          */
         //条件：403/401禁止访问的才需要测试
-        if (401 == status || 403 == status){
-            return null;
-        }
-        // 后缀检查，静态资源不做测试
-        List<String> add = new ArrayList<String>();
-        add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-        payloads = loadPayloads("/payloads/BypassAuth.bbm");
-        List<String> bypass_str = new ArrayList<String>();
-        Collections.addAll(bypass_str, payloads.split("\n"));
+        if (status == 401 || status == 403){
+            // 后缀检查，静态资源不做测试
+            List<String> add = new ArrayList<String>();
+            add.add(".js");
+            if (isStaticSource(path, add)){
+                return null;
+            }
+            payloads = loadPayloads("/payloads/BypassAuth.bbm");
+            List<String> bypass_str = new ArrayList<String>();
+            Collections.addAll(bypass_str, payloads.split("\n"));
 
-        // 将path拆解
-        List<String> bypass_path = createPath(bypass_str, path);
+            // 将path拆解
+            List<String> bypass_path = createPath(bypass_str, path);
 
-        for (String bypass :
-                bypass_path) {
-            //url有参数
-            this.url = this.url.replace(path, bypass);
-            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthCallback(this));
+            for (String bypass :
+                    bypass_path) {
+                //url有参数
+                this.url = this.url.replace(path, bypass);
+                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthCallback(this));
+            }
         }
         return result;
     }
