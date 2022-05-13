@@ -47,7 +47,7 @@ class SecureHeaderCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[SecureHeaderCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[SecureHeaderCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -63,7 +63,7 @@ class SecureHeaderCallback implements Callback {
             if (frame == null){
                 vulTask.message = "without X-Frame-Options";
                 vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-                vulTask.log();
+                vulTask.log(call);
             }
         }
     }

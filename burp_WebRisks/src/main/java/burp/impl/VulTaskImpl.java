@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -224,11 +225,13 @@ public abstract class VulTaskImpl {
         return null;
     }
     //添加结果，将okhttp的请求信息封装成burp的类型
-    public void log(){
+    public void log(Call call){
         IHttpRequestResponse messageInfo_r = new HttpRequestResponseFactory();;//根据响应构造burp的IHttpRequestResponse对象
         messageInfo_r.setRequest(ok_reqInfo);
         messageInfo_r.setResponse(ok_respInfo);
         messageInfo_r.setHttpService(iHttpService);
+        HttpUrl httpUrl = call.request().url();
+        path = httpUrl.url().getPath();
         logAdd(messageInfo_r, host, path, method, (short) ok_code, message, payloads);
     }
 
@@ -359,7 +362,11 @@ public abstract class VulTaskImpl {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(ok_method + " " + ok_url + " " + ok_protocol).append("\r\n");
-        stringBuilder.append(ok_reqHeaders); // Header默认将Cookie视为敏感数据，toString会给脱敏了，所以ui上看不到cookie
+        //stringBuilder.append(ok_reqHeaders); // Header默认将Cookie视为敏感数据，toString会给脱敏了，所以ui上看不到cookie，但实际请求不影响
+        for (String header : //直接改用原headers进行构造burp的展示request
+                request_header_list) {
+            stringBuilder.append(header).append("\r\n");
+        }
         stringBuilder.append("\r\n");
         stringBuilder.append(ok_reqBody);
 

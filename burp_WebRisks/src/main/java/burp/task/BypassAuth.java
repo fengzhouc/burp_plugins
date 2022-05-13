@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,23 +40,15 @@ public class BypassAuth extends VulTaskImpl {
         }
         payloads = loadPayloads("/payloads/BypassAuth.bbm");
         List<String> bypass_str = new ArrayList<String>();
-        bypass_str.add("/xxx/../");
-        bypass_str.add("/;xxx/");
-        bypass_str.add("/aaa;xxx/../");
-        bypass_str.add(";");
-        bypass_str.add("/./");
-        bypass_str.add("////");
-        bypass_str.add("%00");
-        bypass_str.add("%20");
+        Collections.addAll(bypass_str, payloads.split("\n"));
 
         // 将path拆解
         List<String> bypass_path = createPath(bypass_str, path);
-        String url = "";
 
         for (String bypass :
                 bypass_path) {
             //url有参数
-            url = this.url.replace(path, bypass);
+            this.url = this.url.replace(path, bypass);
             okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthCallback(this));
         }
         return result;
@@ -95,7 +88,7 @@ class BypassAuthCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[BypassAuthCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[BypassAuthCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -104,7 +97,7 @@ class BypassAuthCallback implements Callback {
         if (response.isSuccessful()) {
             vulTask.message = "BypassAuth";
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-            vulTask.log();
+            vulTask.log(call);
         }
     }
 }

@@ -37,7 +37,7 @@ public class Https extends VulTaskImpl {
             message = "use https";
         }
         // 检查是否同时开启http/https
-        String url = "http://" + iHttpService.getHost() + ":80" + path;
+        this.url = "http://" + iHttpService.getHost() + ":80/" + path;
         List<String> new_header = new ArrayList<>();
         for (String header :
                 request_header_list) {
@@ -46,8 +46,9 @@ public class Https extends VulTaskImpl {
             }
         }
         new_header.add("Host: " + iHttpService.getHost() + ":80");
+        request_header_list = new_header;
 
-        okHttpRequester.send(url, method, new_header, query, request_body_str, contentYtpe, new HttpsCallback(this));
+        okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new HttpsCallback(this));
 
         return result;
     }
@@ -62,7 +63,7 @@ class HttpsCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[HttpsCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[HttpsCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -74,7 +75,7 @@ class HttpsCallback implements Callback {
                 vulTask.message = "open http";
             }
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-            vulTask.log();
+            vulTask.log(call);
         }
     }
 }

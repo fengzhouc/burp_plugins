@@ -77,7 +77,7 @@ class SqlInjectCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[SqlInjectCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[SqlInjectCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -87,7 +87,7 @@ class SqlInjectCallback implements Callback {
         // TODO 关键字是否全
         if (vulTask.ok_respBody.contains("SQL syntax")) {
             vulTask.message = "SqlInject";
-            vulTask.log();
+            vulTask.log(call);
         }
     }
 }

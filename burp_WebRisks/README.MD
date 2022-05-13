@@ -32,6 +32,9 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - IndexOf
 - 反射型XSS
 - SQL注入-字符型
+- SSRF
+- SensitiveApi, eg: /v2/api-docs
+- SensitiveMessage, 敏感信息检测: 身份证/手机号
 
 **CVE**
 - LandrayOa

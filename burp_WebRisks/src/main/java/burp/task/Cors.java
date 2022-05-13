@@ -50,18 +50,18 @@ public class Cors extends VulTaskImpl {
                     message += "CORS Bypass";
                     messageInfo_r = messageInfo;
                 }else {
-                    List<String> new_headers = request_header_list;
                     List<String> new_headers1 = new ArrayList<String>();
                     String evilOrigin = "http://evil.com";
                     //新请求修改origin
                     for (String header :
-                            new_headers) {
+                            request_header_list) {
                         if (!header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
                             new_headers1.add(header);
                         }
                     }
                     new_headers1.add("Origin: "+evilOrigin);
-                    okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new CorsCallback(this));
+                    request_header_list = new_headers1;
+                    okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new CorsCallback(this));
                 }
             }
         }
@@ -79,7 +79,7 @@ class CorsCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[CorsCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[CorsCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -89,7 +89,7 @@ class CorsCallback implements Callback {
         if (vulTask.check(hds, "Access-Control-Allow-Origin").contains("http://evil.com")){
             vulTask.message += "CORS Bypass";
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-            vulTask.log();
+            vulTask.log(call);
         }
     }
 }

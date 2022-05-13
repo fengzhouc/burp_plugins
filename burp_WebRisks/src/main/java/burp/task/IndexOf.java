@@ -23,6 +23,10 @@ public class IndexOf extends VulTaskImpl {
 
     @Override
     public VulResult run() {
+        //只检测get请求
+        if (!method.equalsIgnoreCase("get")){
+            return null;
+        }
         //如果就是/，则直接检查响应
         if (resp_body_str.contains("Index of")) {
             message = "Index of /";
@@ -35,7 +39,7 @@ public class IndexOf extends VulTaskImpl {
                 p.append("/").append(q[i]);
             }
             this.path = p.toString(); //因为这里更改了请求的url，为了保持ui上显示一致
-            String url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + p;
+            this.url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + p;
             okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IndexOfCallback(this));
         }
 
@@ -52,7 +56,7 @@ class IndexOfCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[IndexOfCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[IndexOfCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -62,7 +66,7 @@ class IndexOfCallback implements Callback {
             //如果状态码相同则可能存在问题
             if (vulTask.ok_respBody.contains("Index of")) {
                 vulTask.message = "Index of /";
-                vulTask.log();
+                vulTask.log(call);
             }
 
         }

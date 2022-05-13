@@ -250,6 +250,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: IndexOf");
                 callbacks.printOutput("#Task: SqlInject");
                 callbacks.printOutput("#Task: XssReflect");
+                callbacks.printOutput("#Task: SSRF");
+                callbacks.printOutput("#Task: SensitiveApi");
+                callbacks.printOutput("#Task: SensitiveMessage");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -325,7 +328,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //正式进入测试
 //        int row = log.size();
         VulResult result = null;
-        // TODO 下面这里不行，会因为某个任务异常而导致后续任务不执行
+
         // Web基础漏洞扫描
         // jsoncsrf的检测
         tasks.add(new JsonCsrf(helpers, callbacks, log, messageInfo));
@@ -343,34 +346,36 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
         // cookie安全属性,废弃掉，该用okhttp后，cookie会被脱敏，导致无法检测
 //        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
-        // https
-        tasks.add(new Https(helpers, callbacks, log, messageInfo));
         // index of 目录浏览
         tasks.add(new IndexOf(helpers, callbacks, log, messageInfo));
         // 绕过鉴权
         tasks.add(new BypassAuth(helpers, callbacks, log, messageInfo));
-        // TODO 敏感路径扫描
         // SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
         tasks.add(new SqlInject(helpers, callbacks, log, messageInfo));
         // 反射型XSS探测
         tasks.add(new XssReflect(helpers, callbacks, log, messageInfo));
         // TODO 文件上传漏洞，如目录穿越、敏感文件后缀
-        // TODO 敏感信息监测，如手机号、身份证、邮箱、userid等
+        // 敏感信息监测，如手机号、身份证、邮箱、userid等
+        tasks.add(new SensitiveMessage(helpers, callbacks, log, messageInfo));
         // TODO bean注入探测，也就是参数爆破啦，不过这个参数不是预制的，而是根据应用抓出来的，所以这个任务不在缓存控制，会一直重复
         // TODO 配合bean注入探测，需要有个分析并收集参数字段的任务
-        // TODO ssrf检测（两种情况：绝对url/相对url）
-        //      1.检测请求的参数，是否带有url的参数，
-        //      - 检查key，如url/source等，
-        //      - 检查参数值是否url的格式
-        //      2.然后篡改为别的域名的地址
+        // ssrf检测（两种情况：绝对url/相对url）
+        //  1.检测请求的参数，是否带有url的参数，
+        //  - 检查key，如url/source等，
+        //  - 检查参数值是否url的格式
+        //  2.然后篡改为别的域名的地址
+        tasks.add(new Ssrf(helpers, callbacks, log, messageInfo));
 
-        // 漏洞检测任务，需要调整到cve漏洞扫描模块
-        // 每个域名只检查一次
+        // 每个域名只检查一次的检查项
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {
             // tomcat put jsp //废弃不要了
             // tasks.add(new PutJsp(helpers, callbacks, log, messageInfo));
             // LandrayOa
-//            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
+            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
+            // https
+            tasks.add(new Https(helpers, callbacks, log, messageInfo));
+            // 敏感api扫描
+            tasks.add(new SensitiveApi(helpers, callbacks, log, messageInfo));
 
             //检测过则添加标记
             vulsChecked += "_" + urlo.getHost() + urlo.getPort();
@@ -388,20 +393,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //跑完，则存入缓存中
         localCache.put(md5, "in");
 
-//        int lastRow = getRowCount();
-//        /*
-//         * 1、无结果, row == lastRow
-//         * 2、1个或以上结果,row < lastRow
-//         * 所以，有添加的时候在通过有添加数据
-//         * */
-//        if (row < lastRow) {
-//            /*
-//             * fix：java.lang.IndexOutOfBoundsException: Invalid range
-//             * 没有添加数据还通知有数据被添加，会导致setAutoCreateRowSorter排序出现Invalid range异常
-//             */
-//            //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
-//            fireTableRowsInserted(row, lastRow - 1);
-//        }
         //通知数据可能变更，刷新全表格数据，该用okhttp异步发包后，没办法同步调用fireTableRowsInserted通知刷新数据，因为一直row=lastRow
         fireTableDataChanged();
         return null;

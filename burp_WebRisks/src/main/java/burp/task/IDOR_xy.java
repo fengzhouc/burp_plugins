@@ -54,8 +54,9 @@ public class IDOR_xy extends VulTaskImpl {
             }
             new_headers1.add(header);
         }
+        request_header_list = new_headers1;
         //新的请求包
-        okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new IDORxyCallback(this));
+        okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IDORxyCallback(this));
 
         return result;
     }
@@ -70,7 +71,7 @@ class IDORxyCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[IDORxyCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[IDORxyCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -81,7 +82,7 @@ class IDORxyCallback implements Callback {
             if (vulTask.status == vulTask.ok_code
                     && vulTask.resp_body_str.equalsIgnoreCase(vulTask.ok_respBody)) {
                 vulTask.message = "IDOR_xy";
-                vulTask.log();
+                vulTask.log(call);
             }
 
         }

@@ -66,7 +66,7 @@ class RedirectCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[RedirectCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[RedirectCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -84,7 +84,7 @@ class RedirectCallback implements Callback {
             vulTask.message = "Redirect";
         }
         if (!vulTask.message.equalsIgnoreCase("")){
-            vulTask.log();
+            vulTask.log(call);
         }
     }
 }

@@ -56,7 +56,7 @@ class XssReflectCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[XssReflectCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[XssReflectCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -66,7 +66,7 @@ class XssReflectCallback implements Callback {
         // TODO 关键字是否全
         if (vulTask.ok_respBody.contains("_xssflag")) {
             vulTask.message = "XssReflect";
-            vulTask.log();
+            vulTask.log(call);
         }
     }
 }

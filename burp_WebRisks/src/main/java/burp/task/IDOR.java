@@ -68,7 +68,7 @@ class IDORCallback implements Callback {
     }
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[IDORCallback-onFailure] " + e.getMessage() + "\n" + vulTask.request_info);
+        vulTask.callbacks.printError("[IDORCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
     }
 
     @Override
@@ -80,7 +80,7 @@ class IDORCallback implements Callback {
             if (vulTask.status == vulTask.ok_code
                     && vulTask.resp_body_str.equalsIgnoreCase(vulTask.ok_respBody)) {
                 vulTask.message = "IDOR";
-                vulTask.log();
+                vulTask.log(call);
             }
 
         }
