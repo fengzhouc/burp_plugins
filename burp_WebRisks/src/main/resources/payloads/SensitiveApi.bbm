@@ -1,1 +1,16 @@
 /v2/api-docs
+/swagger-ui.html
+/api/swagger/index.html
+/druid/index.html
+/env
+/actuator/env
+/heapdump
+/dump
+/actuator/heapdump
+/actuator/dump
+/examples/serivlets/servlet/SessionExample
+/manager/html
+/solr/admin/cores
+/solr/admin/configs
+/solr/admin/collections
+/wp-admin
