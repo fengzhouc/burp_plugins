@@ -363,14 +363,14 @@ public abstract class VulTaskImpl {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(ok_method + " " + ok_url + " " + ok_protocol).append("\r\n");
         //stringBuilder.append(ok_reqHeaders); // Header默认将Cookie视为敏感数据，toString会给脱敏了，所以ui上看不到cookie，但实际请求不影响
-        for (String header : //直接改用原headers进行构造burp的展示request
+        for (String header : //直接改用原headers进行构造burp的展示request,官方也有提供返回明文的：Headers.toMultimap().toString()，不过数据处理比较麻烦，还是用burp原生的吧
                 request_header_list) {
             stringBuilder.append(header).append("\r\n");
         }
         stringBuilder.append("\r\n");
         stringBuilder.append(ok_reqBody);
 
-//        callbacks.printOutput("[okhttpReqToburpReq] \r\n" + stringBuilder);
+//        callbacks.printError("[ok_reqHeaders] \r\n" + ok_reqHeaders.toMultimap().toString());
         return stringBuilder.toString().getBytes(StandardCharsets.UTF_8);
 
     }
