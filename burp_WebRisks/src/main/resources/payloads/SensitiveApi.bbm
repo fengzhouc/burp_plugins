@@ -14,3 +14,4 @@
 /solr/admin/configs
 /solr/admin/collections
 /wp-admin
+/jmx-console/HtmlAdaptors
