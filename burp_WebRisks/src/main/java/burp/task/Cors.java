@@ -3,6 +3,7 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HeaderTools;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -47,7 +48,7 @@ public class Cors extends VulTaskImpl {
             String credentials = check(response_header_list, "Access-Control-Allow-Credentials");
             if (credentials != null && credentials.contains("true")){
                 if (origin.contains("*")) {
-                    message += "CORS Bypass";
+                    message += "CORS Any";
                     messageInfo_r = messageInfo;
                 }else {
                     List<String> new_headers1 = new ArrayList<String>();
@@ -55,8 +56,11 @@ public class Cors extends VulTaskImpl {
                     //新请求修改origin
                     for (String header :
                             request_header_list) {
-                        if (!header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
-                            new_headers1.add(header);
+                        // 剔除掉csrf头部
+                        if (HeaderTools.inNormal(header.split(":")[0].toLowerCase(Locale.ROOT))) {
+                            if (!header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
+                                new_headers1.add(header);
+                            }
                         }
                     }
                     new_headers1.add("Origin: "+evilOrigin);
@@ -85,11 +89,14 @@ class CorsCallback implements Callback {
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         List<String> hds = Arrays.asList(response.headers().toString().split("\n"));
-//        vulTask.callbacks.printOutput("CorsCallback\n" + call.request());
+        vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
         if (vulTask.check(hds, "Access-Control-Allow-Origin").contains("http://evil.com")){
-            vulTask.message += "CORS Bypass";
-            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            vulTask.message = "CORS Dynamic and Without csrfToken";
             vulTask.log(call);
+        }else {
+            if ("".equalsIgnoreCase(vulTask.message)){
+                vulTask.log(call);
+            }
         }
     }
 }

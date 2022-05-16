@@ -3,6 +3,7 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HeaderTools;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -46,11 +47,14 @@ public class JsonCsrf extends VulTaskImpl {
             boolean hasCT = false;
             for (String header :
                     request_header_list) {
-                if (header.toLowerCase(Locale.ROOT).contains("content-type")) {
-                    header = header.replace("application/json", "application/x-www-form-urlencoded");
-                    hasCT = true;
+                // 剔除掉csrf头部
+                if (HeaderTools.inNormal(header.split(":")[0].toLowerCase(Locale.ROOT))) {
+                    if (header.toLowerCase(Locale.ROOT).contains("content-type")) {
+                        header = header.replace("application/json", "application/x-www-form-urlencoded");
+                        hasCT = true;
+                    }
+                    new_headers1.add(header);
                 }
-                new_headers1.add(header);
             }
             //如果请求头中没有CT，则添加一个
             if (!hasCT) {

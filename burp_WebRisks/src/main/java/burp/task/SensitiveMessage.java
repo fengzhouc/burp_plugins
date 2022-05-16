@@ -39,7 +39,7 @@ public class SensitiveMessage extends VulTaskImpl {
         if (resp_body_str.length() > 0){
             //先检测是否存在url地址的参数，正则匹配
             String UIDRegex = "[1-9]\\d{5}(18|19|([23]\\d))\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]"; //身份证的正则
-            String phoneRegex = "((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}"; //手机号的正则
+            String phoneRegex = "1(3\\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\\d|9[0-35-9])\\d{8}"; //手机号的正则
             String emailRegex = "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*"; //邮箱的正则
             Pattern patternUID = Pattern.compile(UIDRegex);
             Pattern patternPhone = Pattern.compile(phoneRegex);
@@ -47,11 +47,7 @@ public class SensitiveMessage extends VulTaskImpl {
             Matcher matcherUid = patternUID.matcher(resp_body_str);
             Matcher matcherPhone = patternPhone.matcher(resp_body_str);
             Matcher matcherEmail = patternEmail.matcher(resp_body_str);
-            if (!matcherUid.find()){//没匹配到则不进行后续验证
-                return null;
-            }else if (!matcherPhone.find()){
-                return null;
-            }else if (!matcherEmail.find()){
+            if (!matcherUid.find() && !matcherPhone.find() && !matcherEmail.find()) {//没匹配到则不进行后续验证
                 return null;
             }
             //不需要发包,上面正则匹配到则存在问题
@@ -60,31 +56,4 @@ public class SensitiveMessage extends VulTaskImpl {
         return result;
     }
 
-}
-
-class SensitiveMessageCallback implements Callback {
-
-    VulTaskImpl vulTask;
-
-    public SensitiveMessageCallback(VulTaskImpl vulTask){
-        this.vulTask = vulTask;
-    }
-    @Override
-    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        vulTask.callbacks.printError("[SensitiveMessageCallback-onFailure] " + e.getMessage() + "\n" + new String(vulTask.ok_respInfo));
-    }
-
-    @Override
-    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-        vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-        // 检查响应中是否存在flag
-        if (vulTask.ok_respBody.contains("evil6666.com")) {
-            vulTask.message = "SSRF";
-            vulTask.log(call);
-        }else if (response.isSuccessful()){
-            // 可能响应并没有回馈，所以这时响应是成功的也告警
-            vulTask.message = "SSRF, Not in Resp";
-            vulTask.log(call);
-        }
-    }
 }

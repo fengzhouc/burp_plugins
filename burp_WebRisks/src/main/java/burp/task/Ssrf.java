@@ -73,12 +73,13 @@ class SsrfCallback implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-        vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
         // 检查响应中是否存在flag
         if (vulTask.ok_respBody.contains("evil6666.com")) {
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             vulTask.message = "SSRF";
             vulTask.log(call);
         }else if (response.isSuccessful()){
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             // 可能响应并没有回馈，所以这时响应是成功的也告警
             vulTask.message = "SSRF, Not in Resp";
             vulTask.log(call);

@@ -65,7 +65,7 @@ class IndexOfCallback implements Callback {
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             //如果状态码相同则可能存在问题
             if (vulTask.ok_respBody.contains("Index of")) {
-                vulTask.message = "Index of /";
+                vulTask.message = "Index of ";
                 vulTask.log(call);
             }
 
