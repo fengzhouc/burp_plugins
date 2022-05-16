@@ -22,19 +22,20 @@ Payload：列出漏洞的payload列表，供手工测试参考
 ## 可检测的漏洞
 **Web Basic**
 - JsonCsrf
-- Cors
-- IDOR
-- IDOR_xy
+- Cors, 会检查是否有csrftoken
+- IDOR, 未授权访问
+- IDOR_xy, 横纵越权,依据你设置的cookie
 - Jsonp
 - Https
-- SecureHeader 'X-Frame-Options'
 - Redirect
 - IndexOf
 - 反射型XSS
 - SQL注入-字符型
 - SSRF
 - SensitiveApi, eg: /v2/api-docs
-- SensitiveMessage, 敏感信息检测: 身份证/手机号
+- SensitiveMessage, 敏感信息检测: 身份证/手机号/邮箱
+- UploadSecure, 上传文件类型限制检测
+- BeanParanInject, bean参数注入
 
 **CVE**
 - LandrayOa
