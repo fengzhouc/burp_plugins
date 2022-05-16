@@ -128,10 +128,19 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 });
                 panel.add(btnClear);
+                JButton btnrefresh = new JButton("Refresh");
+                btnrefresh.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                btnrefresh.setToolTipText("refresh the ui");
+                btnrefresh.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BurpExtender.this.refreshTable();
+                    }
+                });
+                panel.add(btnrefresh);
 
-                JLabel note = new JLabel("注: 如有验证码类的业务,会出现业务功能异常,因为测试是重复发包，所以验证码失效，这类功能需要手测.");
-                note.setForeground(new Color(255, 0, 0));
-                panel.add(note);
+//                JLabel note = new JLabel("注: 如有验证码类的业务,会出现业务功能异常,因为测试是重复发包，所以验证码失效，这类功能需要手测.");
+//                note.setForeground(new Color(255, 0, 0));
+//                panel.add(note);
 
                 // cookie设置
                 JPanel panel_c = new JPanel();
@@ -253,6 +262,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: SSRF");
                 callbacks.printOutput("#Task: SensitiveApi");
                 callbacks.printOutput("#Task: SensitiveMessage");
+                callbacks.printOutput("#Task: UploadSecure");
+                callbacks.printOutput("#Task: BeanParanInject");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -354,11 +365,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new SqlInject(helpers, callbacks, log, messageInfo));
         // 反射型XSS探测
         tasks.add(new XssReflect(helpers, callbacks, log, messageInfo));
-        // TODO 文件上传漏洞，如目录穿越、敏感文件后缀
+        // 文件上传漏洞，如目录穿越、敏感文件后缀
+        tasks.add(new UploadSecure(helpers, callbacks, log, messageInfo));
         // 敏感信息监测，如手机号、身份证、邮箱、userid等
         tasks.add(new SensitiveMessage(helpers, callbacks, log, messageInfo));
         // TODO bean注入探测，也就是参数爆破啦，不过这个参数不是预制的，而是根据应用抓出来的，所以这个任务不在缓存控制，会一直重复
         // TODO 配合bean注入探测，需要有个分析并收集参数字段的任务
+        tasks.add(new BeanParamInject(helpers, callbacks, log, messageInfo));
         // ssrf检测（两种情况：绝对url/相对url）
         //  1.检测请求的参数，是否带有url的参数，
         //  - 检查key，如url/source等，
@@ -404,21 +417,22 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     }
 
     //通知已刷新表格数据
-    public void refreshTable(int row){
-        int lastRow = getRowCount();
-        /*
-         * 1、无结果, row == lastRow
-         * 2、1个或以上结果,row < lastRow
-         * 所以，有添加的时候在通过有添加数据
-         * */
-        if (row < lastRow) {
-            /*
-             * fix：java.lang.IndexOutOfBoundsException: Invalid range
-             * 没有添加数据还通知有数据被添加，会导致setAutoCreateRowSorter排序出现Invalid range异常
-             */
-            //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
-            fireTableRowsInserted(row, lastRow - 1);
-        }
+    public void refreshTable(){
+//        int lastRow = getRowCount();
+//        /*
+//         * 1、无结果, row == lastRow
+//         * 2、1个或以上结果,row < lastRow
+//         * 所以，有添加的时候在通过有添加数据
+//         * */
+//        if (row < lastRow) {
+//            /*
+//             * fix：java.lang.IndexOutOfBoundsException: Invalid range
+//             * 没有添加数据还通知有数据被添加，会导致setAutoCreateRowSorter排序出现Invalid range异常
+//             */
+//            //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
+//            fireTableRowsInserted(row, lastRow - 1);
+//        }
+        fireTableDataChanged();
     }
 
     @Override
