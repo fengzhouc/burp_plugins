@@ -58,14 +58,14 @@ public class SensitiveMessage extends VulTaskImpl {
             if (matcherPhone.find()){
                 message += ",Phone";
                 payloads += "\n" + matcherPhone.group();
-                while (matcherUid.find()){ //每次调用后会往后移
+                while (matcherPhone.find()){ //每次调用后会往后移
                     payloads += "\n" + matcherPhone.group();
                 }
             }
             if (matcherEmail.find()){
                 message += ",Email";
                 payloads += "\n" + matcherEmail.group();
-                while (matcherUid.find()){ //每次调用后会往后移
+                while (matcherEmail.find()){ //每次调用后会往后移
                     payloads += "\n" + matcherEmail.group();
                 }
             }
