@@ -51,14 +51,23 @@ public class SensitiveMessage extends VulTaskImpl {
             if (matcherUid.find()){
                 message += ",UID";
                 payloads += "\n" + matcherUid.group();
+                while (matcherUid.find()){ //每次调用后会往后移
+                    payloads += "\n" + matcherUid.group();
+                }
             }
             if (matcherPhone.find()){
                 message += ",Phone";
                 payloads += "\n" + matcherPhone.group();
+                while (matcherUid.find()){ //每次调用后会往后移
+                    payloads += "\n" + matcherPhone.group();
+                }
             }
             if (matcherEmail.find()){
                 message += ",Email";
                 payloads += "\n" + matcherEmail.group();
+                while (matcherUid.find()){ //每次调用后会往后移
+                    payloads += "\n" + matcherEmail.group();
+                }
             }
             if (!message.equalsIgnoreCase("SensitiveMessage:")) {
                 //不需要发包,上面正则匹配到则存在问题
