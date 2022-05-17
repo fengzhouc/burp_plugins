@@ -10,6 +10,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -52,19 +53,35 @@ public class BeanParamInject extends VulTaskImpl {
             if (resp_body_str.length() > request_body_str.length()){
                 JSONObject reqJsonObject = new JSONObject(request_body_str);
                 Map<String, Object> reqJsonMap = reqJsonObject.toMap();
-                JSONObject respJsonObject = new JSONObject(resp_body_str);
-                Map<String, Object> respJsonMap = respJsonObject.toMap();
-                //1.分析并得出公共参数及缺少的参数
-                // -简单json对象,循环json对象，查看响应中是否有次key
-                // -复杂json对象,这里相对上面的需要注意的是需要定位是在哪个json对象中插入数据
-                Map<String, Object> beanJsonMap = getBeanJsonObjMap(reqJsonMap, respJsonMap);
-                //2.将缺少的参数注入到请求参数中并修改值，重放请求，循环所有缺少的参数
-                assert beanJsonMap != null;
-                jsonObjInject(beanJsonMap, reqJsonMap, flag);
+                if (resp_body_str.startsWith("{")) {
+                    JSONObject respJsonObject = new JSONObject(resp_body_str);
+                    Map<String, Object> respJsonMap = respJsonObject.toMap();
+                    //1.分析并得出公共参数及缺少的参数
+                    // -简单json对象,循环json对象，查看响应中是否有次key
+                    // -复杂json对象,这里相对上面的需要注意的是需要定位是在哪个json对象中插入数据
+                    Map<String, Object> beanJsonMap = getBeanJsonObjMap(reqJsonMap, respJsonMap);
+                    //2.将缺少的参数注入到请求参数中并修改值，重放请求，循环所有缺少的参数
+                    assert beanJsonMap != null;
+                    jsonObjInject(beanJsonMap, reqJsonMap, flag);
+                }else if (resp_body_str.startsWith("[")){
+                    JSONArray respJsonArray = new JSONArray(resp_body_str);
+                    List<Object> respJsonMap = respJsonArray.toList();
+                    //1.分析并得出公共参数及缺少的参数
+                    // -简单json对象,循环json对象，查看响应中是否有次key
+                    // -复杂json对象,这里相对上面的需要注意的是需要定位是在哪个json对象中插入数据
+                    Map<String, Object> beanJsonMap = getBeanJsonObjMap(reqJsonMap, respJsonMap);
+                    //2.将缺少的参数注入到请求参数中并修改值，重放请求，循环所有缺少的参数
+                    assert beanJsonMap != null;
+                    jsonObjInject(beanJsonMap, reqJsonMap, flag);
+                }
                 String new_body = stringBuilder.toString();
                 callbacks.printOutput("BeanParamInject-Data\norigin: " + request_body_str + "\ntemper: " + new_body);
                 //3.查看响应中是否有篡改的值
 
+                //没有找到bean对象则不进行测试
+                if ("".equalsIgnoreCase(new_body)){
+                    return null;
+                }
                 //新的请求包
                 okHttpRequester.send(url, method, request_header_list, query, new_body, contentYtpe, new BeanParamInjectCallback(this));
             }
@@ -109,6 +126,21 @@ public class BeanParamInject extends VulTaskImpl {
         return result;
     }
 
+    //如果响应是json数组的话，则使用这个进行便利，获取bean
+    private static Map<String, Object> getBeanJsonObjMap(Map<String, Object> reqJsonMap, List<Object> respJsonList){
+        Iterator<Object> iteratorList = respJsonList.iterator();
+        while(iteratorList.hasNext()) {
+            Object valueList = iteratorList.next();
+            if (valueList instanceof HashMap) {
+                Map<String, Object> result = getBeanJsonObjMap(reqJsonMap, (Map<String, Object>)valueList);
+                if (result != null){
+                    return result;
+                }
+            }
+        }
+        return null;
+    }
+
     private void write(String hash, boolean add){
         if (!add) {
             stringBuilder.append(hash);
@@ -126,7 +158,6 @@ public class BeanParamInject extends VulTaskImpl {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (value instanceof HashMap){ //json对象
-//                System.out.println("Key = " + key + " //JsonObject");
                 write(String.format("\"%s\":{", key),false);
                 Iterator<Map.Entry<String, Object>> iteratorValue = ((Map<String, Object>)value).entrySet().iterator();
                 while (iteratorValue.hasNext()){
@@ -134,7 +165,6 @@ public class BeanParamInject extends VulTaskImpl {
                     if (entryValue instanceof HashMap) { //值也可能是对象
                         jsonObjInject((Map<String, Object>) entryValue, reqJsonMap, inject);
                     }else {//基础类型数据就是最里层的结果了 key:value
-//                        System.out.println("--Key = " + entryValue.getKey() + ", Value = " + entryValue.getValue() + ", type: " + entryValue.getValue().getClass());
                         if (reqJsonMap.containsKey(entryValue.getKey())) {
                             write(String.format("\"%s\":\"%s\"", entryValue.getKey(), entryValue.getValue()), iteratorValue.hasNext());
                         }else {
@@ -146,13 +176,11 @@ public class BeanParamInject extends VulTaskImpl {
             }else if (value instanceof ArrayList){ //json数组
                 write(String.format("\"%s\":[", key), false);
                 Iterator<Object> iteratorArray = ((ArrayList<Object>)value).iterator();
-//                System.out.println("Key = " + key + " //JsonArray");
                 while (iteratorArray.hasNext()){
                     Object obj = iteratorArray.next();
                     if (obj instanceof HashMap) { //有可能是对象数组
                         jsonObjInject((Map<String, Object>) obj, reqJsonMap, inject);
                     }else { //要么就是基础类型数据了,就是最终结果了
-//                        System.out.println("--Value = " + obj + ", type: " + obj.getClass());
                         write(String.format("\"%s\"", obj), iteratorArray.hasNext());
                     }
                 }
@@ -163,7 +191,6 @@ public class BeanParamInject extends VulTaskImpl {
                 }else {
                     write(String.format("\"%s\":\"%s\"", key, inject), iterator.hasNext());
                 }
-//                System.out.println(String.format("Key = %s  Value = %s, type: %s",key, value, value.getClass()));
             }
         }
         write("}", false);

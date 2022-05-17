@@ -93,32 +93,7 @@ public class JsonTools {
             Object value = iterator.next();
 //            System.out.println(value + " ,type: " + value.getClass());
             if (value instanceof HashMap){ //json对象数组
-                write(String.format("{"),false);
-                Iterator<Map.Entry<String, Object>> iteratorValue = ((Map<String, Object>)value).entrySet().iterator();
-                while (iteratorValue.hasNext()){
-                    Map.Entry<String, Object> entryValue = iteratorValue.next();
-                    String key = entryValue.getKey();
-                    Object value1 = entryValue.getValue();
-                    if (entryValue instanceof HashMap) { //值也可能是对象
-                        jsonObjInject((Map<String, Object>) entryValue, inject);
-                    }else if (value1 instanceof ArrayList){ //json数组
-                        write(String.format("\"%s\":[", key), false);
-                        Iterator<Object> iteratorArray = ((ArrayList<Object>)value1).iterator();
-//                        System.out.println("Key = " + key + " //JsonArray");
-                        while (iteratorArray.hasNext()){
-                            Object obj = iteratorArray.next();
-                            if (obj instanceof HashMap) { //有可能是对象数组
-                                jsonObjInject((Map<String, Object>) obj, inject);
-                            }else { //要么就是基础类型数据了,就是最终结果了
-                                write(String.format("\"%s\"", obj + inject), iteratorArray.hasNext());
-                            }
-                        }
-                        write("]", iteratorValue.hasNext());
-                    }else {//基础类型数据就是最里层的结果了 key:value
-                        write(String.format("\"%s\":\"%s\"", key, value1 + inject), iteratorValue.hasNext());
-                    }
-                }
-                write("}", iterator.hasNext());
+                jsonObjInject((Map<String, Object>)value, inject);
             }else {//基础类型数据就是最里层的结果了 value，value1，value2
                 write(String.format("\"%s\"", value + inject), iterator.hasNext());
             }

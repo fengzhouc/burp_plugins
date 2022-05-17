@@ -74,7 +74,6 @@ class IDORCallback implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-//        vulTask.callbacks.printOutput("IDORCallback\n" + call.request());
         if (response.isSuccessful()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             //如果状态码相同则可能存在问题

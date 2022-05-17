@@ -34,7 +34,6 @@ public class Redirect extends VulTaskImpl {
         }
 
         //1.请求的url中含redirect敏感参数
-//        callbacks.printOutput(query);
         if (query.contains("redirect=")
                 || query.contains("redirect_url=")
                 || query.contains("redirect_uri=")
@@ -71,7 +70,6 @@ class RedirectCallback implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-
         //检查响应头Location
         if (response.isRedirect()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息

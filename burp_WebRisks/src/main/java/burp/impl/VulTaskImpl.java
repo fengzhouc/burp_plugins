@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -218,8 +217,6 @@ public abstract class VulTaskImpl {
         if (!inside) {
             log.add(new BurpExtender.LogEntry(row, callbacks.saveBuffersToTempFiles(requestResponse),
                     host, path, method, status, risk, payloads));
-//            callbacks.printOutput("[logAdd]\n" + new String(requestResponse.getRequest()));
-//            callbacks.printOutput(String.valueOf(log.size()));
             return new VulResult(row, risk, status, requestResponse, path, host);
         }
         return null;
@@ -249,7 +246,6 @@ public abstract class VulTaskImpl {
         suffixs.addAll(add);
         for (String suffix :
                 suffixs) {
-//            callbacks.printOutput(path);
             if (path.split("\\?")[0].endsWith(suffix)) { //防止查询参数影响后缀判断
                 return true;
             }
@@ -371,7 +367,6 @@ public abstract class VulTaskImpl {
         stringBuilder.append("\r\n");
         stringBuilder.append(ok_reqBody);
 
-//        callbacks.printError("[ok_reqHeaders] \r\n" + ok_reqHeaders.toMultimap().toString());
         return stringBuilder.toString().getBytes(StandardCharsets.UTF_8);
 
     }
@@ -386,7 +381,6 @@ public abstract class VulTaskImpl {
         stringBuilder.append("\r\n");
         stringBuilder.append(ok_respBody);
 
-//        callbacks.printOutput("[okhttpRespToburpResp] \r\n" + stringBuilder);
         return  stringBuilder.toString().getBytes(StandardCharsets.UTF_8);
     }
 
