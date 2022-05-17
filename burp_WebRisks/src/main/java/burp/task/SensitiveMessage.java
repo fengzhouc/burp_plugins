@@ -34,12 +34,12 @@ public class SensitiveMessage extends VulTaskImpl {
         if (isStaticSource(path, new ArrayList<>())){
             return null;
         }
-
+        payloads = loadPayloads("/payloads/SensitiveMessageRegex.bbm");
         //如果有响应才检测
         if (resp_body_str.length() > 0){
             //先检测是否存在url地址的参数，正则匹配
             String UIDRegex = "[1-9]\\d{5}(18|19|([23]\\d))\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]"; //身份证的正则
-            String phoneRegex = "1(3\\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\\d|9[0-35-9])\\d{8}"; //手机号的正则
+            String phoneRegex = "1(3\\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\\d|9[0-35-9])\\d{8}['\"&<;\\s]+?"; //手机号的正则
             String emailRegex = "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*"; //邮箱的正则
             Pattern patternUID = Pattern.compile(UIDRegex);
             Pattern patternPhone = Pattern.compile(phoneRegex);
@@ -47,11 +47,23 @@ public class SensitiveMessage extends VulTaskImpl {
             Matcher matcherUid = patternUID.matcher(resp_body_str);
             Matcher matcherPhone = patternPhone.matcher(resp_body_str);
             Matcher matcherEmail = patternEmail.matcher(resp_body_str);
-            if (!matcherUid.find() && !matcherPhone.find() && !matcherEmail.find()) {//没匹配到则不进行后续验证
-                return null;
+            message = "SensitiveMessage:";
+            if (matcherUid.find()){
+                message += ",UID";
+                payloads += "\n" + matcherUid.group();
             }
-            //不需要发包,上面正则匹配到则存在问题
-            logAdd(messageInfo, host, path, method, status, "SensitiveMessage", "");
+            if (matcherPhone.find()){
+                message += ",Phone";
+                payloads += "\n" + matcherPhone.group();
+            }
+            if (matcherEmail.find()){
+                message += ",Email";
+                payloads += "\n" + matcherEmail.group();
+            }
+            if (!message.equalsIgnoreCase("SensitiveMessage:")) {
+                //不需要发包,上面正则匹配到则存在问题
+                logAdd(messageInfo, host, path, method, status, message, payloads);
+            }
         }
         return result;
     }

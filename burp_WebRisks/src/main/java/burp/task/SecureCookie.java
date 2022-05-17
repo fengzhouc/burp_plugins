@@ -54,6 +54,7 @@ class SecureCookieCallback implements Callback {
         //检查响应头Location
         if (response.isSuccessful()){
             String setCookie = response.header("Set-Cookie");
+            vulTask.callbacks.printError(setCookie);
             if (setCookie != null && !setCookie.toLowerCase(Locale.ROOT).contains("httponly") || !setCookie.toLowerCase(Locale.ROOT).contains("secure")){
                 vulTask.message = "without httponly or secure";
             }

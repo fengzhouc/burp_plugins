@@ -37,7 +37,10 @@ public class Cors extends VulTaskImpl {
         if (isStaticSource(path, add)){
             return null;
         }
-
+        //cors会利用浏览器的cookie自动发送机制，如果不是使用cookie做会话管理就没这个问题了
+        if (check(request_header_list, "Cookie") == null){
+            return null;
+        }
         /*
          * ajax请求跨域获取数据的条件
          * 1、Access-Control-Allow-Credentials为true
@@ -94,7 +97,7 @@ class CorsCallback implements Callback {
             vulTask.message = "CORS Dynamic and Without csrfToken";
             vulTask.log(call);
         }else {
-            if ("".equalsIgnoreCase(vulTask.message)){
+            if (!"".equalsIgnoreCase(vulTask.message)){
                 vulTask.log(call);
             }
         }

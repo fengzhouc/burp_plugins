@@ -37,6 +37,10 @@ public class JsonCsrf extends VulTaskImpl {
             return null;
         }
 
+        //csrf会利用浏览器的cookie自动发送机制，如果不是使用cookie做会话管理就没这个问题了
+        if (check(request_header_list, "Cookie") == null){
+            return null;
+        }
         /*
          * 1、请求头包含application/json
          */
