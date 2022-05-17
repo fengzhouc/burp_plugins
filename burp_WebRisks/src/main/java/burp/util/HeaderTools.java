@@ -24,6 +24,13 @@ public class HeaderTools {
         normalHeaderName.add("cache-control");
         normalHeaderName.add("pragma");
         normalHeaderName.add("connection");
+        normalHeaderName.add("authorization"); //basic认证/bearer认证
+        normalHeaderName.add("method");
+        normalHeaderName.add("path");
+        normalHeaderName.add("authority");
+        normalHeaderName.add("schema");
+        normalHeaderName.add("access-control-request-headers");
+        normalHeaderName.add("access-control-request-method");
 
         return normalHeaderName.contains(headerName);
     }

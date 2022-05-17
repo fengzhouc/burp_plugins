@@ -3,8 +3,10 @@ package burp.util;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import okhttp3.*;
+import okhttp3.internal.http.HttpHeaders;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,8 @@ public class OkHttpRequester {
             case "GET":
                 get(url, headerList, query, callback);
                 break;
+            case  "OPTIONS": //options不发包检测
+                break;
             default:
                 defSend(url, method, headerList, query, bodyParam, contentType, callback);
         }
@@ -60,11 +64,17 @@ public class OkHttpRequester {
     public void defSend(String url, String method, List<String> headerList, String query, String bodyParam, String contentType, Callback callback){
         MediaType content_Type = MediaType.parse(contentType);
         RequestBody body = RequestBody.create(content_Type, bodyParam);
-        Request request = new Request.Builder()
-                .url(url + "?" + query)
-                .method(method, body)
-                .headers(SetHeaders(headerList))
-                .build();
+        Request request = null;
+        try {
+            request = new Request.Builder()
+                    .url(url + "?" + query)
+                    .method(method, body)
+                    .headers(SetHeaders(headerList))
+                    .header("Content-Length", String.valueOf(body.contentLength()))
+                    .build();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //返回响应
         Call call = this.client.newCall(request);
         call.enqueue(callback);
