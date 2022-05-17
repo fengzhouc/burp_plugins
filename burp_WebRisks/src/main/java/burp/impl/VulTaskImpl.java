@@ -338,6 +338,7 @@ public abstract class VulTaskImpl {
                 "VulTaskImpl-respInfo \n" + ok_code + " " + ok_message
         );
     }
+
     //将okhttp的请求信息转换成burp的格式，以便展示
     private byte[] okhttpReqToburpReq(){
         //获取requestBody
@@ -364,7 +365,7 @@ public abstract class VulTaskImpl {
         stringBuilder.append(ok_method + " " + ok_url + " " + ok_protocol).append("\r\n");
         //stringBuilder.append(ok_reqHeaders); // Header默认将Cookie视为敏感数据，toString会给脱敏了，所以ui上看不到cookie，但实际请求不影响
         for (String header : //直接改用原headers进行构造burp的展示request,官方也有提供返回明文的：Headers.toMultimap().toString()，不过数据处理比较麻烦，还是用burp原生的吧
-                request_header_list) {
+                okHeadersToList(ok_reqHeaders)) {
             stringBuilder.append(header).append("\r\n");
         }
         stringBuilder.append("\r\n");
@@ -378,11 +379,32 @@ public abstract class VulTaskImpl {
     private byte[] okhttpRespToburpResp(){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(ok_protocol + " " + ok_code + " " + ok_message).append("\r\n");
-        stringBuilder.append(ok_respHeaders);
+        for (String header : //直接改用原headers进行构造burp的展示request,官方也有提供返回明文的：Headers.toMultimap().toString()，不过数据处理比较麻烦，还是用burp原生的吧
+                okHeadersToList(ok_respHeaders)) {
+            stringBuilder.append(header).append("\r\n");
+        }
         stringBuilder.append("\r\n");
         stringBuilder.append(ok_respBody);
 
 //        callbacks.printOutput("[okhttpRespToburpResp] \r\n" + stringBuilder);
         return  stringBuilder.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    //将Headers转换成List，使用toMultimap，解决敏感字段被okhttp脱敏的问题
+    private List<String> okHeadersToList(Headers headers){
+        List<String> headersList = new ArrayList<>();
+        Map<String, List<String>> headersMap = headers.toMultimap();
+        Iterator<Map.Entry<String, List<String>>> iterator= headersMap.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, List<String>> entry = iterator.next();
+            String key = entry.getKey();
+            StringBuilder valueStringBuilder = new StringBuilder();
+            for (String value :
+                    entry.getValue()) {
+                valueStringBuilder.append(value).append(";");
+            }
+            headersList.add(String.format("%s: %s", key, valueStringBuilder));
+        }
+        return headersList;
     }
 }
