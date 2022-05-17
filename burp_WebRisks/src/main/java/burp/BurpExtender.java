@@ -255,6 +255,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: Jsonp");
                 callbacks.printOutput("#Task: Https");
                 //callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
+                callbacks.printOutput("#Task: SecureCookie");
                 callbacks.printOutput("#Task: Redirect");
                 callbacks.printOutput("#Task: IndexOf");
                 callbacks.printOutput("#Task: SqlInject");
@@ -355,8 +356,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         // tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
         // Redirect
         tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
-        // cookie安全属性,废弃掉，该用okhttp后，cookie会被脱敏，导致无法检测
-        // tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
+        // cookie安全属性
+        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
         // index of 目录浏览
         tasks.add(new IndexOf(helpers, callbacks, log, messageInfo));
         // 绕过鉴权
