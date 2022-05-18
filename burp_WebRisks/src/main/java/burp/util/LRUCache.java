@@ -1,8 +1,6 @@
 package burp.util;
 
-import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 本地缓存工具类

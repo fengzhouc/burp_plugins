@@ -338,7 +338,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             return null;
         }
         //正式进入测试
-//        int row = log.size();
         VulResult result = null;
 
         // Web基础漏洞扫描
@@ -379,6 +378,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //  - 检查参数值是否url的格式
         //  2.然后篡改为别的域名的地址
         tasks.add(new Ssrf(helpers, callbacks, log, messageInfo));
+        //TODO 请求头绕过鉴权
+        //TODO 命令注入
+        //TODO dom xss
 
         // 每个域名只检查一次的检查项
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {

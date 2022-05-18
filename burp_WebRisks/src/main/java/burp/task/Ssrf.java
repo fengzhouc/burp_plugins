@@ -50,7 +50,6 @@ public class Ssrf extends VulTaskImpl {
             }
             String domain = matcher.group(1);
             payloads += "\n" + domain;
-            callbacks.printOutput(domain);
             // 修改为别的域名
             String req_body = request_body_str.replace(domain, evilHost);
             //新的请求包

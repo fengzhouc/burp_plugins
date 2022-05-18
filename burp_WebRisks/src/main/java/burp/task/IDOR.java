@@ -3,6 +3,7 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.HeaderTools;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -40,9 +41,9 @@ public class IDOR extends VulTaskImpl {
         boolean hasCookie = false;
         for (String header :
                 request_header_list) {
-            //删除cookie
+            //删除cookie/authorization头部
             String key = BurpExtender.cookie.split(":")[0];
-            if (header.toLowerCase(Locale.ROOT).startsWith(key.toLowerCase(Locale.ROOT))) {
+            if (HeaderTools.isAuth(key.toLowerCase(Locale.ROOT))) {
                 hasCookie = true;
             }else {
                 new_headers1.add(header);

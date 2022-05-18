@@ -34,4 +34,12 @@ public class HeaderTools {
 
         return normalHeaderName.contains(headerName);
     }
+
+    public static boolean isAuth(String headerName){
+        List<String> authHeaderName = new ArrayList<>();
+        authHeaderName.add("authorization");
+        authHeaderName.add("cookie");
+
+        return authHeaderName.contains(headerName);
+    }
 }

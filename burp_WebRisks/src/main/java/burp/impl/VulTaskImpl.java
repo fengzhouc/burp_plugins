@@ -392,10 +392,14 @@ public abstract class VulTaskImpl {
         while (iterator.hasNext()){
             Map.Entry<String, List<String>> entry = iterator.next();
             String key = entry.getKey();
+            Iterator<String> values = entry.getValue().iterator();
             StringBuilder valueStringBuilder = new StringBuilder();
-            for (String value :
-                    entry.getValue()) {
-                valueStringBuilder.append(value).append(";");
+            while (values.hasNext()){
+                String value = values.next();
+                valueStringBuilder.append(value);
+                if (values.hasNext()){ //当后面还有值的时候才添加;分割，如果是最后一个就不添加;了，会导致host路由错误
+                    valueStringBuilder.append(";");
+                }
             }
             headersList.add(String.format("%s: %s", key, valueStringBuilder));
         }
