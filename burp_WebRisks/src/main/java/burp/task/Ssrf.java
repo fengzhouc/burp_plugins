@@ -37,22 +37,38 @@ public class Ssrf extends VulTaskImpl {
         if (isStaticSource(path, add)){
             return null;
         }
-
+        payloads = loadPayloads("/payloads/SsrfRegex.bbm");
+        String regex = "http[s]?://(.*?)[/&\"]+?\\w*?"; //分组获取域名
         String evilHost = "evil6666.com";
         //如果有body参数，需要多body参数进行测试
         if (request_body_str.length() > 0){
             //1.先检测是否存在url地址的参数，正则匹配
-            String regex = "http[s]?://(.*?)[/&\"]+?"; //分组获取域名
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(request_body_str);
             if (!matcher.find()){//没匹配到则不进行后续验证
                 return null;
             }
             String domain = matcher.group(1);
+            payloads += "\n" + domain;
+            callbacks.printOutput(domain);
             // 修改为别的域名
             String req_body = request_body_str.replace(domain, evilHost);
             //新的请求包
             okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new SsrfCallback(this));
+        }else if (query != null){
+            //1.先检测是否存在url地址的参数，正则匹配
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(query);
+            if (!matcher.find()){//没匹配到则不进行后续验证
+                return null;
+            }
+            String domain = matcher.group(1);
+            payloads += "\n" + domain;
+            callbacks.printOutput(domain);
+            // 修改为别的域名
+            String req_query = query.replace(domain, evilHost);
+            //新的请求包
+            okHttpRequester.send(url, method, request_header_list, req_query, request_body_str, contentYtpe, new SsrfCallback(this));
         }
         return result;
     }

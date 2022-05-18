@@ -370,9 +370,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new UploadSecure(helpers, callbacks, log, messageInfo));
         // 敏感信息监测，如手机号、身份证、邮箱、userid等
         tasks.add(new SensitiveMessage(helpers, callbacks, log, messageInfo));
-        // TODO bean注入探测，也就是参数爆破啦，不过这个参数不是预制的，而是根据应用抓出来的，所以这个任务不在缓存控制，会一直重复
-        // TODO 配合bean注入探测，需要有个分析并收集参数字段的任务
+        // 简单bean参数注入探测，检查当前请求的响应是否有请求中的所有key
         tasks.add(new BeanParamInject(helpers, callbacks, log, messageInfo));
+        // TODO 配合bean注入探测，需要有个分析并收集参数字段的任务
         // ssrf检测（两种情况：绝对url/相对url）
         //  1.检测请求的参数，是否带有url的参数，
         //  - 检查key，如url/source等，
