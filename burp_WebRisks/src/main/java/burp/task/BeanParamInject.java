@@ -75,13 +75,13 @@ public class BeanParamInject extends VulTaskImpl {
                     jsonObjInject(beanJsonMap, reqJsonMap, flag);
                 }
                 String new_body = stringBuilder.toString();
-                callbacks.printOutput("BeanParamInject-Data\norigin: " + request_body_str + "\ntemper: " + new_body);
                 //3.查看响应中是否有篡改的值
 
                 //没有找到bean对象则不进行测试
                 if ("".equalsIgnoreCase(new_body)){
                     return null;
                 }
+                callbacks.printError("\n###################BeanParamInject-Data########################\norigin: " + request_body_str + "\ntemper: " + new_body);
                 //新的请求包
                 okHttpRequester.send(url, method, request_header_list, query, new_body, contentYtpe, new BeanParamInjectCallback(this));
             }

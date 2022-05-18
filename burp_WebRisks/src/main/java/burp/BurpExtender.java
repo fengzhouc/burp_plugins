@@ -265,6 +265,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: SensitiveMessage");
                 callbacks.printOutput("#Task: UploadSecure");
                 callbacks.printOutput("#Task: BeanParanInject");
+                callbacks.printOutput("#Task: WebSocketHijacking");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -381,6 +382,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //TODO 请求头绕过鉴权
         //TODO 命令注入
         //TODO dom xss
+        //websocket的csrf
+        tasks.add(new WebSocketHijacking(helpers, callbacks, log, messageInfo));
 
         // 每个域名只检查一次的检查项
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {

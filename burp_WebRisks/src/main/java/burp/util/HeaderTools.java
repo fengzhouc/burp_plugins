@@ -9,6 +9,7 @@ public class HeaderTools {
 
     }
 
+    //用于排除csrf的，记录常规的头部名称
     public static boolean inNormal(String headerName){
         List<String> normalHeaderName = new ArrayList<>();
         normalHeaderName.add("host");
@@ -31,6 +32,13 @@ public class HeaderTools {
         normalHeaderName.add("schema");
         normalHeaderName.add("access-control-request-headers");
         normalHeaderName.add("access-control-request-method");
+        //websocket
+        normalHeaderName.add("sec-websocket-key");
+        normalHeaderName.add("sec-websocket-version");
+        normalHeaderName.add("sec-websocket-accept");
+        normalHeaderName.add("sec-websocket-protocol");
+        normalHeaderName.add("sec-websocket-extensions");
+        normalHeaderName.add("upgrade");
 
         return normalHeaderName.contains(headerName);
     }
@@ -41,5 +49,17 @@ public class HeaderTools {
         authHeaderName.add("cookie");
 
         return authHeaderName.contains(headerName);
+    }
+
+    public static boolean isWebsocket(String headerName){
+        List<String> wssHeaderName = new ArrayList<>();
+        wssHeaderName.add("sec-websocket-key");
+        wssHeaderName.add("sec-webSocket-version");
+        wssHeaderName.add("sec-webSocket-accept");
+        wssHeaderName.add("sec-webSocket-protocol");
+        wssHeaderName.add("sec-webSocket-extensions");
+        wssHeaderName.add("upgrade");
+
+        return wssHeaderName.contains(headerName);
     }
 }

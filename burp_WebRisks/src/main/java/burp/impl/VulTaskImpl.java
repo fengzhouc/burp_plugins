@@ -239,6 +239,7 @@ public abstract class VulTaskImpl {
         suffixs.add(".gif");
         suffixs.add(".png");
         suffixs.add(".jpg");
+        suffixs.add(".jpeg");
         suffixs.add(".woff");
         suffixs.add(".woff2");
         suffixs.add(".ico");

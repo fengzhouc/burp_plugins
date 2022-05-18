@@ -3,13 +3,9 @@ package burp.util;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import okhttp3.*;
-import okhttp3.internal.http.HttpHeaders;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class OkHttpRequester {
 
@@ -59,6 +55,8 @@ public class OkHttpRequester {
                 break;
             case  "OPTIONS": //options不发包检测
                 break;
+            case  "HEAD": //head不发包检测
+                break;
             default:
                 defSend(url, method, headerList, query, bodyParam, contentType, callback);
         }
@@ -79,6 +77,7 @@ public class OkHttpRequester {
             e.printStackTrace();
         }
         //返回响应
+        assert request != null;
         Call call = this.client.newCall(request);
         call.enqueue(callback);
     }
