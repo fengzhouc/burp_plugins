@@ -22,7 +22,10 @@ public class OkHttpRequester {
     private OkHttpRequester(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers){
         this.callbacks = callbacks;
         this.helpers = helpers;
-        this.client = new OkHttpClient();
+        this.client = new OkHttpClient.Builder()
+                .followRedirects(false) //不跳转
+                .followSslRedirects(false) //不跳转
+                .build();
     }
 
     public static OkHttpRequester getInstance(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers){
