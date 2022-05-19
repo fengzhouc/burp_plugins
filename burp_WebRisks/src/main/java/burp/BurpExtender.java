@@ -267,6 +267,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: BeanParanInject");
                 callbacks.printOutput("#Task: WebSocketHijacking");
                 callbacks.printOutput("#Task: BypassAuthXFF");
+                callbacks.printOutput("#Task: Json3rd");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -384,10 +385,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new WebSocketHijacking(helpers, callbacks, log, messageInfo));
         //XFF头部绕过本地限制
         tasks.add(new BypassAuthXFF(helpers, callbacks, log, messageInfo));
-        //TODO 请求头绕过鉴权
         //TODO 命令注入
-        //TODO dom xss
-        //TODO 检测前端加密，找加密函数
+        //TODO dom xss  https://www.anquanke.com/post/id/263107，现初步实现检测source，sink不管先
+        //TODO 存储型xss，这个工作量较大，而且脏数据较多，需要把所有数据都注入flag，然后检测所有响应中是否带flag
+        //TODO 前端js信息收集，如加密函数/密钥
+        //检查堆栈信息泄漏，看是使用了什么json组件
+        tasks.add(new Json3rd(helpers, callbacks, log, messageInfo));
+        //TODO 绕过cdn请求服务器
 
         // 每个域名只检查一次的检查项
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {

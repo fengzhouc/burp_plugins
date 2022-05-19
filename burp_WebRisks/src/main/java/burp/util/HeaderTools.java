@@ -32,6 +32,19 @@ public class HeaderTools {
         normalHeaderName.add("schema");
         normalHeaderName.add("access-control-request-headers");
         normalHeaderName.add("access-control-request-method");
+        normalHeaderName.add("access-control-allow-origin");
+        normalHeaderName.add("access-control-allow-headers");
+        normalHeaderName.add("access-control-allow-methods");
+        normalHeaderName.add("access-control-allow-credentials");
+        normalHeaderName.add("access-control-expose-headers");
+        normalHeaderName.add("access-control-max-age");
+        normalHeaderName.add("vary");
+        normalHeaderName.add("date");
+        normalHeaderName.add("x-http-method-override");
+        normalHeaderName.add("x-requested-with");
+        normalHeaderName.add("sec-fetch-dest");
+        normalHeaderName.add("sec-fetch-mode");
+        normalHeaderName.add("sec-fetch-site");
         //websocket
         normalHeaderName.add("sec-websocket-key");
         normalHeaderName.add("sec-websocket-version");
@@ -63,6 +76,19 @@ public class HeaderTools {
         wssHeaderName.add("upgrade");
 
         return wssHeaderName.contains(headerName);
+    }
+
+    //cors的响应头
+    public static boolean isCors(String headerName){
+        List<String> corsHeaderName = new ArrayList<>();
+        corsHeaderName.add("access-control-allow-origin");
+        corsHeaderName.add("access-control-allow-headers");
+        corsHeaderName.add("access-control-allow-methods");
+        corsHeaderName.add("access-control-allow-credentials");
+        corsHeaderName.add("access-control-expose-headers");
+        corsHeaderName.add("access-control-max-age");
+
+        return corsHeaderName.contains(headerName);
     }
 
     public static List<String> setXFF(){

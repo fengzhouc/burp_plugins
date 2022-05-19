@@ -41,6 +41,7 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - BeanParanInject, bean参数注入
 - WebSocketHijacking, WebSocket的csrf攻击
 - BypassAuthXFF
+- Json3rd, 检测使用的json解析组件,如:fastjson
 
 **CVE**
 - LandrayOa
