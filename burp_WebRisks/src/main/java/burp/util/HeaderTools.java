@@ -43,6 +43,7 @@ public class HeaderTools {
         return normalHeaderName.contains(headerName);
     }
 
+    //认证的请求头
     public static boolean isAuth(String headerName){
         List<String> authHeaderName = new ArrayList<>();
         authHeaderName.add("authorization");
@@ -51,15 +52,26 @@ public class HeaderTools {
         return authHeaderName.contains(headerName);
     }
 
+    //websocket的请求头
     public static boolean isWebsocket(String headerName){
         List<String> wssHeaderName = new ArrayList<>();
         wssHeaderName.add("sec-websocket-key");
-        wssHeaderName.add("sec-webSocket-version");
-        wssHeaderName.add("sec-webSocket-accept");
-        wssHeaderName.add("sec-webSocket-protocol");
-        wssHeaderName.add("sec-webSocket-extensions");
+        wssHeaderName.add("sec-websocket-version");
+        wssHeaderName.add("sec-websocket-accept");
+        wssHeaderName.add("sec-websocket-protocol");
+        wssHeaderName.add("sec-websocket-extensions");
         wssHeaderName.add("upgrade");
 
         return wssHeaderName.contains(headerName);
+    }
+
+    public static List<String> setXFF(){
+        List<String> xffHeaderName = new ArrayList<>();
+        xffHeaderName.add("X-Forwarded-For: 127.0.0.1");
+        xffHeaderName.add("X-Originating-IP: 127.0.0.1");
+        xffHeaderName.add("X-Remote-IP: 127.0.0.1");
+        xffHeaderName.add("X-Remote-Addr: 127.0.0.1");
+
+        return xffHeaderName;
     }
 }

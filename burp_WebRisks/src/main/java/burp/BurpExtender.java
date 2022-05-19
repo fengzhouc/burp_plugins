@@ -266,6 +266,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: UploadSecure");
                 callbacks.printOutput("#Task: BeanParanInject");
                 callbacks.printOutput("#Task: WebSocketHijacking");
+                callbacks.printOutput("#Task: BypassAuthXFF");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -379,11 +380,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //  - 检查参数值是否url的格式
         //  2.然后篡改为别的域名的地址
         tasks.add(new Ssrf(helpers, callbacks, log, messageInfo));
+        //websocket的csrf
+        tasks.add(new WebSocketHijacking(helpers, callbacks, log, messageInfo));
+        //XFF头部绕过本地限制
+        tasks.add(new BypassAuthXFF(helpers, callbacks, log, messageInfo));
         //TODO 请求头绕过鉴权
         //TODO 命令注入
         //TODO dom xss
-        //websocket的csrf
-        tasks.add(new WebSocketHijacking(helpers, callbacks, log, messageInfo));
+        //TODO 检测前端加密，找加密函数
 
         // 每个域名只检查一次的检查项
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {

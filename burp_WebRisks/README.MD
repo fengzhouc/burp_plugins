@@ -40,6 +40,7 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - UploadSecure, 上传文件类型限制检测
 - BeanParanInject, bean参数注入
 - WebSocketHijacking, WebSocket的csrf攻击
+- BypassAuthXFF
 
 **CVE**
 - LandrayOa
