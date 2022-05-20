@@ -254,7 +254,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: IDOR_xy"); // 横纵向越权
                 callbacks.printOutput("#Task: Jsonp");
                 callbacks.printOutput("#Task: Https");
-                //callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
+                callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
                 callbacks.printOutput("#Task: SecureCookie");
                 callbacks.printOutput("#Task: Redirect");
                 callbacks.printOutput("#Task: IndexOf");
@@ -354,8 +354,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new IDOR_xy(helpers, callbacks, log, messageInfo));
         // jsonp
         tasks.add(new Jsonp(helpers, callbacks, log, messageInfo));
-        // secure headers，不太重要，所以不检测了
-        // tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
+        // secure headers
+         tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
         // Redirect
         tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
         // cookie安全属性
@@ -391,7 +391,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //TODO 前端js信息收集，如加密函数/密钥
         //检查堆栈信息泄漏，看是使用了什么json组件
         tasks.add(new Json3rd(helpers, callbacks, log, messageInfo));
-        //TODO 绕过cdn请求服务器
+        //TODO 绕过cdn请求服务器，能否不让请求去cdn服务器
+        //TODO xml注入
+        //TODO 代码执行，如OGNL/freemarker/spel/jsel
+        //TODO 编辑器漏洞
+        //TODO 接口尝试不同method，现在有些是同接口不同method，如get/post/put/patch，delete太敏感了不建议
 
         // 每个域名只检查一次的检查项
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {

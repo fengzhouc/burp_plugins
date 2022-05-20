@@ -131,6 +131,7 @@ public abstract class VulTaskImpl {
             this.analyzeResponse = this.helpers.analyzeResponse(new byte[]{}); //响应为空则设置空，防止NullPointerException
             this.response_info = new String(new byte[]{});
             this.status_code = 0;
+            this.resp_body_str = "";
         }else{
             this.analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
             this.status_code = this.analyzeResponse.getStatusCode();

@@ -18,3 +18,5 @@
 /wp-admin
 /jmx-console/HtmlAdaptors
 /robots.txt
+/.git
+/.svn

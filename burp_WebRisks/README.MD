@@ -31,6 +31,7 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - Https
 - Redirect
 - SecureCookie
+- SecureHeader, 'X-Frame-Options'
 - IndexOf
 - 反射型XSS
 - SQL注入-字符型
