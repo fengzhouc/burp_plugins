@@ -26,7 +26,7 @@ public class XssReflect extends VulTaskImpl {
          * 1、所有参数都添加特使flag
          * 2、然后检查响应头是否存在flag
          * */
-        String xssflag = "_xssflag";
+        String xssflag = helpers.urlEncode("_<xss/>'\"flag");
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
@@ -64,7 +64,7 @@ class XssReflectCallback implements Callback {
         vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
         // 检查响应中是否存在flag
         // TODO 关键字是否全
-        if (vulTask.ok_respBody.contains("_xssflag")) {
+        if (vulTask.ok_respBody.contains("_<xss/>'\"flag")) {
             vulTask.message = "XssReflect";
             vulTask.log(call);
         }

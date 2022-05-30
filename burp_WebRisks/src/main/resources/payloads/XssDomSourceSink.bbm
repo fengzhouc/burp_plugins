@@ -1,0 +1,28 @@
+###Source
+(1) window.location.hash
+(2) window.location.href
+(3) window.location.pathname
+(4) window.location.search
+(5) document.documentURI
+(6) document.baseURI
+(7) document.URL
+(8) document.referrer
+
+###Sink
+(1) eval/setInterval/setTimeout
+(2) window.location
+(3) Element.innerHTML
+(4) Element.outerHTML
+(5) Element.setAttribute
+(6) HTMLScriptElement.src
+(7) HTMLEmbedElement.src
+(8) HTMLIFrameElement.src
+(9) HTMLAnchorElement.href
+(10) HTMLFormElement.action
+(11) HTMLInputElement.formAction
+(12) HTMLButtonElement.formAction
+(13) HTMLObjectElement.data
+(14) HTMLScriptElement.text
+(15) HTMLScriptElement.textContent
+(16) HTMLScriptElement.innerText
+

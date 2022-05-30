@@ -219,9 +219,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 //上面板，结果面板
                 logTable = new Table(BurpExtender.this);
-                //TODO 排序后添加数据会报错
+                //自定义排序逻辑
                 sorter = new TableRowSorter<>(BurpExtender.this);
-//                logTable.setRowSorter(sorter);
+                logTable.setRowSorter(sorter);
+                //设置JTable的自动排序功能
+                logTable.setAutoCreateRowSorter(true);
 
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
@@ -268,6 +270,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: WebSocketHijacking");
                 callbacks.printOutput("#Task: BypassAuthXFF");
                 callbacks.printOutput("#Task: Json3rd");
+                callbacks.printOutput("#Task: MethodFuck");
+                callbacks.printOutput("#Task: XssDomSource");
+                callbacks.printOutput("#Task: XmlMaybe");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -386,16 +391,19 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         //XFF头部绕过本地限制
         tasks.add(new BypassAuthXFF(helpers, callbacks, log, messageInfo));
         //TODO 命令注入
-        //TODO dom xss  https://www.anquanke.com/post/id/263107，现初步实现检测source，sink不管先
+        //dom xss  https://www.anquanke.com/post/id/263107，现初步实现检测source，sink不管先
+        tasks.add(new XssDomSource(helpers, callbacks, log, messageInfo));
         //TODO 存储型xss，这个工作量较大，而且脏数据较多，需要把所有数据都注入flag，然后检测所有响应中是否带flag
         //TODO 前端js信息收集，如加密函数/密钥
         //检查堆栈信息泄漏，看是使用了什么json组件
         tasks.add(new Json3rd(helpers, callbacks, log, messageInfo));
         //TODO 绕过cdn请求服务器，能否不让请求去cdn服务器
-        //TODO xml注入
-        //TODO 代码执行，如OGNL/freemarker/spel/jsel
+        //xml注入，比较复杂，所以仅把提交xml数据的请求识别出来
+        tasks.add(new XmlMaybe(helpers, callbacks, log, messageInfo));
+        //TODO 代码执行，如OGNL/freemarker/spel/jsel，如何检测，需要找特征
         //TODO 编辑器漏洞
-        //TODO 接口尝试不同method，现在有些是同接口不同method，如get/post/put/patch，delete太敏感了不建议
+        //接口尝试不同method，现在有些是同接口不同method，如get/post/put/patch，delete太敏感了不建议
+        tasks.add(new MethodFuck(helpers, callbacks, log, messageInfo));
 
         // 每个域名只检查一次的检查项
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {

@@ -53,6 +53,8 @@ public abstract class VulTaskImpl {
 
     //okhttp的请求信息
     private RequestBody ok_requestBodyObj;
+    private String ok_host;
+    private String ok_path;
     private String ok_method;
     private String ok_url;
     private String ok_protocol; //响应也是用这个
@@ -230,7 +232,7 @@ public abstract class VulTaskImpl {
         messageInfo_r.setHttpService(iHttpService);
         HttpUrl httpUrl = call.request().url();
         path = httpUrl.url().getPath();
-        logAdd(messageInfo_r, host, path, method, (short) ok_code, message, payloads);
+        logAdd(messageInfo_r, ok_host, ok_path, ok_method, (short) ok_code, message, payloads);
     }
 
     // 后续可以持续更新这个后缀列表
@@ -246,9 +248,16 @@ public abstract class VulTaskImpl {
         suffixs.add(".ico");
         suffixs.add(".svg");
         suffixs.addAll(add);
+        suffixs.add("image/");//image/png,image/jpg等
+        suffixs.add("text/css");
+        suffixs.add("application/font-wof");
+        String cententtype = check(response_header_list, "Centent-Type");
         for (String suffix :
                 suffixs) {
             if (path.split("\\?")[0].endsWith(suffix)) { //防止查询参数影响后缀判断
+                return true;
+            }
+            if (cententtype != null && cententtype.contains(suffix)){ //检查响应头
                 return true;
             }
         }
@@ -308,6 +317,8 @@ public abstract class VulTaskImpl {
     public void setOkhttpMessage(Call call, Response response){
         //okhttp的请求信息
         this.ok_requestBodyObj = call.request().body();
+        this.ok_host = call.request().url().host();
+        this.ok_path = call.request().url().url().getPath();
         this.ok_method = response.request().method();
         this.ok_url = call.request().url().url().getPath() + "?" + call.request().url().url().getQuery();
         this.ok_protocol = response.protocol().toString().toUpperCase();//HTTP/1.1必须要大写
