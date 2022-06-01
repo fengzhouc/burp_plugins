@@ -36,8 +36,11 @@ public class IndexOf extends VulTaskImpl {
             String[] q = path.split("/");
             StringBuilder p = new StringBuilder();
             for (int i = 0; i < q.length - 1; i++) {
-                p.append("/").append(q[i]);
+                if (!q[i].equalsIgnoreCase("")) {
+                    p.append("/").append(q[i]);
+                }
             }
+            p.append("/"); //如果没有会自动302，发包器默认不跟进
             this.path = p.toString(); //因为这里更改了请求的url，为了保持ui上显示一致
             this.url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + p;
             okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IndexOfCallback(this));

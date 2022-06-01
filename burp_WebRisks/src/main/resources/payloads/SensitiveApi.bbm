@@ -1,6 +1,7 @@
 /v2/api-docs
 /swagger-ui.html
 /api/swagger/index.html
+/swagger/index.html
 /swagger/v1/swagger.json
 /swagger.json
 /druid/index.html

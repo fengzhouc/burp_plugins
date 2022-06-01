@@ -20,6 +20,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -221,9 +222,21 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 logTable = new Table(BurpExtender.this);
                 //自定义排序逻辑
                 sorter = new TableRowSorter<>(BurpExtender.this);
+                List <RowSorter.SortKey> sortKeys
+                        = new ArrayList<>();
+                //设置默认排序的字段
+                sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+                //自定义比较器
+                Comparator<String> comparator = new Comparator<String>() {
+                    public int compare(String s1, String s2) {
+                        return s1.compareTo(s2);
+                    }
+                };
+//                sorter.setSortKeys(sortKeys);
+                sorter.setComparator(2, comparator);
                 logTable.setRowSorter(sorter);
                 //设置JTable的自动排序功能
-                logTable.setAutoCreateRowSorter(true);
+//                logTable.setAutoCreateRowSorter(true);
 
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
@@ -325,12 +338,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         String md5 = new BigInteger(1, md.digest()).toString(16);
 
         //检查插件是否开启
-        String host = helpers.analyzeRequest(messageInfo).getUrl().getHost();
+        String host = urlo.getHost();
         // callbacks.printOutput(host);
         Pattern pattern = Pattern.compile(domain);
         Matcher m = pattern.matcher(host);
         boolean m_host = m.find();
         if (!kg || !m_host){ //是否开启插件，开启后匹配设置的domain才会进行扫描
+            return null;
+        }
+        // 检查是否在缓存中
+        if (localCache.get(md5) != null){ //如果在缓存中则返回
+            callbacks.printOutput("inCache " + url);
             return null;
         }
 
@@ -340,11 +358,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         // #####总是执行的任务创建Start
         // #####总是执行的任务创建End
 
-        // 检查是否在缓存中
-        if (localCache.get(md5) != null){ //如果在缓存中则返回
-            callbacks.printOutput("inCache " + url);
-            return null;
-        }
         //正式进入测试
         VulResult result = null;
 
@@ -359,8 +372,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new IDOR_xy(helpers, callbacks, log, messageInfo));
         // jsonp
         tasks.add(new Jsonp(helpers, callbacks, log, messageInfo));
-        // secure headers
-         tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
         // Redirect
         tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
         // cookie安全属性
@@ -409,6 +420,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {
             // tomcat put jsp //废弃不要了
             // tasks.add(new PutJsp(helpers, callbacks, log, messageInfo));
+            // secure headers
+            tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
             // LandrayOa
             tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
             // https
@@ -571,6 +584,22 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 //        super.setValueAt(aValue, logTable.convertRowIndexToModel(rowIndex), columnIndex);
 //    }
+    @Override
+    public Class<?> getColumnClass(int column) {
+        switch (column) {
+            case 0:
+                return int.class;
+            case 1:
+            case 2:
+            case 3:
+            case 5:
+                return String.class;
+            case 4:
+                return short.class;
+            default:
+                return Object.class;
+        }
+    }
 
     @Override
     public IHttpService getHttpService() {

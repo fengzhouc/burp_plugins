@@ -203,7 +203,8 @@ public abstract class VulTaskImpl {
 
     // 添加面板展示数据
     // 已经在列表的不添加
-    public VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, short status, String risk, String payloads) {
+    // 添加synchronized防止多线程竞态
+    public synchronized VulResult logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, short status, String risk, String payloads) {
         boolean inside = false;
         int row = log.size();
         for (BurpExtender.LogEntry le :
@@ -319,7 +320,7 @@ public abstract class VulTaskImpl {
         this.ok_requestBodyObj = call.request().body();
         this.ok_host = call.request().url().host();
         this.ok_path = call.request().url().url().getPath();
-        this.ok_method = response.request().method();
+        this.ok_method = call.request().method();
         this.ok_url = call.request().url().url().getPath() + "?" + call.request().url().url().getQuery();
         this.ok_protocol = response.protocol().toString().toUpperCase();//HTTP/1.1必须要大写
         this.ok_reqHeaders = call.request().headers();
