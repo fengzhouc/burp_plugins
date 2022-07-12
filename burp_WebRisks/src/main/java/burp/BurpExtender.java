@@ -222,23 +222,23 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 //上面板，结果面板
                 logTable = new Table(BurpExtender.this);
-                //自定义排序逻辑
-                sorter = new TableRowSorter<>(BurpExtender.this);
-                List <RowSorter.SortKey> sortKeys
-                        = new ArrayList<>();
-                //设置默认排序的字段
-                sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
-                //自定义比较器
-                Comparator<String> comparator = new Comparator<String>() {
-                    public int compare(String s1, String s2) {
-                        return s1.compareTo(s2);
-                    }
-                };
-//                sorter.setSortKeys(sortKeys);
-                sorter.setComparator(2, comparator);
-                logTable.setRowSorter(sorter);
-                //设置JTable的自动排序功能
-//                logTable.setAutoCreateRowSorter(true);
+//                //自定义排序逻辑，搞不明白算了，直接从数据源排序搞起
+//                sorter = new TableRowSorter<>(BurpExtender.this);
+//                List <RowSorter.SortKey> sortKeys
+//                        = new ArrayList<>();
+//                //设置默认排序的字段
+//                sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+//                //自定义比较器
+//                Comparator<String> comparator = new Comparator<String>() {
+//                    public int compare(String s1, String s2) {
+//                        return s1.compareTo(s2);
+//                    }
+//                };
+////                sorter.setSortKeys(sortKeys);
+//                sorter.setComparator(2, comparator);
+//                logTable.setRowSorter(sorter);
+//                //设置JTable的自动排序功能
+////                logTable.setAutoCreateRowSorter(true);
 
                 JScrollPane scrollPane = new JScrollPane(logTable); //滚动条
                 splitPane.setLeftComponent(scrollPane);
