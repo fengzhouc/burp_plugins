@@ -79,7 +79,7 @@ class RedirectCallback implements Callback {
                 vulTask.message = "Redirect";
             }
         }else if (vulTask.ok_respBody.contains("evil.com")) { //检查响应体中，有些是页面加载后重定向
-            vulTask.message = "Redirect";
+            vulTask.message = "Redirect or DomXss";
         }
         if (!vulTask.message.equalsIgnoreCase("")){
             vulTask.log(call);
