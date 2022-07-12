@@ -5,6 +5,7 @@ import burp.impl.VulTaskImpl;
 import burp.task.*;
 import burp.util.LRUCache;
 import burp.vuls.LandrayOa;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -471,6 +473,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //            //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
 //            fireTableRowsInserted(row, lastRow - 1);
 //        }
+        Collections.sort(log); //排序结果
         fireTableDataChanged();
     }
 
@@ -619,7 +622,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     //存在漏洞的url信息类
     //log.add(new LogEntry(id, callbacks.saveBuffersToTempFiles(messageInfo),
     //                            host,path,param,helpers.analyzeResponse(messageInfo.getResponse()).getStatusCode()));
-    public static class LogEntry
+    public static class LogEntry implements Comparable
     {
         public final int id;
         final IHttpRequestResponsePersisted requestResponse;
@@ -643,6 +646,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             this.Host = host;
             this.Risk = risk;
             this.Desc = desc;
+        }
+
+        @Override
+        public int compareTo(@NotNull Object o) {
+            String p = ((LogEntry)o).Path;
+            //如果相等则不动
+            if (this.Path.equalsIgnoreCase(p)) {
+                return -1;
+            }
+            //其他情况都返回小于的情况
+            return -1;
         }
     }
 
