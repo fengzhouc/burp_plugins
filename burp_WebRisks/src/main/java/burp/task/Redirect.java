@@ -71,15 +71,14 @@ class RedirectCallback implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
         //检查响应头Location
         if (response.isRedirect()){
-            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             String location = vulTask.ok_respHeaders.get("Location");
             if (location != null &&location.contains("evil.com")) {
                 vulTask.message = "Redirect";
             }
         }else if (vulTask.ok_respBody.contains("evil.com")) { //检查响应体中，有些是页面加载后重定向
-            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             vulTask.message = "Redirect";
         }
         if (!vulTask.message.equalsIgnoreCase("")){
