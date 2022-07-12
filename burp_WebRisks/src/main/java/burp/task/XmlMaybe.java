@@ -33,7 +33,8 @@ public class XmlMaybe extends VulTaskImpl {
         }
         if (request_body_str.length() > 0){
             //contenttype是xml的
-            if (check(request_header_list, "application/xml") != null) {
+            String ct = check(request_header_list, "content-type");
+            if ( ct != null && ct.contains("application/xml")) {
                 message += "XmlData";
             }else if (check(request_header_list, "multipart/form-data") != null){//上传xml文件
                 if (request_body_str.contains("application/xml")){

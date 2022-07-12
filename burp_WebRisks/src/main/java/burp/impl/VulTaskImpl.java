@@ -194,7 +194,7 @@ public abstract class VulTaskImpl {
             return null;
         }
         for (String s : headers) {
-            if (s.toLowerCase(Locale.ROOT).contains(header.toLowerCase(Locale.ROOT))) {
+            if (s.toLowerCase(Locale.ROOT).startsWith(header.toLowerCase(Locale.ROOT))) {
                 return s;
             }
         }

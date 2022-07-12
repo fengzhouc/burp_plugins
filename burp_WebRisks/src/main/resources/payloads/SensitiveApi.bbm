@@ -12,12 +12,10 @@
 /actuator/heapdump
 /actuator/dump
 /examples/serivlets/servlet/SessionExample
-/manager/html
 /solr/admin/cores
 /solr/admin/configs
 /solr/admin/collections
 /wp-admin
 /jmx-console/HtmlAdaptors
-/robots.txt
 /.git
 /.svn
