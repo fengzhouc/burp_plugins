@@ -54,7 +54,7 @@ class SecureCookieCallback implements Callback {
         //检查响应头Location
         if (response.isSuccessful()){
             String setCookie = response.header("Set-Cookie");
-            if (setCookie != null && !setCookie.toLowerCase(Locale.ROOT).contains("httponly") || !setCookie.toLowerCase(Locale.ROOT).contains("secure")){
+            if (setCookie != null && (!setCookie.toLowerCase(Locale.ROOT).contains("httponly") || !setCookie.toLowerCase(Locale.ROOT).contains("secure"))){
                 vulTask.message = "without httponly or secure";
             }
             // 默认domain为本域，如果设置了则判断下是否为子域
