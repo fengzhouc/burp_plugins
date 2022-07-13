@@ -39,7 +39,9 @@ public class Redirect extends VulTaskImpl {
                 || query.contains("redirect_uri=")
                 || query.contains("callback=")
                 || query.contains("url=")
-                || query.contains("goto="))
+                || query.contains("goto=")
+                || query.contains("callbackIframeUrl=")
+        )
         {
             String new_query = "redirect=http://evil.com/test&" +
                     "redirect_url=http://evil.com/test&" +
@@ -47,6 +49,7 @@ public class Redirect extends VulTaskImpl {
                     "callback=http://evil.com/test&" +
                     "url=http://evil.com/test&" +
                     "goto=http://evil.com/test&" +
+                    "callbackIframeUrl=http://evil.com/test&" +
                     query;
 
             //新的请求包
