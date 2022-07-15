@@ -21,10 +21,11 @@ public class ShiroUse extends VulTaskImpl {
     }
 
     /**
-     * 这个只是看下是否使用了shiro，并检测是否使用默认莫要
+     * 这个只是看下是否使用了shiro，并检测是否使用默认密钥
      */
     @Override
     public VulResult run() {
+        // TODO 待完成
         if (method.equalsIgnoreCase("post")) {
             //新的请求包
             url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + "/sys/ui/extend/varkind/custom.jsp";
@@ -50,6 +51,7 @@ class ShiroUseCallback implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        // TODO 待完成
         if (response.isSuccessful()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             // 检查响应体是否有内容
