@@ -337,7 +337,7 @@ public abstract class VulTaskImpl {
             // https://blog.csdn.net/xx326664162/article/details/81661861?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_ecpm_v1~rank_v31_ecpm-3-81661861-null-null.pc_agg_new_rank&utm_term=okhttp%E5%93%8D%E5%BA%94%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B9%B1%E7%A0%81&spm=1000.2123.3001.4430
             this.ok_respBody = Objects.requireNonNull(ok_responseBodyObj).string(); //只能调用一次，即关闭response,所以最后调用
         } catch (IOException e) {
-            e.printStackTrace();
+            callbacks.printError("[VulTaskImpl]response.body() -> " + e.getMessage());
         }
         this.ok_reqInfo = okhttpReqToburpReq();
         this.ok_respInfo = okhttpRespToburpResp();
@@ -345,7 +345,7 @@ public abstract class VulTaskImpl {
         callbacks.printOutput("####################Request and Response###########################\n" +
                 "VulTaskImpl-reqInfo \n" + new String(ok_reqInfo) +
                 "\n-----------------------------------------------\n"+
-                "VulTaskImpl-respInfo \n" + ok_code + " " + ok_message
+                "VulTaskImpl-respInfo \n" + ok_code + " " + new String(ok_respInfo)
         );
     }
 
@@ -368,7 +368,7 @@ public abstract class VulTaskImpl {
             ok_reqBody = buffer.readString(charset);
         } catch (Exception e) {
             //保持默认值空字符串即可
-            //callbacks.printError("[okhttpReqToburpReq] " + e.getMessage());
+            callbacks.printError("[okhttpReqToburpReq] ok_reqBody charset Error -> " + e.getMessage());
         }
 
         StringBuilder stringBuilder = new StringBuilder();
