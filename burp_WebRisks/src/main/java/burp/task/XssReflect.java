@@ -63,7 +63,6 @@ class XssReflectCallback implements Callback {
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
         // 检查响应中是否存在flag
-        // TODO 关键字是否全
         if (vulTask.ok_respBody.contains("_<xss/>'\"flag")) {
             vulTask.message = "XssReflect";
             vulTask.log(call);

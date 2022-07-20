@@ -158,6 +158,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         String d = tfFilterText_c.getText();
                         if (null != d) {
                             cookie = d;
+                        }else {
+                            cookie = "Cookie: xxx";
                         }
                     }
                 });
@@ -169,42 +171,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 JLabel note_c = new JLabel("注: 测试需要他人的会话凭证, eg:'Cookie: xxxxxx' 或是 'x-auth-token: xxx'.");
                 note_c.setForeground(new Color(255, 0, 0));
                 panel_c.add(note_c);
-                // TODO 带规划的cve扫描区
-                // CVE扫描设置
-                JPanel panel_cve = new JPanel();
-                FlowLayout flowLayout_cve = (FlowLayout) panel_cve.getLayout();
-                flowLayout_cve.setAlignment(FlowLayout.LEFT);
-                // 设置cve的UI
-                JButton btnFilter_cve = new JButton("Url");
-                btnFilter_cve.setPreferredSize(new Dimension(70,28)); // 按钮大小
-                btnFilter_cve.setToolTipText("CVE漏洞扫描的目标url,填写后需点击此按钮");
-                btnFilter_cve.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent arg0) {
-                        String d = tfFilterText_cve.getText();
-                        if (null != d) {
-                            BurpExtender.this.url = d;
-                        }
-                    }
-                });
-                panel_cve.add(btnFilter_cve);
-                tfFilterText_cve = new JTextField();
-                tfFilterText_cve.setColumns(45);
-                tfFilterText_cve.setText("");
-                panel_cve.add(tfFilterText_cve);
-                JButton button_cve = new JButton("Scan");
-                button_cve.setToolTipText("不设置url,则扫描下方选中的网站");
-                button_cve.setPreferredSize(new Dimension(70,28)); // 按钮大小
-                button_cve.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent arg0) {
-                        // TODO 待规划,看如何设计更以拓展，因为会很多payload
-                        // url空，即直接点击Scan，则扫描选中的域名
-                    }
-                });
-                panel_cve.add(button_cve);
-                JLabel note_cve = new JLabel("注: cve漏洞扫描, 待规划");
-                note_cve.setForeground(new Color(255, 0, 0));
-                panel_cve.add(note_cve);
-                // cve UI end
                 //构造总设置UI
                 JPanel panel_a = new JPanel();
                 BoxLayout boxLayout = new BoxLayout(panel_a, BoxLayout.Y_AXIS);
@@ -248,6 +214,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 responseViewer = callbacks.createMessageEditor(BurpExtender.this, false);
                 desViewer = callbacks.createMessageEditor(BurpExtender.this, false);
 
+                // 选中时显示请求跟响应
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.addTab("Request", requestViewer.getComponent());
+                tabs.addTab("Response", responseViewer.getComponent());
+                tabs.addTab("Payload", desViewer.getComponent());
+
+                splitPane.setRightComponent(tabs);
                 //定制UI组件
                 callbacks.customizeUiComponent(contentPane);
                 callbacks.customizeUiComponent(panel_a);
@@ -320,15 +293,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         localCache.clear(); //清空时清空缓存
         callbacks.printOutput("clear cache success.");
     }
-    //过滤数据的功能 TODO 待实现,会报错
-    private void Filter(){
-        String text = tfFilterText.getText();
-        if (text.length() == 0) {
-            sorter.setRowFilter(null);
-        } else {
-            sorter.setRowFilter(RowFilter.regexFilter(text));
-        }
-    }
+
+    //TODO 搞个设置页面
+    // 1.可以控制启动的任务
+    // 2.xxxxx
 
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse messageInfo) {
@@ -503,14 +471,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         @Override
         public void changeSelection(int row, int col, boolean toggle, boolean extend)
         {
-            // 选中时显示请求跟响应
-            JTabbedPane tabs = new JTabbedPane();
-            tabs.addTab("Request", requestViewer.getComponent());
-            tabs.addTab("Response", responseViewer.getComponent());
-            tabs.addTab("Payload", desViewer.getComponent());
-            splitPane.setDividerLocation(200);
-            splitPane.setRightComponent(tabs);
-
             LogEntry logEntry = log.get(logTable.convertRowIndexToModel(row));
             requestViewer.setMessage(logEntry.requestResponse.getRequest(), true);
             responseViewer.setMessage(logEntry.requestResponse.getResponse(), false);
