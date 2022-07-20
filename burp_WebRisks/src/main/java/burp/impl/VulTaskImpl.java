@@ -73,7 +73,7 @@ public abstract class VulTaskImpl {
     protected Requester requester;
     protected OkHttpRequester okHttpRequester;
 
-
+    // TODO 优化，任务重构成单例模式，减少task的匿名对象带来的内存消耗
     public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
         this.helpers = helpers;
         this.callbacks = callbacks;

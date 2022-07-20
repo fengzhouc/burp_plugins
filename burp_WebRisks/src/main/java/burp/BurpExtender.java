@@ -97,13 +97,15 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         String d = tfFilterText.getText();
                         if (null != d) {
                             BurpExtender.this.domain = d;
+                        }else {
+                            BurpExtender.this.domain = ".*";
                         }
                     }
                 });
                 panel.add(btnFilter);
                 tfFilterText = new JTextField();
                 tfFilterText.setColumns(20);
-                tfFilterText.setText("*");
+                tfFilterText.setText(".*");
                 panel.add(tfFilterText);
 
                 JButton btnConn = new JButton("On-Off");
@@ -177,7 +179,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 panel_a.setLayout(boxLayout);
                 panel_a.add(panel);
                 panel_a.add(panel_c);
-//                panel_a.add(panel_cve); // cve待规划
                 //添加设置的UI到总UI
                 contentPane.add(panel_a, BorderLayout.NORTH);
 
@@ -221,6 +222,28 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 tabs.addTab("Payload", desViewer.getComponent());
 
                 splitPane.setRightComponent(tabs);
+
+                //TODO 搞个设置页面
+                // 1.可以控制启动的任务
+                // 1.1 为了可控，所以得设计个task管理器，对任务的添加及删除
+                // 1.2 task搞成单例模式的话，就要考虑单个任务的全局变量的竞争，所以搞成队列式扫描模式，一个个跑
+                // 1.2.1 收集请求对象
+                // 1.2.2 并发池进行扫描，按单个请求去并发执行task（请求原始数据保存在Impl，新发起的请求数据保存在当前task）
+                JPanel options = new JPanel();
+                // 网格布局，两列，八列，后面随任务数增加而改变
+                GridBagLayout gbaglayout=new GridBagLayout();    //创建GridBagLayout布局管理器
+                GridBagConstraints constraints=new GridBagConstraints();
+                options.setLayout(gbaglayout);    //使用GridBagLayout布局管理器
+                constraints.fill=GridBagConstraints.BOTH;    //组件填充显示区域
+                constraints.anchor = GridBagConstraints.NORTH; //组件的摆放位置
+                constraints.weightx=0.0;    //恢复默认值
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                for(int i=0; i<10; i++) {
+                    makeButton("按钮" + i,options,gbaglayout,constraints);
+                    constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                }
+                contentPane.add(options, BorderLayout.EAST);
+
                 //定制UI组件
                 callbacks.customizeUiComponent(contentPane);
                 callbacks.customizeUiComponent(panel_a);
@@ -272,6 +295,15 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
         });
     }
+
+    public static void makeButton(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints)
+    {
+        JCheckBox button=new JCheckBox(title);
+        button.setSelected(true); //默认选中
+        gridBagLayout.setConstraints(button,constraints);
+        jPanel.add(button);
+    }
+
     private void OpenOrClose(){
         // 如果现在close，则open，反之则close
         if(kg){
@@ -293,10 +325,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         localCache.clear(); //清空时清空缓存
         callbacks.printOutput("clear cache success.");
     }
-
-    //TODO 搞个设置页面
-    // 1.可以控制启动的任务
-    // 2.xxxxx
 
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse messageInfo) {
@@ -371,18 +399,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         tasks.add(new WebSocketHijacking(helpers, callbacks, log, messageInfo));
         //XFF头部绕过本地限制
         tasks.add(new BypassAuthXFF(helpers, callbacks, log, messageInfo));
-        //TODO 命令注入
         //dom xss  https://www.anquanke.com/post/id/263107，现初步实现检测source，sink不管先
         tasks.add(new XssDomSource(helpers, callbacks, log, messageInfo));
-        //TODO 存储型xss，这个工作量较大，而且脏数据较多，需要把所有数据都注入flag，然后检测所有响应中是否带flag
-        //TODO 前端js信息收集，如加密函数/密钥
         //检查堆栈信息泄漏，看是使用了什么json组件
         tasks.add(new Json3rd(helpers, callbacks, log, messageInfo));
-        //TODO 绕过cdn请求服务器，能否不让请求去cdn服务器
         //xml注入，比较复杂，所以仅把提交xml数据的请求识别出来
         tasks.add(new XmlMaybe(helpers, callbacks, log, messageInfo));
-        //TODO 代码执行，如OGNL/freemarker/spel/jsel，如何检测，需要找特征
-        //TODO 编辑器漏洞
         //接口尝试不同method，现在有些是同接口不同method，如get/post/put/patch，delete太敏感了不建议
         tasks.add(new MethodFuck(helpers, callbacks, log, messageInfo));
 
@@ -620,4 +642,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
     }
 
+    private class MyGridLayout extends GridLayout {
+
+        public MyGridLayout(int rows, int cols, int hgap, int vgap){
+            super(rows, cols, hgap, vgap);
+        }
+        @Override
+        public Dimension preferredLayoutSize(Container parent) {
+            return new Dimension(100,28);
+        }
+    }
 }
