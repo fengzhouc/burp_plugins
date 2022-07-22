@@ -19,6 +19,8 @@ Cookie：测试越权所需的他人的会话凭证cookie，会话token也可以
 
 Refresh: 刷新表格数据
 
+右边是选择开启哪些检查项
+
 Payload：列出漏洞的payload列表，供手工测试参考
 
 ## 可检测的漏洞
