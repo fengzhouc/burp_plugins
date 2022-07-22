@@ -833,23 +833,41 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     }
 
     private class TaskManager extends Thread {
+        List<Future<?>> threads; //线程状态记录
         public TaskManager(){
             // 创建一个固定大小4的线程池:
             threadPool = Executors.newFixedThreadPool(4);
+            threads = new ArrayList<>();
         }
         @Override
         public void run() {
-            // 无限循环
+            // 无限循环，但必须保证一个一个请求进行，不然单例模式的task里面的数据会乱
             while (STATUS) {
                 try {
                     // 这里会阻塞，如果没有请求进来的话
                     IHttpRequestResponse messageInfo = (IHttpRequestResponse) (reqQueue.take());
                     // 单个请求并发执行任务
-                    for (VulTaskImpl task :
-                            tasks.values()) {
+                    for (VulTaskImpl task : tasks.values()) {
                         // callbacks.printError("cehck " + task.getClass().getName());
                         task.init(messageInfo); //初始化task的请求信息
-                        threadPool.submit(task); //添加到线程池执行
+                        Future<?> future = threadPool.submit(task); //添加到线程池执行
+                        threads.add(future);
+                    }
+                    // 这里控制单个请求检测完之后，才会进入下一个请求的检测
+                    while (true){
+                        boolean allDone = true;
+                        for (Future<?> thread : threads) {
+                            if (!thread.isDone()) {
+                                // 只要有一个没完成就设置为false
+                                allDone = false;
+                                break;
+                            }
+                            //都完成了就会是true
+                        }
+                        if (allDone){
+                            // 全部完成就退出while
+                            break;
+                        }
                     }
                 } catch (InterruptedException e) {
                     callbacks.printError("reqQueue.take() -> " + e);
