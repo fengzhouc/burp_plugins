@@ -392,6 +392,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         fireTableDataChanged();
         vulsChecked = "none"; //清空标记
         localCache.clear(); //清空时清空缓存
+        reqQueue.clear(); //清空待检的请求队列
         callbacks.printOutput("clear cache success.");
     }
 
@@ -846,7 +847,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     // 单个请求并发执行任务
                     for (VulTaskImpl task :
                             tasks.values()) {
-//                        callbacks.printError("cehck " + task.getClass().getName());
+                        // callbacks.printError("cehck " + task.getClass().getName());
                         task.init(messageInfo); //初始化task的请求信息
                         threadPool.submit(task); //添加到线程池执行
                     }
