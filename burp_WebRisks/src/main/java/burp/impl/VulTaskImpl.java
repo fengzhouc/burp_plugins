@@ -78,12 +78,12 @@ public abstract class VulTaskImpl extends Thread{
         this.helpers = helpers;
         this.callbacks = callbacks;
         this.log = log;
+        this.requester = Requester.getInstance(this.callbacks, this.helpers);
+        this.okHttpRequester = OkHttpRequester.getInstance(this.callbacks, this.helpers);
     }
 
     public void init(IHttpRequestResponse messageInfo){
         this.messageInfo = messageInfo;
-        this.requester = Requester.getInstance(this.callbacks, this.helpers);
-        this.okHttpRequester = OkHttpRequester.getInstance(this.callbacks, this.helpers);
 
         this.message = "";
         this.result = null;
@@ -329,7 +329,7 @@ public abstract class VulTaskImpl extends Thread{
         this.ok_reqHeaders = call.request().headers();
         this.ok_reqBody = "";
         //okhttp的响应信息
-        this.ok_responseBodyObj = response.body();
+        // this.ok_responseBodyObj = response.body();
         this.ok_code = response.code();
         this.ok_message = response.message();
         this.ok_respHeaders = response.headers();
@@ -338,7 +338,7 @@ public abstract class VulTaskImpl extends Thread{
             // okhttp响应正文乱码,因为没法处理压缩内容的解码
             // https://wenku.baidu.com/view/6d3d3afda68da0116c175f0e7cd184254b351b68.html
             // https://blog.csdn.net/xx326664162/article/details/81661861?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_ecpm_v1~rank_v31_ecpm-3-81661861-null-null.pc_agg_new_rank&utm_term=okhttp%E5%93%8D%E5%BA%94%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B9%B1%E7%A0%81&spm=1000.2123.3001.4430
-            this.ok_respBody = Objects.requireNonNull(ok_responseBodyObj).string(); //只能调用一次，即关闭response,所以最后调用
+            this.ok_respBody = Objects.requireNonNull(response.body()).string(); //只能调用一次，即关闭response,所以最后调用
         } catch (IOException e) {
             callbacks.printError("[VulTaskImpl]response.body() -> " + e.getMessage());
         }
