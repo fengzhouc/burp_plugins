@@ -16,13 +16,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MethodFuck extends VulTaskImpl {
-
-    public MethodFuck(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new MethodFuck(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private MethodFuck(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、尝试其他method是否可以请求通，有可能是同一个api不同的method，主要是get/post/put/patch
@@ -30,24 +36,22 @@ public class MethodFuck extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-        List<String> methods = new ArrayList<>();
-        methods.add("GET");
-        methods.add("POST");
-        methods.add("PUT");
-        methods.add("PATCH");
+        if (!isStaticSource(path, add)){
+            List<String> methods = new ArrayList<>();
+            methods.add("GET");
+            methods.add("POST");
+            methods.add("PUT");
+            methods.add("PATCH");
 
-        if (methods.contains(method)) {
-            methods.remove(method); //删除已有的，检测其他的
-            for (String method :
-                    methods) {
-                //新的请求包
-                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new MethodFuckCallback(this));
+            if (methods.contains(method)) {
+                methods.remove(method); //删除已有的，检测其他的
+                for (String method :
+                        methods) {
+                    //新的请求包
+                    okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new MethodFuckCallback(this));
+                }
             }
         }
-        return result;
     }
 }
 

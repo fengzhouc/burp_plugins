@@ -6,6 +6,7 @@ import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.task.BeanParamInject;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -15,16 +16,22 @@ import java.io.IOException;
 import java.util.List;
 
 public class ShiroUse extends VulTaskImpl {
-
-    public ShiroUse(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new ShiroUse(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private ShiroUse(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     /**
      * 这个只是看下是否使用了shiro，并检测是否使用默认密钥
      */
     @Override
-    public VulResult run() {
+    public void run() {
         // TODO 待完成
         if (method.equalsIgnoreCase("post")) {
             //新的请求包
@@ -33,7 +40,6 @@ public class ShiroUse extends VulTaskImpl {
             //新请求
             okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new ShiroUseCallback(this));
         }
-        return result;
     }
 }
 

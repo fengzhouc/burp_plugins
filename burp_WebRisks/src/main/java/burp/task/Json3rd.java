@@ -16,13 +16,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Json3rd extends VulTaskImpl {
-
-    public Json3rd(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new Json3rd(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private Json3rd(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、注入引号，造成服务器异常，返回堆栈信息
@@ -31,19 +37,17 @@ public class Json3rd extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-        //如果有body参数，需要多body参数进行测试
-        if (request_body_str.length() > 0){
-            if (contentYtpe.contains("application/json")){
-                String is = "'\""; //json格式的使用转义后的，避免json格式不正确
-                String req_body = createJsonBody(request_body_str, is);
-                //新的请求包
-                okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new Json3rdCallback(this));
+        if (!isStaticSource(path, add)){
+            //如果有body参数，需要多body参数进行测试
+            if (request_body_str.length() > 0){
+                if (contentYtpe.contains("application/json")){
+                    String is = "'\""; //json格式的使用转义后的，避免json格式不正确
+                    String req_body = createJsonBody(request_body_str, is);
+                    //新的请求包
+                    okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new Json3rdCallback(this));
+                }
             }
         }
-        return result;
     }
 
 }

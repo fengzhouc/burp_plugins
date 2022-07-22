@@ -18,12 +18,20 @@ import java.util.List;
 
 public class BypassAuthXFF extends VulTaskImpl {
 
-    public BypassAuthXFF(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new BypassAuthXFF(helpers, callbacks, log);
+        }
+        return instance;
+    }
+
+    private BypassAuthXFF(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 绕过xff绕过本地限制
          */
@@ -32,15 +40,13 @@ public class BypassAuthXFF extends VulTaskImpl {
             // 后缀检查，静态资源不做测试
             List<String> add = new ArrayList<String>();
             add.add(".js");
-            if (isStaticSource(path, add)){
-                return null;
-            }
-            //添加xff的头部
-            request_header_list.addAll(HeaderTools.setXFF());
+            if (!isStaticSource(path, add)){
+                //添加xff的头部
+                request_header_list.addAll(HeaderTools.setXFF());
 
-            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthXFFCallback(this));
+                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthXFFCallback(this));
+            }
         }
-        return result;
     }
 }
 

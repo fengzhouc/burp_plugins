@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public abstract class VulTaskImpl {
+public abstract class VulTaskImpl extends Thread{
 
     protected IExtensionHelpers helpers;
     public IBurpExtenderCallbacks callbacks;
@@ -74,10 +74,13 @@ public abstract class VulTaskImpl {
     protected OkHttpRequester okHttpRequester;
 
     // TODO 优化，任务重构成单例模式，减少task的匿名对象带来的内存消耗
-    public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
+    public VulTaskImpl(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         this.helpers = helpers;
         this.callbacks = callbacks;
         this.log = log;
+    }
+
+    public void init(IHttpRequestResponse messageInfo){
         this.messageInfo = messageInfo;
         this.requester = Requester.getInstance(this.callbacks, this.helpers);
         this.okHttpRequester = OkHttpRequester.getInstance(this.callbacks, this.helpers);
@@ -182,7 +185,7 @@ public abstract class VulTaskImpl {
 
         return result;
      **/
-    public abstract VulResult run();
+    public abstract void run();
 
 
     //检查头部是否包含某信息
@@ -354,7 +357,7 @@ public abstract class VulTaskImpl {
         //获取requestBody
         Buffer buffer = new Buffer();
         try {//为空会报错，但是get请求体就是为空的
-            ok_requestBodyObj.writeTo(buffer);
+            Objects.requireNonNull(ok_requestBodyObj).writeTo(buffer);
             //编码设为UTF-8
             Charset charset = StandardCharsets.UTF_8; //默认UTF-8
             MediaType contentType = ok_requestBodyObj.contentType();

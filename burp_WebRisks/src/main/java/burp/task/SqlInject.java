@@ -4,6 +4,7 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import burp.util.HttpRequestResponseFactory;
+import burp.util.Requester;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -15,12 +16,19 @@ import java.util.List;
 
 public class SqlInject extends VulTaskImpl {
 
-    public SqlInject(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new SqlInject(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private SqlInject(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、所有参数都添加特殊字符
@@ -31,39 +39,37 @@ public class SqlInject extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-        payloads = loadPayloads("/payloads/SqlInject.bbm");
-        //反射型只测查询参数
-        if (query != null)
-        {
-            String new_query = createFormBody(query, injectStr);
-            //新的请求包
-            okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new SqlInjectCallback(this));
-        }
-        //如果有body参数，需要多body参数进行测试
-        if (request_body_str.length() > 0){
-            String contentype = "";
-            if (contentYtpe.contains("application/json")){
-                contentype = "json";
-            }else if (contentYtpe.contains("application/x-www-form-urlencoded")){
-                contentype = "form";
+        if (!isStaticSource(path, add)){
+            payloads = loadPayloads("/payloads/SqlInject.bbm");
+            //反射型只测查询参数
+            if (query != null)
+            {
+                String new_query = createFormBody(query, injectStr);
+                //新的请求包
+                okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new SqlInjectCallback(this));
             }
-            String req_body = request_body_str;
-            switch (contentype){
-                case "json":
-                    String is = "\\\'\\\""; //json格式的使用转义后的，避免json格式不正确
-                    req_body = createJsonBody(request_body_str, is);
-                    break;
-                case "form":
-                    req_body = createFormBody(request_body_str, injectStr);
-                    break;
+            //如果有body参数，需要多body参数进行测试
+            if (request_body_str.length() > 0){
+                String contentype = "";
+                if (contentYtpe.contains("application/json")){
+                    contentype = "json";
+                }else if (contentYtpe.contains("application/x-www-form-urlencoded")){
+                    contentype = "form";
+                }
+                String req_body = request_body_str;
+                switch (contentype){
+                    case "json":
+                        String is = "\\\'\\\""; //json格式的使用转义后的，避免json格式不正确
+                        req_body = createJsonBody(request_body_str, is);
+                        break;
+                    case "form":
+                        req_body = createFormBody(request_body_str, injectStr);
+                        break;
+                }
+                //新的请求包
+                okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new SqlInjectCallback(this));
             }
-            //新的请求包
-            okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new SqlInjectCallback(this));
         }
-        return result;
     }
 
 }

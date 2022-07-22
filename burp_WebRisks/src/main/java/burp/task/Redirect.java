@@ -14,13 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Redirect extends VulTaskImpl {
-
-    public Redirect(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new Redirect(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private Redirect(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、检查url参数是否包含回调函数字段
@@ -29,34 +35,30 @@ public class Redirect extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
+        if (!isStaticSource(path, add)){
+            //1.请求的url中含redirect敏感参数
+            if (query.contains("redirect=")
+                    || query.contains("redirect_url=")
+                    || query.contains("redirect_uri=")
+                    || query.contains("callback=")
+                    || query.contains("url=")
+                    || query.contains("goto=")
+                    || query.contains("callbackIframeUrl=")
+            )
+            {
+                String new_query = "redirect=http://evil.com/test&" +
+                        "redirect_url=http://evil.com/test&" +
+                        "redirect_uri=http://evil.com/test&" +
+                        "callback=http://evil.com/test&" +
+                        "url=http://evil.com/test&" +
+                        "goto=http://evil.com/test&" +
+                        "callbackIframeUrl=http://evil.com/test&" +
+                        query;
+
+                //新的请求包
+                okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new RedirectCallback(this));
+            }
         }
-
-        //1.请求的url中含redirect敏感参数
-        if (query.contains("redirect=")
-                || query.contains("redirect_url=")
-                || query.contains("redirect_uri=")
-                || query.contains("callback=")
-                || query.contains("url=")
-                || query.contains("goto=")
-                || query.contains("callbackIframeUrl=")
-        )
-        {
-            String new_query = "redirect=http://evil.com/test&" +
-                    "redirect_url=http://evil.com/test&" +
-                    "redirect_uri=http://evil.com/test&" +
-                    "callback=http://evil.com/test&" +
-                    "url=http://evil.com/test&" +
-                    "goto=http://evil.com/test&" +
-                    "callbackIframeUrl=http://evil.com/test&" +
-                    query;
-
-            //新的请求包
-            okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new RedirectCallback(this));
-        }
-
-        return result;
     }
 }
 

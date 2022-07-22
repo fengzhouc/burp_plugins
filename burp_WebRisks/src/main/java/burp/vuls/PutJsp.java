@@ -3,18 +3,25 @@ package burp.vuls;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.task.BeanParamInject;
 
 import java.util.List;
 import java.util.Locale;
 
 public class PutJsp extends VulTaskImpl {
-
-    public PutJsp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new PutJsp(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private PutJsp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、options检测响应头Allow是否包含put
@@ -88,6 +95,5 @@ public class PutJsp extends VulTaskImpl {
             result = logAdd(messageInfo_r, host, path, method, status, message, payloads);
         }
 
-        return result;
     }
 }

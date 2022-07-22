@@ -18,13 +18,20 @@ import java.util.List;
 import java.util.Objects;
 
 public class BypassAuth extends VulTaskImpl {
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new BypassAuth(helpers, callbacks, log);
+        }
+        return instance;
+    }
 
-    public BypassAuth(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private BypassAuth(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 绕过url鉴权
          */
@@ -33,24 +40,22 @@ public class BypassAuth extends VulTaskImpl {
             // 后缀检查，静态资源不做测试
             List<String> add = new ArrayList<String>();
             add.add(".js");
-            if (isStaticSource(path, add)){
-                return null;
-            }
-            payloads = loadPayloads("/payloads/BypassAuth.bbm");
-            List<String> bypass_str = new ArrayList<String>();
-            Collections.addAll(bypass_str, payloads.split("\n"));
+            if (!isStaticSource(path, add)){
+                payloads = loadPayloads("/payloads/BypassAuth.bbm");
+                List<String> bypass_str = new ArrayList<String>();
+                Collections.addAll(bypass_str, payloads.split("\n"));
 
-            // 将path拆解
-            List<String> bypass_path = createPath(bypass_str, path);
+                // 将path拆解
+                List<String> bypass_path = createPath(bypass_str, path);
 
-            for (String bypass :
-                    bypass_path) {
-                //url有参数
-                this.url = this.url.replace(path, bypass);
-                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthCallback(this));
+                for (String bypass :
+                        bypass_path) {
+                    //url有参数
+                    this.url = this.url.replace(path, bypass);
+                    okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthCallback(this));
+                }
             }
         }
-        return result;
     }
 
     private List<String> createPath(List<String> bypass_str, String urlpath){

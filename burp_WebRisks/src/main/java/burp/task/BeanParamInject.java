@@ -20,13 +20,21 @@ public class BeanParamInject extends VulTaskImpl {
 
     private final StringBuilder stringBuilder;
 
-    public BeanParamInject(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new BeanParamInject(helpers, callbacks, log);
+        }
+        return instance;
+    }
+
+    private BeanParamInject(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
         this.stringBuilder = new StringBuilder();
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑：当前只检测响应中会打印完整bean信息的情况
          * 1、解析响应获取参数名
@@ -41,51 +49,48 @@ public class BeanParamInject extends VulTaskImpl {
         // 实验结果：缺少或者冗余参数都不会报错，正常初始化
 
         //仅检测json数据的，目前使用json的多，form的很少了
-        if (!contentYtpe.contains("application/json")){
-            return null;
-        }
-        String flag = "beanInject";
-        //必须要有请求参数,且是json对象
-        if (request_body_str.length() > 0 && request_body_str.startsWith("{"))
-        {
-            //如果响应体信息比请求体信息少，则可能没有反馈bean信息，这样就无法检测了，pass
-            if (resp_body_str.length() > request_body_str.length()){
-                JSONObject reqJsonObject = new JSONObject(request_body_str);
-                Map<String, Object> reqJsonMap = reqJsonObject.toMap();
-                if (resp_body_str.startsWith("{")) {
-                    JSONObject respJsonObject = new JSONObject(resp_body_str);
-                    Map<String, Object> respJsonMap = respJsonObject.toMap();
-                    //1.分析并得出公共参数及缺少的参数
-                    // -简单json对象,循环json对象，查看响应中是否有次key
-                    // -复杂json对象,这里相对上面的需要注意的是需要定位是在哪个json对象中插入数据
-                    Map<String, Object> beanJsonMap = getBeanJsonObjMap(reqJsonMap, respJsonMap);
-                    //2.将缺少的参数注入到请求参数中并修改值，重放请求，循环所有缺少的参数
-                    assert beanJsonMap != null;
-                    jsonObjInject(beanJsonMap, reqJsonMap, flag);
-                }else if (resp_body_str.startsWith("[")){
-                    JSONArray respJsonArray = new JSONArray(resp_body_str);
-                    List<Object> respJsonMap = respJsonArray.toList();
-                    //1.分析并得出公共参数及缺少的参数
-                    // -简单json对象,循环json对象，查看响应中是否有次key
-                    // -复杂json对象,这里相对上面的需要注意的是需要定位是在哪个json对象中插入数据
-                    Map<String, Object> beanJsonMap = getBeanJsonObjMap(reqJsonMap, respJsonMap);
-                    //2.将缺少的参数注入到请求参数中并修改值，重放请求，循环所有缺少的参数
-                    assert beanJsonMap != null;
-                    jsonObjInject(beanJsonMap, reqJsonMap, flag);
-                }
-                String new_body = stringBuilder.toString();
-                //3.查看响应中是否有篡改的值
+        if (contentYtpe.contains("application/json")){
+            String flag = "beanInject";
+            //必须要有请求参数,且是json对象
+            if (request_body_str.length() > 0 && request_body_str.startsWith("{"))
+            {
+                //如果响应体信息比请求体信息少，则可能没有反馈bean信息，这样就无法检测了，pass
+                if (resp_body_str.length() > request_body_str.length()){
+                    JSONObject reqJsonObject = new JSONObject(request_body_str);
+                    Map<String, Object> reqJsonMap = reqJsonObject.toMap();
+                    if (resp_body_str.startsWith("{")) {
+                        JSONObject respJsonObject = new JSONObject(resp_body_str);
+                        Map<String, Object> respJsonMap = respJsonObject.toMap();
+                        //1.分析并得出公共参数及缺少的参数
+                        // -简单json对象,循环json对象，查看响应中是否有次key
+                        // -复杂json对象,这里相对上面的需要注意的是需要定位是在哪个json对象中插入数据
+                        Map<String, Object> beanJsonMap = getBeanJsonObjMap(reqJsonMap, respJsonMap);
+                        //2.将缺少的参数注入到请求参数中并修改值，重放请求，循环所有缺少的参数
+                        assert beanJsonMap != null;
+                        jsonObjInject(beanJsonMap, reqJsonMap, flag);
+                    }else if (resp_body_str.startsWith("[")){
+                        JSONArray respJsonArray = new JSONArray(resp_body_str);
+                        List<Object> respJsonMap = respJsonArray.toList();
+                        //1.分析并得出公共参数及缺少的参数
+                        // -简单json对象,循环json对象，查看响应中是否有次key
+                        // -复杂json对象,这里相对上面的需要注意的是需要定位是在哪个json对象中插入数据
+                        Map<String, Object> beanJsonMap = getBeanJsonObjMap(reqJsonMap, respJsonMap);
+                        //2.将缺少的参数注入到请求参数中并修改值，重放请求，循环所有缺少的参数
+                        assert beanJsonMap != null;
+                        jsonObjInject(beanJsonMap, reqJsonMap, flag);
+                    }
+                    String new_body = stringBuilder.toString();
+                    //3.查看响应中是否有篡改的值
 
-                //没有找到bean对象则不进行测试
-                if ("".equalsIgnoreCase(new_body)){
-                    return null;
+                    //没有找到bean对象则不进行测试
+                    if (!"".equalsIgnoreCase(new_body)){
+                        callbacks.printError("\n###################BeanParamInject-Data########################\norigin: " + request_body_str + "\ntemper: " + new_body);
+                        //新的请求包
+                        okHttpRequester.send(url, method, request_header_list, query, new_body, contentYtpe, new BeanParamInjectCallback(this));
+                    }
                 }
-                callbacks.printError("\n###################BeanParamInject-Data########################\norigin: " + request_body_str + "\ntemper: " + new_body);
-                //新的请求包
-                okHttpRequester.send(url, method, request_header_list, query, new_body, contentYtpe, new BeanParamInjectCallback(this));
             }
         }
-        return result;
     }
     //获取bean的jsonMap
     //如果响应中某个jsonObj包含所有请求中的jsonObj的key，则返回此jsonObj的map对象

@@ -16,13 +16,19 @@ import java.util.List;
 import java.util.Locale;
 
 public class JsonCsrf extends VulTaskImpl {
-
-    public JsonCsrf(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new JsonCsrf(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private JsonCsrf(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、jsonCsrf：修改content-type为form表单的
@@ -33,46 +39,40 @@ public class JsonCsrf extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-
-        //csrf会利用浏览器的cookie自动发送机制，如果不是使用cookie做会话管理就没这个问题了
-        if (check(request_header_list, "Cookie") == null){
-            return null;
-        }
-        /*
-         * 1、请求头包含application/json
-         */
-        if (check(request_header_list, "application/json") != null) {
-            List<String> new_headers1 = new ArrayList<String>();
-            String CT = "Content-Type: application/x-www-form-urlencoded";
-            //新请求修改content-type
-            boolean hasCT = false;
-            for (String header :
-                    request_header_list) {
-                // 剔除掉csrf头部
-                if (HeaderTools.inNormal(header.split(":")[0].toLowerCase(Locale.ROOT))) {
-                    if (header.toLowerCase(Locale.ROOT).contains("content-type")) {
-                        header = header.replace("application/json", "application/x-www-form-urlencoded");
-                        hasCT = true;
+        if (!isStaticSource(path, add)){
+            //csrf会利用浏览器的cookie自动发送机制，如果不是使用cookie做会话管理就没这个问题了
+            if (check(request_header_list, "Cookie") != null){
+                /*
+                 * 1、请求头包含application/json
+                 */
+                if (check(request_header_list, "application/json") != null) {
+                    List<String> new_headers1 = new ArrayList<String>();
+                    String CT = "Content-Type: application/x-www-form-urlencoded";
+                    //新请求修改content-type
+                    boolean hasCT = false;
+                    for (String header :
+                            request_header_list) {
+                        // 剔除掉csrf头部
+                        if (HeaderTools.inNormal(header.split(":")[0].toLowerCase(Locale.ROOT))) {
+                            if (header.toLowerCase(Locale.ROOT).contains("content-type")) {
+                                header = header.replace("application/json", "application/x-www-form-urlencoded");
+                                hasCT = true;
+                            }
+                            new_headers1.add(header);
+                        }
                     }
-                    new_headers1.add(header);
+                    //如果请求头中没有CT，则添加一个
+                    if (!hasCT) {
+                        new_headers1.add(CT);
+                    }
+                    request_header_list = new_headers1;
+                    if (!method.equalsIgnoreCase("get")) {
+                        //新的请求包:content-type
+                        okHttpRequester.send(url, method, request_header_list, query, request_body_str, "application/x-www-form-urlencoded", new JsonCsrfCallback(this));
+                    }
                 }
             }
-            //如果请求头中没有CT，则添加一个
-            if (!hasCT) {
-                new_headers1.add(CT);
-            }
-            request_header_list = new_headers1;
-            if (!method.equalsIgnoreCase("get")) {
-                //新的请求包:content-type
-                okHttpRequester.send(url, method, request_header_list, query, request_body_str, "application/x-www-form-urlencoded", new JsonCsrfCallback(this));
-            }
-
         }
-
-        return result;
     }
 }
 

@@ -3,6 +3,7 @@ package burp.vuls;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.task.BeanParamInject;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -13,13 +14,19 @@ import java.io.IOException;
 import java.util.List;
 
 public class LandrayOa extends VulTaskImpl {
-
-    public LandrayOa(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new LandrayOa(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private LandrayOa(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         if (method.equalsIgnoreCase("post")) {
             //新的请求包
             url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + "/sys/ui/extend/varkind/custom.jsp";
@@ -27,7 +34,6 @@ public class LandrayOa extends VulTaskImpl {
             //新请求
             okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new LandrayOaCallback(this));
         }
-        return result;
     }
 }
 

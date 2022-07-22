@@ -16,29 +16,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SensitiveApi extends VulTaskImpl {
-
-    public SensitiveApi(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new SensitiveApi(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private SensitiveApi(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-        payloads = loadPayloads("/payloads/SensitiveApi.bbm");
+        if (!isStaticSource(path, add)){
+            payloads = loadPayloads("/payloads/SensitiveApi.bbm");
 
-        // 构造url
-        for (String api :
-                payloads.split("\n")) {
-            this.url = String.format("%s://%s:%d%s", iHttpService.getProtocol(), iHttpService.getHost(), iHttpService.getPort(), api);
-            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SensitiveApiCallback(this));
+            // 构造url
+            for (String api :
+                    payloads.split("\n")) {
+                this.url = String.format("%s://%s:%d%s", iHttpService.getProtocol(), iHttpService.getHost(), iHttpService.getPort(), api);
+                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SensitiveApiCallback(this));
+            }
         }
-
-        return result;
     }
 }
 

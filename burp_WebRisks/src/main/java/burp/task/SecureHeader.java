@@ -17,24 +17,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SecureHeader extends VulTaskImpl {
-
-    public SecureHeader(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new SecureHeader(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private SecureHeader(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
 
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
+        if (!isStaticSource(path, add)){
+            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SecureHeaderCallback(this));
         }
-
-        okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SecureHeaderCallback(this));
-
-        return result;
     }
 }
 

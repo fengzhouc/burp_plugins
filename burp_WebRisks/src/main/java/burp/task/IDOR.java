@@ -16,13 +16,19 @@ import java.util.List;
 import java.util.Locale;
 
 public class IDOR extends VulTaskImpl {
-
-    public IDOR(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new IDOR(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private IDOR(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 未授权访问
          * 检测逻辑
@@ -31,33 +37,27 @@ public class IDOR extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-
-        //1、删除cookie，重新发起请求，与原始请求状态码一致则可能存在未授权访问
-        // 只测试原本有cookie的请求
-        List<String> new_headers1 = new ArrayList<String>();
-        boolean hasCookie = false;
-        for (String header :
-                request_header_list) {
-            //删除cookie/authorization头部
-            String key = BurpExtender.cookie.split(":")[0];
-            if (HeaderTools.isAuth(key.toLowerCase(Locale.ROOT))) {
-                hasCookie = true;
-            }else {
-                new_headers1.add(header);
+        if (!isStaticSource(path, add)){
+            //1、删除cookie，重新发起请求，与原始请求状态码一致则可能存在未授权访问
+            // 只测试原本有cookie的请求
+            List<String> new_headers1 = new ArrayList<String>();
+            boolean hasCookie = false;
+            for (String header :
+                    request_header_list) {
+                //删除cookie/authorization头部
+                String key = BurpExtender.cookie.split(":")[0];
+                if (HeaderTools.isAuth(key.toLowerCase(Locale.ROOT))) {
+                    hasCookie = true;
+                }else {
+                    new_headers1.add(header);
+                }
+            }
+            // 请求没有cookie,则不测试
+            if (hasCookie){
+                //新的请求包
+                okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new IDORCallback(this));
             }
         }
-        // 请求没有cookie,则不测试
-        if (!hasCookie){
-            return null;
-        }
-        request_header_list = new_headers1;
-        //新的请求包
-        okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IDORCallback(this));
-
-        return result;
     }
 }
 

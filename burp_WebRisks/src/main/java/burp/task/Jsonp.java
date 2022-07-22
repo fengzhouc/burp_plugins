@@ -14,53 +14,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Jsonp extends VulTaskImpl {
-
-    public Jsonp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new Jsonp(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private Jsonp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、检查url参数是否包含回调函数字段
          * 2、无字段则添加字段在测试
          * */
         // 后缀检查，静态资源不做测试
-        if (isStaticSource(path, new ArrayList<>())){
-            return null;
-        }
-        //jsonp只检测get请求
-        if (!method.equalsIgnoreCase("get")){
-            return null;
-        }
+        if (!isStaticSource(path, new ArrayList<>())){
+            //jsonp只检测get请求
+            if (method.equalsIgnoreCase("get")){
+                //1.请求的url中含Jsonp敏感参数
+                if (query.contains("callback=")
+                        || query.contains("cb=")
+                        || query.contains("jsonp")
+                        || query.contains("json=")
+                        || query.contains("call=")
+                        || query.contains("jsonpCallback=")
+                )
+                {
+                    logAdd(messageInfo, host, path, method, status, "Jsonp", payloads);
+                }
 
-        //1.请求的url中含Jsonp敏感参数
-        if (query.contains("callback=")
-                || query.contains("cb=")
-                || query.contains("jsonp")
-                || query.contains("json=")
-                || query.contains("call=")
-                || query.contains("jsonpCallback=")
-        )
-        {
-            logAdd(messageInfo, host, path, method, status, "Jsonp", payloads);
-        }
-
-        //2.url不含敏感参数,添加参数测试
-        else {
-            String new_query = "";
-            //url有参数
-            if (!query.equals("")) {
-                new_query = "call=qwert&json=qwert&callback=qwert&cb=qwert&jsonp=qwert&jsonpcallback=qwert&jsonpCallback=qwert&" + query;
-            } else {//url无参数
-                new_query = "call=qwert&json=qwert&callback=qwert&cb=qwert&jsonp=qwert&jsonpcallback=qwert&jsonpCallback=qwert";
+                //2.url不含敏感参数,添加参数测试
+                else {
+                    String new_query = "";
+                    //url有参数
+                    if (!query.equals("")) {
+                        new_query = "call=qwert&json=qwert&callback=qwert&cb=qwert&jsonp=qwert&jsonpcallback=qwert&jsonpCallback=qwert&" + query;
+                    } else {//url无参数
+                        new_query = "call=qwert&json=qwert&callback=qwert&cb=qwert&jsonp=qwert&jsonpcallback=qwert&jsonpCallback=qwert";
+                    }
+                    //新的请求包
+                    okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new JsonpCallback(this));
+                }
             }
-            //新的请求包
-            okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new JsonpCallback(this));
         }
-
-        return result;
     }
 }
 

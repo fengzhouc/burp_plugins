@@ -17,40 +17,42 @@ import java.util.List;
 import java.util.Locale;
 
 public class Https extends VulTaskImpl {
-    // 检查是否使用https
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new Https(helpers, callbacks, log);
+        }
+        return instance;
+    }
 
-    public Https(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private Https(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-
-        String protocol = iHttpService.getProtocol();
-        if (protocol.toLowerCase(Locale.ROOT).startsWith("https")){
-            message = "use https";
-        }
-        // 检查是否同时开启http/https
-        this.url = "http://" + iHttpService.getHost() + ":80" + path;
-        List<String> new_header = new ArrayList<>();
-        for (String header :
-                request_header_list) {
-            if (!header.contains("Host")){
-                new_header.add(header);
+        if (!isStaticSource(path, add)){
+            String protocol = iHttpService.getProtocol();
+            if (protocol.toLowerCase(Locale.ROOT).startsWith("https")){
+                message = "use https";
             }
+            // 检查是否同时开启http/https
+            this.url = "http://" + iHttpService.getHost() + ":80" + path;
+            List<String> new_header = new ArrayList<>();
+            for (String header :
+                    request_header_list) {
+                if (!header.contains("Host")){
+                    new_header.add(header);
+                }
+            }
+            new_header.add("Host: " + iHttpService.getHost() + ":80");
+            request_header_list = new_header;
+
+            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new HttpsCallback(this));
         }
-        new_header.add("Host: " + iHttpService.getHost() + ":80");
-        request_header_list = new_header;
-
-        okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new HttpsCallback(this));
-
-        return result;
     }
 }
 

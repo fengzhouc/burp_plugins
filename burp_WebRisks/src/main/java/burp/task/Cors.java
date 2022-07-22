@@ -18,12 +18,19 @@ import java.util.Locale;
 
 public class Cors extends VulTaskImpl {
 
-    public Cors(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new Cors(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private Cors(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、cors
@@ -34,46 +41,42 @@ public class Cors extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-        //cors会利用浏览器的cookie自动发送机制，如果不是使用cookie做会话管理就没这个问题了
-        if (check(request_header_list, "Cookie") == null){
-            return null;
-        }
-        /*
-         * ajax请求跨域获取数据的条件
-         * 1、Access-Control-Allow-Credentials为true
-         * 2、Access-Control-Allow-Origin为*或者根据origin动态设置
-         */
-        if (check(response_header_list, "Access-Control-Allow-Origin") != null){
-            String origin = check(response_header_list, "Access-Control-Allow-Origin");
-            String credentials = check(response_header_list, "Access-Control-Allow-Credentials");
-            if (credentials != null && credentials.contains("true")){
-                if (origin.contains("*")) {
-                    message += "CORS Any";
-                    messageInfo_r = messageInfo;
-                }else {
-                    List<String> new_headers1 = new ArrayList<String>();
-                    String evilOrigin = "http://evil.com";
-                    //新请求修改origin
-                    for (String header :
-                            request_header_list) {
-                        // 剔除掉csrf头部
-                        if (HeaderTools.inNormal(header.split(":")[0].toLowerCase(Locale.ROOT))) {
-                            if (!header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
-                                new_headers1.add(header);
+        if (!isStaticSource(path, add)){
+            //cors会利用浏览器的cookie自动发送机制，如果不是使用cookie做会话管理就没这个问题了
+            if (check(request_header_list, "Cookie") != null){
+                /*
+                 * ajax请求跨域获取数据的条件
+                 * 1、Access-Control-Allow-Credentials为true
+                 * 2、Access-Control-Allow-Origin为*或者根据origin动态设置
+                 */
+                if (check(response_header_list, "Access-Control-Allow-Origin") != null){
+                    String origin = check(response_header_list, "Access-Control-Allow-Origin");
+                    String credentials = check(response_header_list, "Access-Control-Allow-Credentials");
+                    if (credentials != null && credentials.contains("true")){
+                        if (origin.contains("*")) {
+                            message += "CORS Any";
+                            messageInfo_r = messageInfo;
+                        }else {
+                            List<String> new_headers1 = new ArrayList<String>();
+                            String evilOrigin = "http://evil.com";
+                            //新请求修改origin
+                            for (String header :
+                                    request_header_list) {
+                                // 剔除掉csrf头部
+                                if (HeaderTools.inNormal(header.split(":")[0].toLowerCase(Locale.ROOT))) {
+                                    if (!header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
+                                        new_headers1.add(header);
+                                    }
+                                }
                             }
+                            new_headers1.add("Origin: "+evilOrigin);
+                            request_header_list = new_headers1;
+                            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new CorsCallback(this));
                         }
                     }
-                    new_headers1.add("Origin: "+evilOrigin);
-                    request_header_list = new_headers1;
-                    okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new CorsCallback(this));
                 }
             }
         }
-
-        return result;
     }
 }
 

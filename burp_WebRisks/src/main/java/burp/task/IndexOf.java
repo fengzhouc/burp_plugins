@@ -15,38 +15,41 @@ import java.util.List;
 
 
 public class IndexOf extends VulTaskImpl {
-    // 目录浏览漏洞
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new IndexOf(helpers, callbacks, log);
+        }
+        return instance;
+    }
 
-    public IndexOf(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private IndexOf(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         //只检测get请求
-        if (!method.equalsIgnoreCase("get")){
-            return null;
-        }
-        //如果就是/，则直接检查响应
-        if (resp_body_str.contains("Index of")) {
-            message = "Index of /";
-            result = logAdd(messageInfo_r, host, path, method, status_code, message, payloads);
-        }else {
-            //去掉最后一级path
-            String[] q = path.split("/");
-            StringBuilder p = new StringBuilder();
-            for (int i = 0; i < q.length - 1; i++) {
-                if (!q[i].equalsIgnoreCase("")) {
-                    p.append("/").append(q[i]);
+        if (method.equalsIgnoreCase("get")){
+            //如果就是/，则直接检查响应
+            if (resp_body_str.contains("Index of")) {
+                message = "Index of /";
+                result = logAdd(messageInfo_r, host, path, method, status_code, message, payloads);
+            }else {
+                //去掉最后一级path
+                String[] q = path.split("/");
+                StringBuilder p = new StringBuilder();
+                for (int i = 0; i < q.length - 1; i++) {
+                    if (!q[i].equalsIgnoreCase("")) {
+                        p.append("/").append(q[i]);
+                    }
                 }
+                p.append("/"); //如果没有会自动302，发包器默认不跟进
+                this.path = p.toString(); //因为这里更改了请求的url，为了保持ui上显示一致
+                this.url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + p;
+                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IndexOfCallback(this));
             }
-            p.append("/"); //如果没有会自动302，发包器默认不跟进
-            this.path = p.toString(); //因为这里更改了请求的url，为了保持ui上显示一致
-            this.url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + p;
-            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IndexOfCallback(this));
         }
-
-        return result;
     }
 }
 

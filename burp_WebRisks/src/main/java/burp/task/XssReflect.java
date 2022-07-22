@@ -14,13 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XssReflect extends VulTaskImpl {
-
-    public XssReflect(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new XssReflect(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private XssReflect(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、所有参数都添加特使flag
@@ -30,20 +36,18 @@ public class XssReflect extends VulTaskImpl {
         // 后缀检查，静态资源不做测试
         List<String> add = new ArrayList<String>();
         add.add(".js");
-        if (isStaticSource(path, add)){
-            return null;
-        }
-        payloads = loadPayloads("/payloads/XssReflect.bbm");
+        if (!isStaticSource(path, add)){
+            payloads = loadPayloads("/payloads/XssReflect.bbm");
 
-        //反射型只测查询参数
-        if (query != null)
-        {
-            String new_query = createFormBody(query, xssflag);
+            //反射型只测查询参数
+            if (query != null)
+            {
+                String new_query = createFormBody(query, xssflag);
 
-            //新的请求包
-            okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new XssReflectCallback(this));
+                //新的请求包
+                okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new XssReflectCallback(this));
+            }
         }
-        return result;
     }
 }
 

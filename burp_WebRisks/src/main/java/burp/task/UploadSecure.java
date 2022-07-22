@@ -18,53 +18,53 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UploadSecure extends VulTaskImpl {
-
-    public UploadSecure(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log, IHttpRequestResponse messageInfo) {
-        super(helpers, callbacks, log, messageInfo);
+    private static VulTaskImpl instance = null;
+    public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
+        if (instance == null){
+            instance = new UploadSecure(helpers, callbacks, log);
+        }
+        return instance;
+    }
+    private UploadSecure(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
+        super(helpers, callbacks, log);
     }
 
     @Override
-    public VulResult run() {
+    public void run() {
         /**
          * 检测逻辑
          * 1、修改文件名类型
          * 2、修改请求体中content-type的类型，有些是根据这里去设置文件类型的
          * */
         //限定contentype的头部为文件上传的类型
-        if (!contentYtpe.contains("multipart/form-data")){
-            return null;
-        }
-
-        String fileName = "shell.php";
-        //如果有body参数，需要多body参数进行测试
-        if (request_body_str.length() > 0){
-            //1.检查后缀名
-            String regex = "filename=\"(.*?)\""; //分组获取文件名
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(request_body_str);
-            if (!matcher.find()){//没匹配到则不进行后续验证
-                return null;
+        if (contentYtpe.contains("multipart/form-data")){
+            String fileName = "shell.php";
+            //如果有body参数，需要多body参数进行测试
+            if (request_body_str.length() > 0){
+                //1.检查后缀名
+                String regex = "filename=\"(.*?)\""; //分组获取文件名
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(request_body_str);
+                if (matcher.find()){//没匹配到则不进行后续验证
+                    String fileOrigin = matcher.group(1);
+                    // 修改为别的域名
+                    String req_body = request_body_str.replace(fileOrigin, fileName);
+                    //新的请求包
+                    okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new UploadSecureCallback(this));
+                    //2.修改content-type
+                    String regex1 = "Content-Type:\\s(.*?)\\s"; //分组获取文件名
+                    Pattern pattern1 = Pattern.compile(regex1);
+                    Matcher matcher1 = pattern1.matcher(request_body_str);
+                    if (!matcher1.find()){//没匹配到则不进行后续验证
+                        String ctOrigin = matcher1.group(1);
+                        // 修改为别的ct,在上面修改后缀的基础下
+                        String req_body1 = req_body.replace(ctOrigin, "application/x-httpd-php");
+                        //新的请求包
+                        okHttpRequester.send(url, method, request_header_list, query, req_body1, contentYtpe, new UploadSecureCallback(this));
+                    }
+                }
             }
-            String fileOrigin = matcher.group(1);
-            // 修改为别的域名
-            String req_body = request_body_str.replace(fileOrigin, fileName);
-            //新的请求包
-            okHttpRequester.send(url, method, request_header_list, query, req_body, contentYtpe, new UploadSecureCallback(this));
-
-            //2.修改content-type
-            String regex1 = "Content-Type:\\s(.*?)\\s"; //分组获取文件名
-            Pattern pattern1 = Pattern.compile(regex1);
-            Matcher matcher1 = pattern1.matcher(request_body_str);
-            if (!matcher1.find()){//没匹配到则不进行后续验证
-                return null;
-            }
-            String ctOrigin = matcher1.group(1);
-            // 修改为别的ct,在上面修改后缀的基础下
-            String req_body1 = req_body.replace(ctOrigin, "application/x-httpd-php");
-            //新的请求包
-            okHttpRequester.send(url, method, request_header_list, query, req_body1, contentYtpe, new UploadSecureCallback(this));
         }
-        return result;
     }
 
 }
