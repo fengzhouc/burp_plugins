@@ -15,17 +15,18 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +59,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     //本地缓存，存放已检测过的请求，检测过就不检测了
     private final LRUCache localCache = new LRUCache(10000);
     private final MessageDigest md = MessageDigest.getInstance("MD5");
+
+    //创建任务map
+    private HashMap<String, VulTaskImpl> tasks = new HashMap<>();
+    //请求队列
+    private ArrayBlockingQueue reqQueue = new ArrayBlockingQueue(1000);
+    //线程池
+    private ExecutorService threadPool;
+    //任务管理线程
+    private Thread taskManager;
+    private boolean STATUS = false; //taskManager的运行控制
+
 
     public BurpExtender() throws NoSuchAlgorithmException {
     }
@@ -238,10 +250,58 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.anchor = GridBagConstraints.NORTH; //组件的摆放位置
                 constraints.weightx=0.0;    //恢复默认值
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-                for(int i=0; i<10; i++) {
-                    makeButton("按钮" + i,options,gbaglayout,constraints);
-                    constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-                }
+                // 添加复选框按钮
+                makeButton("JsonCsrf",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("Cors",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("IDOR",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("IDOR_xy",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("Jsonp",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("Https",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SecureHeader",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SecureCookie",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("Redirect",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("IndexOf",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SqlInject",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("XssReflect",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SSRF",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SensitiveApi",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SensitiveMessage",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("UploadSecure",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("BeanParanInject",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("WebSocketHijacking",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("BypassAuthXFF",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("BypassAuth",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("Json3rd",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("MethodFuck",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("XssDomSource",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("XmlMaybe",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("LandrayOa",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                // 添加到总UI
                 contentPane.add(options, BorderLayout.EAST);
 
                 //定制UI组件
@@ -279,6 +339,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: UploadSecure");
                 callbacks.printOutput("#Task: BeanParanInject");
                 callbacks.printOutput("#Task: WebSocketHijacking");
+                callbacks.printOutput("#Task: BypassAuth");
                 callbacks.printOutput("#Task: BypassAuthXFF");
                 callbacks.printOutput("#Task: Json3rd");
                 callbacks.printOutput("#Task: MethodFuck");
@@ -296,10 +357,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         });
     }
 
-    public static void makeButton(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints)
+    public void makeButton(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints)
     {
         JCheckBox button=new JCheckBox(title);
-        button.setSelected(true); //默认选中
+        button.setSelected(false); //默认不选中
+        button.addItemListener(new MyItemListener()); //加入监听
         gridBagLayout.setConstraints(button,constraints);
         jPanel.add(button);
     }
@@ -310,10 +372,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             lbConnectStatus.setText("False");
             kg = false;
             lbConnectStatus.setForeground(new Color(255,0,0));
+            STATUS = false; //关闭扫描器任务线程
+            threadPool.shutdown(); //关闭线程池
+            reqQueue.clear(); //清空队列
         }else{
             lbConnectStatus.setText("True");
             kg = true;
             lbConnectStatus.setForeground(new Color(0,255,0));
+            //开启扫描器任务线程
+            STATUS = true; //状态设置为true，死循环
+            taskManager = new TaskManager();
+            taskManager.start();
         }
     }
     //清空数据
@@ -349,6 +418,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             callbacks.printOutput("inCache " + url);
             return null;
         }
+        // 将请求放入队列
+        try {
+            reqQueue.put(messageInfo); //这里会阻塞
+        } catch (InterruptedException e) {
+            callbacks.printOutput("reqQueue.put -> " + e);
+        }
+
 
         // 解决：建一个list存放任务，下面for循环执行任务
         List<VulTaskImpl> tasks = new ArrayList<>();
@@ -361,79 +437,79 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
         // Web基础漏洞扫描
         // jsoncsrf的检测
-        tasks.add(new JsonCsrf(helpers, callbacks, log, messageInfo));
-        // CORS 跨域请求
-        tasks.add(new Cors(helpers, callbacks, log, messageInfo));
-        // 未授权访问, 误报太多, 待改进
-        tasks.add(new IDOR(helpers, callbacks, log, messageInfo));
-        // 横纵向越权, 纵向越权一般是测试管理后台的时候
-        tasks.add(new IDOR_xy(helpers, callbacks, log, messageInfo));
-        // jsonp
-        tasks.add(new Jsonp(helpers, callbacks, log, messageInfo));
-        // Redirect
-        tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
-        // cookie安全属性
-        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
-        // index of 目录浏览
-        tasks.add(new IndexOf(helpers, callbacks, log, messageInfo));
-        // 绕过鉴权
-        tasks.add(new BypassAuth(helpers, callbacks, log, messageInfo));
-        // SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
-        tasks.add(new SqlInject(helpers, callbacks, log, messageInfo));
-        // 反射型XSS探测
-        tasks.add(new XssReflect(helpers, callbacks, log, messageInfo));
-        // 文件上传漏洞，如目录穿越、敏感文件后缀
-        tasks.add(new UploadSecure(helpers, callbacks, log, messageInfo));
-        // 敏感信息监测，如手机号、身份证、邮箱、userid等
-        tasks.add(new SensitiveMessage(helpers, callbacks, log, messageInfo));
-        // 简单bean参数注入探测，检查当前请求的响应是否有请求中的所有key
-        tasks.add(new BeanParamInject(helpers, callbacks, log, messageInfo));
-        // TODO 配合bean注入探测，需要有个分析并收集参数字段的任务
-        // ssrf检测（两种情况：绝对url/相对url）
-        //  1.检测请求的参数，是否带有url的参数，
-        //  - 检查key，如url/source等，
-        //  - 检查参数值是否url的格式
-        //  2.然后篡改为别的域名的地址
-        tasks.add(new Ssrf(helpers, callbacks, log, messageInfo));
-        //websocket的csrf
-        tasks.add(new WebSocketHijacking(helpers, callbacks, log, messageInfo));
-        //XFF头部绕过本地限制
-        tasks.add(new BypassAuthXFF(helpers, callbacks, log, messageInfo));
-        //dom xss  https://www.anquanke.com/post/id/263107，现初步实现检测source，sink不管先
-        tasks.add(new XssDomSource(helpers, callbacks, log, messageInfo));
-        //检查堆栈信息泄漏，看是使用了什么json组件
-        tasks.add(new Json3rd(helpers, callbacks, log, messageInfo));
-        //xml注入，比较复杂，所以仅把提交xml数据的请求识别出来
-        tasks.add(new XmlMaybe(helpers, callbacks, log, messageInfo));
-        //接口尝试不同method，现在有些是同接口不同method，如get/post/put/patch，delete太敏感了不建议
-        tasks.add(new MethodFuck(helpers, callbacks, log, messageInfo));
-
-        // 每个域名只检查一次的检查项
-        if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {
-            // tomcat put jsp //废弃不要了
-            // tasks.add(new PutJsp(helpers, callbacks, log, messageInfo));
-            // secure headers
-            tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
-            // LandrayOa
-            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
-            // https
-            tasks.add(new Https(helpers, callbacks, log, messageInfo));
-            // 敏感api扫描
-            tasks.add(new SensitiveApi(helpers, callbacks, log, messageInfo));
-
-            //检测过则添加标记
-            vulsChecked += "_" + urlo.getHost() + urlo.getPort();
-        }
-
-        //循环执行所有任务，当某个任务异常也不会干扰其他任务执行
-        for (VulTaskImpl task :
-                tasks) {
-            try {
-                task.run();
-            }catch (Exception e) {
-                callbacks.printError("[Exception] " +task + " : " + e.getMessage());
-            }
-        }
+//        tasks.add(new JsonCsrf(helpers, callbacks, log, messageInfo));
+//        // CORS 跨域请求
+//        tasks.add(new Cors(helpers, callbacks, log, messageInfo));
+//        // 未授权访问, 误报太多, 待改进
+//        tasks.add(new IDOR(helpers, callbacks, log, messageInfo));
+//        // 横纵向越权, 纵向越权一般是测试管理后台的时候
+//        tasks.add(new IDOR_xy(helpers, callbacks, log, messageInfo));
+//        // jsonp
+//        tasks.add(new Jsonp(helpers, callbacks, log, messageInfo));
+//        // Redirect
+//        tasks.add(new Redirect(helpers, callbacks, log, messageInfo));
+//        // cookie安全属性
+//        tasks.add(new SecureCookie(helpers, callbacks, log, messageInfo));
+//        // index of 目录浏览
+//        tasks.add(new IndexOf(helpers, callbacks, log, messageInfo));
+//        // 绕过鉴权
+//        tasks.add(new BypassAuth(helpers, callbacks, log, messageInfo));
+//        // SQL注入探测，只做特殊字符的探测，有可疑响应则提醒做手工测试
+////        tasks.add(new SqlInject(helpers, callbacks, log, messageInfo));
+//        // 反射型XSS探测
+//        tasks.add(new XssReflect(helpers, callbacks, log, messageInfo));
+//        // 文件上传漏洞，如目录穿越、敏感文件后缀
+//        tasks.add(new UploadSecure(helpers, callbacks, log, messageInfo));
+//        // 敏感信息监测，如手机号、身份证、邮箱、userid等
+//        tasks.add(new SensitiveMessage(helpers, callbacks, log, messageInfo));
+//        // 简单bean参数注入探测，检查当前请求的响应是否有请求中的所有key
+//        tasks.add(new BeanParamInject(helpers, callbacks, log, messageInfo));
+//        // TODO 配合bean注入探测，需要有个分析并收集参数字段的任务
+//        // ssrf检测（两种情况：绝对url/相对url）
+//        //  1.检测请求的参数，是否带有url的参数，
+//        //  - 检查key，如url/source等，
+//        //  - 检查参数值是否url的格式
+//        //  2.然后篡改为别的域名的地址
+//        tasks.add(new Ssrf(helpers, callbacks, log, messageInfo));
+//        //websocket的csrf
+//        tasks.add(new WebSocketHijacking(helpers, callbacks, log, messageInfo));
+//        //XFF头部绕过本地限制
+//        tasks.add(new BypassAuthXFF(helpers, callbacks, log, messageInfo));
+//        //dom xss  https://www.anquanke.com/post/id/263107，现初步实现检测source，sink不管先
+//        tasks.add(new XssDomSource(helpers, callbacks, log, messageInfo));
+//        //检查堆栈信息泄漏，看是使用了什么json组件
+//        tasks.add(new Json3rd(helpers, callbacks, log, messageInfo));
+//        //xml注入，比较复杂，所以仅把提交xml数据的请求识别出来
+//        tasks.add(new XmlMaybe(helpers, callbacks, log, messageInfo));
+//        //接口尝试不同method，现在有些是同接口不同method，如get/post/put/patch，delete太敏感了不建议
+//        tasks.add(new MethodFuck(helpers, callbacks, log, messageInfo));
+//
+//        // 每个域名只检查一次的检查项
+//        if (!vulsChecked.contains(urlo.getHost() + urlo.getPort())) {
+//            // tomcat put jsp //废弃不要了
+//            // tasks.add(new PutJsp(helpers, callbacks, log, messageInfo));
+//            // secure headers
+//            tasks.add(new SecureHeader(helpers, callbacks, log, messageInfo));
+//            // LandrayOa
+//            tasks.add(new LandrayOa(helpers, callbacks, log, messageInfo));
+//            // https
+//            tasks.add(new Https(helpers, callbacks, log, messageInfo));
+//            // 敏感api扫描
+//            tasks.add(new SensitiveApi(helpers, callbacks, log, messageInfo));
+//
+//            //检测过则添加标记
+//            vulsChecked += "_" + urlo.getHost() + urlo.getPort();
+//        }
+//
+//        //循环执行所有任务，当某个任务异常也不会干扰其他任务执行
+//        for (VulTaskImpl task :
+//                tasks) {
+//            try {
+//                task.run();
+//            }catch (Exception e) {
+//                callbacks.printError("[Exception] " +task + " : " + e.getMessage());
+//            }
+//        }
         //跑完，则存入缓存中
         localCache.put(md5, "in");
 
@@ -446,6 +522,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         return null;
     }
+    //TODO 扫描器，也就是消费队列中的请求，去执行一系列的task
+    // 1.1 起一个线程去运行，这样不影响burp的主流程
+    // 1.2 循环遍历队列的请求（需要阻塞队列，这样线程不会关闭，直到手动关闭），并发执行task，默认5线程
+    // 1.3 额外的，如果自定义请求管理及任务管理，那就不要用burp的被动扫描，这样我可以直接关了burp的被动扫描了，较少burp的消耗
 
     //通知已刷新表格数据
     public void refreshTable(){
@@ -642,14 +722,138 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
     }
 
-    private class MyGridLayout extends GridLayout {
+    private class MyItemListener implements ItemListener {
 
-        public MyGridLayout(int rows, int cols, int hgap, int vgap){
-            super(rows, cols, hgap, vgap);
+        public void itemStateChanged(ItemEvent e) {
+            JCheckBox jcb = (JCheckBox) e.getItem();// 将得到的事件强制转化为JCheckBox类
+            String key = jcb.getText(); //任务的名称
+            String taskClass = ""; //task的类名
+            //task跟类的映射
+            switch (key) {
+                case "BeanParamInject":
+                    taskClass = "burp.task.BeanParamInject";
+                    break;
+                case "BypassAuth":
+                    taskClass = "burp.task.BypassAuth";
+                    break;
+                case "BypassAuthXFF":
+                    taskClass = "burp.task.BypassAuthXFF";
+                    break;
+                case "Cors":
+                    taskClass = "burp.task.Cors";
+                    break;
+                case "Https":
+                    taskClass = "burp.task.Https";
+                    break;
+                case "IDOR":
+                    taskClass = "burp.task.IDOR";
+                    break;
+                case "IDOR_xy":
+                    taskClass = "burp.task.IDOR_xy";
+                    break;
+                case "IndexOf":
+                    taskClass = "burp.task.IndexOf";
+                    break;
+                case "Json3rd":
+                    taskClass = "burp.task.Json3rd";
+                    break;
+                case "JsonCsrf":
+                    taskClass = "burp.task.JsonCsrf";
+                    break;
+                case "Jsonp":
+                    taskClass = "burp.task.Jsonp";
+                    break;
+                case "MethodFuck":
+                    taskClass = "burp.task.MethodFuck";
+                    break;
+                case "Redirect":
+                    taskClass = "burp.task.Redirect";
+                    break;
+                case "SecureCookie":
+                    taskClass = "burp.task.SecureCookie";
+                    break;
+                case "SecureHeader":
+                    taskClass = "burp.task.SecureHeader";
+                    break;
+                case "SensitiveApi":
+                    taskClass = "burp.task.SensitiveApi";
+                    break;
+                case "SensitiveMessage":
+                    taskClass = "burp.task.SensitiveMessage";
+                    break;
+                case "SqlInject":
+                    taskClass = "burp.task.SqlInject";
+                    break;
+                case "Ssrf":
+                    taskClass = "burp.task.Ssrf";
+                    break;
+                case "UploadSecure":
+                    taskClass = "burp.task.UploadSecure";
+                    break;
+                case "WebSocketHijacking":
+                    taskClass = "burp.task.WebSocketHijacking";
+                    break;
+                case "XmlMaybe":
+                    taskClass = "burp.task.XmlMaybe";
+                    break;
+                case "XssDomSource":
+                    taskClass = "burp.task.XssDomSource";
+                    break;
+                case "XssReflect":
+                    taskClass = "burp.task.XssReflect";
+                    break;
+                case "LandrayOa":
+                    taskClass = "burp.vuls.LandrayOa";
+                    break;
+                case "PutJsp":
+                    taskClass = "burp.vuls.PutJsp";
+                    break;
+                case "ShiroUse":
+                    taskClass = "burp.vuls.ShiroUse";
+                    break;
+                default:
+                    return;
+            }
+            if (jcb.isSelected()) {// 判断是否被选择
+                // 选中则创建对象，存入检查列表
+                try {
+                    Class c = Class.forName(taskClass);
+                    Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);
+                    VulTaskImpl t = (VulTaskImpl) method.invoke(null,helpers, callbacks, log);
+                    tasks.put(key, t);
+                } catch (Exception ex) {
+                    callbacks.printError("Class.forName -> " + ex);
+                }
+            } else {
+                // 去勾选，则从列表中删除
+                tasks.remove(key);
+            }
+        }
+    }
+
+    private class TaskManager extends Thread {
+        public TaskManager(){
+            // 创建一个固定大小4的线程池:
+            threadPool = Executors.newFixedThreadPool(4);
         }
         @Override
-        public Dimension preferredLayoutSize(Container parent) {
-            return new Dimension(100,28);
+        public void run() {
+            // 无限循环
+            while (STATUS) {
+                try {
+                    // 这里会阻塞，如果没有请求进来的话
+                    IHttpRequestResponse messageInfo = (IHttpRequestResponse) (reqQueue.take());
+                    // 单个请求并发执行任务
+                    for (VulTaskImpl task :
+                            tasks.values()) {
+//                        callbacks.printError("cehck " + task.getClass().getName());
+                        task.init(messageInfo); //初始化task的请求信息
+                        threadPool.submit(task); //添加到线程池执行
+                    }
+                } catch (InterruptedException e) {
+                    callbacks.printError("reqQueue.take() -> " + e);
+                }
+            }
         }
     }
 }
