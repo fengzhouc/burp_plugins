@@ -66,7 +66,7 @@ class SecureCookieCallback implements Callback {
                 Matcher matcher = p.matcher(setCookie);
                 if (matcher.find()){
                     String d = matcher.group(1);
-                    if (!vulTask.host.toLowerCase(Locale.ROOT).contains(d.toLowerCase(Locale.ROOT))){
+                    if (!vulTask.host.toLowerCase(Locale.ROOT).endsWith(d.toLowerCase(Locale.ROOT))){
                         vulTask.message += ", domain no secure";
                     }
                 }
