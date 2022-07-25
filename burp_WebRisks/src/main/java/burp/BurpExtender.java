@@ -461,8 +461,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                     //存入缓存中
                     localCache.put(md5, "in");
-                    callbacks.printOutput("inCache " + url);
                 }
+                callbacks.printOutput("inCache " + url);
             }
             //通知数据可能变更，刷新全表格数据，该用okhttp异步发包后，没办法同步调用fireTableRowsInserted通知刷新数据，因为一直row=lastRow
             fireTableDataChanged();
