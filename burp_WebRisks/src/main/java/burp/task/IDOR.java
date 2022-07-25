@@ -45,7 +45,7 @@ public class IDOR extends VulTaskImpl {
             for (String header :
                     request_header_list) {
                 //删除cookie/authorization头部
-                String key = BurpExtender.cookie.split(":")[0];
+                String key = header.split(":")[0];
                 if (HeaderTools.isAuth(key.toLowerCase(Locale.ROOT))) {
                     hasCookie = true;
                 }else {

@@ -55,9 +55,8 @@ public class IDOR_xy extends VulTaskImpl {
                     }
                     new_headers1.add(header);
                 }
-                request_header_list = new_headers1;
                 //新的请求包
-                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new IDORxyCallback(this));
+                okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new IDORxyCallback(this));
             }
         }
     }
