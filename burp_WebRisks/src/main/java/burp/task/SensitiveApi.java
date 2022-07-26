@@ -16,12 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SensitiveApi extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new SensitiveApi(helpers, callbacks, log);
-        }
-        return instance;
+        return new SensitiveApi(helpers, callbacks, log);
     }
     private SensitiveApi(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

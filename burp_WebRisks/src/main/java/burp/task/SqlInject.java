@@ -16,12 +16,8 @@ import java.util.List;
 
 public class SqlInject extends VulTaskImpl {
 
-    private static VulTaskImpl instance = null;
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new SqlInject(helpers, callbacks, log);
-        }
-        return instance;
+        return new SqlInject(helpers, callbacks, log);
     }
     private SqlInject(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

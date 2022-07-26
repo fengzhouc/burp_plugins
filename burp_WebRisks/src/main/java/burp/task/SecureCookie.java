@@ -17,12 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SecureCookie extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new SecureCookie(helpers, callbacks, log);
-        }
-        return instance;
+        return new SecureCookie(helpers, callbacks, log);
     }
 
     private SecureCookie(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {

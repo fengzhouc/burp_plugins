@@ -18,12 +18,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class BypassAuth extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new BypassAuth(helpers, callbacks, log);
-        }
-        return instance;
+        return new BypassAuth(helpers, callbacks, log);
     }
 
     private BypassAuth(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {

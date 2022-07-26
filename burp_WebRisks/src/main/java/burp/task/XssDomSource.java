@@ -16,12 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XssDomSource extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new XssDomSource(helpers, callbacks, log);
-        }
-        return instance;
+        return new XssDomSource(helpers, callbacks, log);
     }
     private XssDomSource(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

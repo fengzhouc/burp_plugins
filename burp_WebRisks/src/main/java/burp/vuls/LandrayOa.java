@@ -4,6 +4,7 @@ import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import burp.task.BeanParamInject;
+import burp.task.XssReflect;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -14,12 +15,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class LandrayOa extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new LandrayOa(helpers, callbacks, log);
-        }
-        return instance;
+        return new LandrayOa(helpers, callbacks, log);
     }
     private LandrayOa(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

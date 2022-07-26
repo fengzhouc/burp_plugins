@@ -14,12 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XssReflect extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new XssReflect(helpers, callbacks, log);
-        }
-        return instance;
+        return new XssReflect(helpers, callbacks, log);
     }
     private XssReflect(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

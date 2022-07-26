@@ -16,12 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Json3rd extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new Json3rd(helpers, callbacks, log);
-        }
-        return instance;
+        return new Json3rd(helpers, callbacks, log);
     }
     private Json3rd(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

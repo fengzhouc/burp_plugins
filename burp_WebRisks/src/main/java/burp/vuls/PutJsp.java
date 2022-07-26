@@ -9,12 +9,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class PutJsp extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new PutJsp(helpers, callbacks, log);
-        }
-        return instance;
+        return new PutJsp(helpers, callbacks, log);
     }
     private PutJsp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

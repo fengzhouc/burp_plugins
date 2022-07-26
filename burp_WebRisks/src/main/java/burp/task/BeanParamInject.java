@@ -20,12 +20,8 @@ public class BeanParamInject extends VulTaskImpl {
 
     private final StringBuilder stringBuilder;
 
-    private static VulTaskImpl instance = null;
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new BeanParamInject(helpers, callbacks, log);
-        }
-        return instance;
+        return new BeanParamInject(helpers, callbacks, log);
     }
 
     private BeanParamInject(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {

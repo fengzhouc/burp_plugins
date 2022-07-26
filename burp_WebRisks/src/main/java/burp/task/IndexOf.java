@@ -15,12 +15,9 @@ import java.util.List;
 
 
 public class IndexOf extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new IndexOf(helpers, callbacks, log);
-        }
-        return instance;
+        return new IndexOf(helpers, callbacks, log);
     }
 
     private IndexOf(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {

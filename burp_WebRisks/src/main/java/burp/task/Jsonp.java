@@ -14,12 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Jsonp extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new Jsonp(helpers, callbacks, log);
-        }
-        return instance;
+        return new Jsonp(helpers, callbacks, log);
     }
     private Jsonp(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

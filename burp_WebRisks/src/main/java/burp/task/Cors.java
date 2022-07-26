@@ -18,12 +18,8 @@ import java.util.Locale;
 
 public class Cors extends VulTaskImpl {
 
-    private static VulTaskImpl instance = null;
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new Cors(helpers, callbacks, log);
-        }
-        return instance;
+        return new Cors(helpers, callbacks, log);
     }
     private Cors(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

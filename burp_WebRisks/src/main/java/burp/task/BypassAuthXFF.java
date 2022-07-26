@@ -18,12 +18,8 @@ import java.util.List;
 
 public class BypassAuthXFF extends VulTaskImpl {
 
-    private static VulTaskImpl instance = null;
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new BypassAuthXFF(helpers, callbacks, log);
-        }
-        return instance;
+        return new BypassAuthXFF(helpers, callbacks, log);
     }
 
     private BypassAuthXFF(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {

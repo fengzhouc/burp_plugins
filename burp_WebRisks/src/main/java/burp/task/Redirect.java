@@ -14,12 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Redirect extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new Redirect(helpers, callbacks, log);
-        }
-        return instance;
+        return new Redirect(helpers, callbacks, log);
     }
     private Redirect(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

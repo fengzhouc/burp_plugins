@@ -19,12 +19,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class WebSocketHijacking extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new WebSocketHijacking(helpers, callbacks, log);
-        }
-        return instance;
+        return new WebSocketHijacking(helpers, callbacks, log);
     }
     private WebSocketHijacking(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

@@ -16,12 +16,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class ShiroUse extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new ShiroUse(helpers, callbacks, log);
-        }
-        return instance;
+        return new ShiroUse(helpers, callbacks, log);
     }
     private ShiroUse(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

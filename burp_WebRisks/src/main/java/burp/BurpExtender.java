@@ -59,7 +59,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private final MessageDigest md = MessageDigest.getInstance("MD5");
 
     //创建任务map
-    private HashMap<String, VulTaskImpl> tasks = new HashMap<>();
+    private HashMap<String, String> tasks = new HashMap<>();
     //请求队列
     private ArrayBlockingQueue<IHttpRequestResponse> reqQueue = new ArrayBlockingQueue<>(2000);
     //线程池
@@ -725,24 +725,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
             if (jcb.isSelected()) {// 判断是否被选择
                 // 选中则创建对象，存入检查列表
-                try {
-                    if (!taskClass.equalsIgnoreCase("no task")) {
-                        Class c = Class.forName(taskClass);
-                        Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);
-                        VulTaskImpl t = (VulTaskImpl) method.invoke(null, helpers, callbacks, log);
-                        tasks.put(key, t);
-                    }else {
-                        switch (key) {
-                            case "proxy":
-                                intercepts.put("proxy", callbacks.TOOL_PROXY);
-                                break;
-                            case "repeater":
-                                intercepts.put("repeater", callbacks.TOOL_REPEATER);
-                                break;
-                        }
+                if (!taskClass.equalsIgnoreCase("no task")) {
+                    tasks.put(key, taskClass);
+                }else {
+                    switch (key) {
+                        case "proxy":
+                            intercepts.put("proxy", callbacks.TOOL_PROXY);
+                            break;
+                        case "repeater":
+                            intercepts.put("repeater", callbacks.TOOL_REPEATER);
+                            break;
                     }
-                } catch (Exception ex) {
-                    callbacks.printError("Class.forName -> " + ex);
                 }
             } else {
                 // 去勾选，则从列表中删除
@@ -773,31 +766,19 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 try {
                     // 这里会阻塞，如果没有请求进来的话
                     IHttpRequestResponse messageInfo = reqQueue.take();
-                    // 单个请求并发执行任务
-                    for (VulTaskImpl task : tasks.values()) {
-                        // callbacks.printError("cehck " + task.getClass().getName());
-                        task.init(messageInfo); //初始化task的请求信息
-                        Future<?> future = threadPool.submit(task); //添加到线程池执行
-                        threads.add(future);
-                    }
-                    // 这里控制单个请求检测完之后，才会进入下一个请求的检测
-                    while (true){
-                        boolean allDone = true;
-                        for (Future<?> thread : threads) {
-                            if (!thread.isDone()) {
-                                // 只要有一个没完成就设置为false
-                                allDone = false;
-                                break;
-                            }
-                            //都完成了就会是true
-                        }
-                        if (allDone){
-                            // 全部完成就退出while
-                            break;
+                    // 利用okhttp内置的并发控制来控制并发，不需要额外的并发控制
+                    for (String taskClass : tasks.values()) {
+                        try {
+                            Class c = Class.forName(taskClass);
+                            Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);
+                            VulTaskImpl t = (VulTaskImpl) method.invoke(null, helpers, callbacks, log);
+                            // callbacks.printError("cehck " + task.getClass().getName());
+                            t.init(messageInfo); //初始化task的请求信息
+                            t.run(); //启动任务
+                        } catch (Exception e) {
+                            callbacks.printError("Class.forName -> " + e);
                         }
                     }
-                    // TODO 为啥要延迟一下，因为task是单例模式，会出现一种情况，就是回调还没完成就进入下一个请求了，这时回调中的数据就被重新初始化了，导致数据错误
-                    sleep(500); //睡眠0.5秒
                 } catch (InterruptedException e) {
                     callbacks.printError("reqQueue.take() -> " + e);
                 }

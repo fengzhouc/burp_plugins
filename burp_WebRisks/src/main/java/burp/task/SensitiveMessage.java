@@ -18,12 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SensitiveMessage extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new SensitiveMessage(helpers, callbacks, log);
-        }
-        return instance;
+        return new SensitiveMessage(helpers, callbacks, log);
     }
     private SensitiveMessage(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

@@ -16,12 +16,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class IDOR_xy extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
+
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new IDOR_xy(helpers, callbacks, log);
-        }
-        return instance;
+        return new IDOR_xy(helpers, callbacks, log);
     }
     private IDOR_xy(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
         super(helpers, callbacks, log);

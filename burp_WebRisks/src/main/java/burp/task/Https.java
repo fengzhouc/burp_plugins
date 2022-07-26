@@ -19,10 +19,7 @@ import java.util.Locale;
 public class Https extends VulTaskImpl {
     private static VulTaskImpl instance = null;
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
-        if (instance == null){
-            instance = new Https(helpers, callbacks, log);
-        }
-        return instance;
+        return new Https(helpers, callbacks, log);
     }
 
     private Https(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log) {
