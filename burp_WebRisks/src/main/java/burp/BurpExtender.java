@@ -48,7 +48,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private String domain = ".*";
     public static String cookie = "Cookie: xxx";
     private String url = "";
-    private String vulsChecked = "none"; //是否已经检测cve漏洞
+    public List<String> vulsChecked = new ArrayList<>(); //是否已经检测cve漏洞
     private final BlockingQueue<VulTaskImpl> queue = new LinkedBlockingDeque<>(); //任务队列
     JSplitPane splitPane;
 
@@ -233,7 +233,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 splitPane.setRightComponent(tabs);
 
-                //TODO 搞个设置页面
+                // 搞个设置页面
                 // 1.可以控制启动的任务
                 // 1.1 为了可控，所以得设计个task管理器，对任务的添加及删除
                 // 1.2 task搞成单例模式的话，就要考虑单个任务的全局变量的竞争，所以搞成队列式扫描模式，一个个跑
@@ -264,6 +264,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 makeButton("JsonCsrf",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("Cors",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("formCsrf",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("IDOR",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
@@ -355,6 +357,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("#Task: MethodFuck");
                 callbacks.printOutput("#Task: XssDomSource");
                 callbacks.printOutput("#Task: XmlMaybe");
+                callbacks.printOutput("#Task: formCsrf");
                 callbacks.printOutput("    ");
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
@@ -399,7 +402,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         log.clear();
         //通知表格数据变更了
         fireTableDataChanged();
-        vulsChecked = "none"; //清空标记
+        vulsChecked.clear(); //清空标记
         localCache.clear(); //清空时清空缓存
         reqQueue.clear(); //清空待检的请求队列
         callbacks.printOutput("clear cache success.");
@@ -651,6 +654,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 case "Cors":
                     taskClass = "burp.task.Cors";
                     break;
+                case "formCsrf":
+                    taskClass = "burp.task.Csrf";
+                    break;
                 case "Https":
                     taskClass = "burp.task.Https";
                     break;
@@ -754,10 +760,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     // 1.3 额外的，如果自定义请求管理及任务管理，那就不要用burp的被动扫描，这样我可以直接关了burp的被动扫描了，较少burp的消耗
     private class TaskManager extends Thread {
         List<Future<?>> threads; //线程状态记录
+        List<String> oneChecks = new ArrayList<>();
         public TaskManager(){
             // 创建一个固定大小4的线程池:
-            threadPool = Executors.newFixedThreadPool(4);
+            threadPool = Executors.newFixedThreadPool(5);
             threads = new ArrayList<>();
+            oneChecks.add("burp.vuls.LandrayOa");
+            oneChecks.add("burp.vuls.ShiroUse");
+            oneChecks.add("burp.task.Https");
         }
         @Override
         public void run() {
@@ -766,17 +776,44 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 try {
                     // 这里会阻塞，如果没有请求进来的话
                     IHttpRequestResponse messageInfo = reqQueue.take();
-                    // 利用okhttp内置的并发控制来控制并发，不需要额外的并发控制
+                    // 并发控制，okhttp的并发太高了，不限制下，burp会很卡
                     for (String taskClass : tasks.values()) {
                         try {
+                            // 如果是一次性的任务，则按域名加端口进行
+                            if (oneChecks.contains(taskClass)){
+                                String host = messageInfo.getHttpService().getHost();
+                                int port = messageInfo.getHttpService().getPort();
+                                if (vulsChecked.contains(host + port)){
+                                    continue; //跳到下一个任务
+                                }
+                                vulsChecked.add(host + port); //没有检查过，则添加标记，并往下走task执行
+                            }
                             Class c = Class.forName(taskClass);
                             Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);
                             VulTaskImpl t = (VulTaskImpl) method.invoke(null, helpers, callbacks, log);
                             // callbacks.printError("cehck " + task.getClass().getName());
                             t.init(messageInfo); //初始化task的请求信息
-                            t.run(); //启动任务
+                            Future<?> future = threadPool.submit(t); //添加到线程池执行
+                            threads.add(future);
+
                         } catch (Exception e) {
                             callbacks.printError("Class.forName -> " + e);
+                        }
+                    }
+                    // 这里控制单个请求检测完之后，才会进入下一个请求的检测
+                    while (true){
+                        boolean allDone = true;
+                        for (Future<?> thread : threads) {
+                            if (!thread.isDone()) {
+                                // 只要有一个没完成就设置为false
+                                allDone = false;
+                                break;
+                            }
+                            //都完成了就会是true
+                        }
+                        if (allDone){
+                            // 全部完成就退出while
+                            break;
                         }
                     }
                 } catch (InterruptedException e) {
