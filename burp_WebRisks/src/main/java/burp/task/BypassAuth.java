@@ -45,10 +45,9 @@ public class BypassAuth extends VulTaskImpl {
                 // 将path拆解
                 List<String> bypass_path = createPath(bypass_str, path);
 
-                for (String bypass :
-                        bypass_path) {
+                for (String bypass : bypass_path) {
                     //url有参数
-                    this.url = this.url.replace(path, bypass);
+                    String url = this.url.replace(path, bypass);
                     okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthCallback(this));
                 }
             }
@@ -64,16 +63,18 @@ public class BypassAuth extends VulTaskImpl {
         // /api/xx;/../test
         for (String str : bypass_str) {
             for (int i = 0; i< paths.length; i++){
-                String bypassStr = paths[i] + str;
-                StringBuilder sb = new StringBuilder();
-                for (int j = 0; j< paths.length; j++) {
-                    if (i == j){
-                        sb.append("/").append(bypassStr);
-                        continue;
+                if (!"".equalsIgnoreCase(paths[i])) { //为空则跳过，split分割字符串，分割符头尾会出现空字符
+                    String bypassStr = paths[i] + str;
+                    StringBuilder sb = new StringBuilder();
+                    for (int j = 0; j < paths.length; j++) {
+                        if (i == j) {
+                            sb.append("/").append(bypassStr);
+                            continue;
+                        }
+                        sb.append("/").append(paths[j]);
                     }
-                    sb.append("/").append(paths[j]);
+                    bypass_path.add(sb.toString());
                 }
-                bypass_path.add(sb.toString());
             }
         }
         return bypass_path;

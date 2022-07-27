@@ -46,9 +46,8 @@ public class Https extends VulTaskImpl {
                 }
             }
             new_header.add("Host: " + iHttpService.getHost() + ":80");
-            request_header_list = new_header;
 
-            okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new HttpsCallback(this));
+            okHttpRequester.send(url, method, new_header, query, request_body_str, contentYtpe, new HttpsCallback(this));
         }
     }
 }

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BypassAuthXFF extends VulTaskImpl {
 
@@ -37,10 +38,12 @@ public class BypassAuthXFF extends VulTaskImpl {
             List<String> add = new ArrayList<String>();
             add.add(".js");
             if (!isStaticSource(path, add)){
+                List<String> new_headers1 = new ArrayList<>();
+                new_headers1.addAll(request_header_list);
                 //添加xff的头部
-                request_header_list.addAll(HeaderTools.setXFF());
+                new_headers1.addAll(HeaderTools.setXFF());
 
-                okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new BypassAuthXFFCallback(this));
+                okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new BypassAuthXFFCallback(this));
             }
         }
     }

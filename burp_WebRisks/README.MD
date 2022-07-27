@@ -1,5 +1,5 @@
 ## 设计
-1、实现IScannerCheck被动扫描
+1、实现IHttpListener被动扫描
 
 2、缓存机制，扫描过的不再扫描，减少对业务的影响
 
@@ -27,6 +27,7 @@ Payload：列出漏洞的payload列表，供手工测试参考
 **Web Basic**
 - JsonCsrf
 - Cors, 会检查是否有csrftoken
+- fromCsrf, 会检查是否有csrftoken
 - IDOR, 未授权访问
 - IDOR_xy, 横纵越权,依据你设置的cookie
 - Jsonp
@@ -52,13 +53,3 @@ Payload：列出漏洞的payload列表，供手工测试参考
 **CVE**
 - LandrayOa
 
-## 注意事项
-IScannerCheck的被动扫描是依赖burp的被动扫描机制
-
-1、必须开启burp的被动扫描
-
-2、默认是只做一次扫描,所以相同的请求只会进入一次扫描,如果不想要这个特性,可以按下图去掉即可
-
-![img_1.png](img_1.png)
-
-还有burp的被动扫描必须开哈，不然不会有流量进来，也就是上图箭头指向的那个

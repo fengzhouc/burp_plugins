@@ -42,7 +42,8 @@ public class JsonCsrf extends VulTaskImpl {
                 /*
                  * 1、请求头包含application/json
                  */
-                if (check(request_header_list, "application/json") != null) {
+                String ct = check(request_header_list, "Content-Type");
+                if (ct != null && ct.contains("application/json")) {
                     List<String> new_headers1 = new ArrayList<String>();
                     String CT = "Content-Type: application/x-www-form-urlencoded";
                     //新请求修改content-type
@@ -62,10 +63,9 @@ public class JsonCsrf extends VulTaskImpl {
                     if (!hasCT) {
                         new_headers1.add(CT);
                     }
-                    request_header_list = new_headers1;
                     if (!method.equalsIgnoreCase("get")) {
                         //新的请求包:content-type
-                        okHttpRequester.send(url, method, request_header_list, query, request_body_str, "application/x-www-form-urlencoded", new JsonCsrfCallback(this));
+                        okHttpRequester.send(url, method, new_headers1, query, request_body_str, "application/x-www-form-urlencoded", new JsonCsrfCallback(this));
                     }
                 }
             }

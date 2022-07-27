@@ -35,7 +35,7 @@ public class SensitiveApi extends VulTaskImpl {
             // 构造url
             for (String api :
                     payloads.split("\n")) {
-                this.url = String.format("%s://%s:%d%s", iHttpService.getProtocol(), iHttpService.getHost(), iHttpService.getPort(), api);
+                String url = String.format("%s://%s:%d%s", iHttpService.getProtocol(), iHttpService.getHost(), iHttpService.getPort(), api);
                 okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SensitiveApiCallback(this));
             }
         }
