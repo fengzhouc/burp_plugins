@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Redirect extends VulTaskImpl {
+    boolean isBypass = false; //标记bypass，callback的时候可以判断
 
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
         return new Redirect(helpers, callbacks, log);
@@ -43,7 +44,7 @@ public class Redirect extends VulTaskImpl {
                     || query.contains("callbackIframeUrl=")
             )
             {
-                String new_query = "redirect=http://evil.com/test&" +
+                String nobypass = "redirect=http://evil.com/test&" +
                         "redirect_url=http://evil.com/test&" +
                         "redirect_uri=http://evil.com/test&" +
                         "callback=http://evil.com/test&" +
@@ -51,6 +52,16 @@ public class Redirect extends VulTaskImpl {
                         "goto=http://evil.com/test&" +
                         "callbackIframeUrl=http://evil.com/test&" +
                         query;
+                // bypass就删除schema
+                String bypass = "redirect=//evil.com/test&" +
+                        "redirect_url=//evil.com/test&" +
+                        "redirect_uri=//evil.com/test&" +
+                        "callback=//evil.com/test&" +
+                        "url=//evil.com/test&" +
+                        "goto=//evil.com/test&" +
+                        "callbackIframeUrl=//evil.com/test&" +
+                        query;
+                String new_query = isBypass ? bypass : nobypass;
 
                 //新的请求包
                 okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new RedirectCallback(this));
@@ -79,12 +90,19 @@ class RedirectCallback implements Callback {
             String location = vulTask.ok_respHeaders.get("Location");
             if (location != null &&location.contains("evil.com")) {
                 vulTask.message = "Redirect";
+                vulTask.log(call);
             }
         }else if (vulTask.ok_respBody.contains("evil.com")) { //检查响应体中，有些是页面加载后重定向
-            vulTask.message = "Redirect or DomXss";
-        }
-        if (!vulTask.message.equalsIgnoreCase("")){
+            vulTask.message = "Redirect and inResp";
             vulTask.log(call);
         }
+        // 不为bypass才会进行绕过测试
+        if (!((Redirect)vulTask).isBypass) {
+            Redirect bypass = (Redirect) Redirect.getInstance(vulTask.helpers, vulTask.callbacks, vulTask.log);
+            bypass.init(vulTask.messageInfo);
+            bypass.isBypass = true;
+            bypass.start();
+        }
+
     }
 }
