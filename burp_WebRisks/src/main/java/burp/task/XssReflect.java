@@ -37,13 +37,17 @@ public class XssReflect extends VulTaskImpl {
             payloads = loadPayloads("/payloads/XssReflect.bbm");
 
             //反射型只测查询参数
+            String new_query = "";
             if (query != null)
             {
-                String new_query = createFormBody(query, xssflag);
-
-                //新的请求包
-                okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new XssReflectCallback(this));
+                new_query = createFormBody(query, xssflag);
+            }else {
+                // 没有查询参数的话，插入一个试试，为啥这个搞呢，有些会把url潜入到页面中，比如错误信息的时候，所以这时如果没有防护，那基本就存在问题的
+                new_query = "test=" + xssflag;
             }
+            //新的请求包
+            okHttpRequester.send(url, method, request_header_list, new_query, request_body_str, contentYtpe, new XssReflectCallback(this));
+
         }
     }
 }

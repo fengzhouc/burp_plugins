@@ -37,7 +37,7 @@ public class Https extends VulTaskImpl {
                 message = "use https";
             }
             // 检查是否同时开启http/https
-            this.url = "http://" + iHttpService.getHost() + ":80" + path;
+            String url = "http://" + iHttpService.getHost() + ":80" + path;
             List<String> new_header = new ArrayList<>();
             for (String header :
                     request_header_list) {

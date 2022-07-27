@@ -424,7 +424,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //            //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
 //            fireTableRowsInserted(row, lastRow - 1);
 //        }
-        Collections.sort(log); //排序结果
+//        Collections.sort(log); //排序结果,会自动排序，所以就不刷了
         fireTableDataChanged();
     }
 
@@ -768,6 +768,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             oneChecks.add("burp.vuls.LandrayOa");
             oneChecks.add("burp.vuls.ShiroUse");
             oneChecks.add("burp.task.Https");
+            oneChecks.add("burp.task.SensitiveApi");
         }
         @Override
         public void run() {

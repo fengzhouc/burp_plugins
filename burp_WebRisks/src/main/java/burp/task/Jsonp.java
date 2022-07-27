@@ -40,9 +40,10 @@ public class Jsonp extends VulTaskImpl {
                         || query.contains("json=")
                         || query.contains("call=")
                         || query.contains("jsonpCallback=")
-                )
-                {
-                    logAdd(messageInfo, host, path, method, status, "Jsonp", payloads);
+                ) {
+                    if (status_code == 200) { //状态码200才直接添加
+                        logAdd(messageInfo, host, path, method, status, "Jsonp, has query", payloads);
+                    }
                 }
 
                 //2.url不含敏感参数,添加参数测试
@@ -78,8 +79,9 @@ class JsonpCallback implements Callback {
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         if (response.isSuccessful()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            String ct = vulTask.ok_respHeaders.get("Centent-Type");
             //如果状态码相同则可能存在问题
-            if (vulTask.ok_respBody.contains("qwert")) {
+            if (vulTask.ok_respBody.contains("qwert") && ct != null && ct.contains("application/javascript")) {
                 vulTask.message = "Jsonp";
                 vulTask.log(call);
             }

@@ -18,10 +18,10 @@ import java.util.*;
 
 public abstract class VulTaskImpl extends Thread{
 
-    protected IExtensionHelpers helpers;
+    public IExtensionHelpers helpers;
     public IBurpExtenderCallbacks callbacks;
-    protected List<BurpExtender.LogEntry> log;
-    protected IHttpRequestResponse messageInfo;
+    public List<BurpExtender.LogEntry> log;
+    public IHttpRequestResponse messageInfo;
     //每个task的相同变量
     public String message; //漏洞信息
     protected VulResult result; //返回结果
