@@ -41,7 +41,7 @@ public class Jsonp extends VulTaskImpl {
                         || query.contains("call=")
                         || query.contains("jsonpCallback=")
                 ) {
-                    if (status_code == 200) { //状态码200才直接添加
+                    if (status_code == 200 && check(response_header_list, "Centent-Type").contains("application/javascript")) { //状态码200才直接添加
                         logAdd(messageInfo, host, path, method, status, "Jsonp, has query", payloads);
                     }
                 }
