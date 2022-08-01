@@ -313,6 +313,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("LandrayOa",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("ShiroUse",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 // 添加到总UI
                 contentPane.add(options, BorderLayout.EAST);
 
@@ -362,6 +364,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 callbacks.printOutput("##CVE");
 //                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
                 callbacks.printOutput("#Task: LandrayOa");
+                callbacks.printOutput("#Task: ShiroUse");
 
                 //注册监听器
                 callbacks.registerHttpListener(BurpExtender.this);
