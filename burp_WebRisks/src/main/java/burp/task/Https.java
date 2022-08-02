@@ -48,6 +48,7 @@ public class Https extends VulTaskImpl {
             new_header.add("Host: " + iHttpService.getHost() + ":80");
 
             okHttpRequester.send(url, method, new_header, query, request_body_str, contentYtpe, new HttpsCallback(this));
+            BurpExtender.vulsChecked.add("burp.task.Https" + host + iHttpService.getPort()); //添加检测标记
         }
     }
 }

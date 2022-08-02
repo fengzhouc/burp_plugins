@@ -38,6 +38,7 @@ public class SensitiveApi extends VulTaskImpl {
                 String url = String.format("%s://%s:%d%s", iHttpService.getProtocol(), iHttpService.getHost(), iHttpService.getPort(), api);
                 okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SensitiveApiCallback(this));
             }
+            BurpExtender.vulsChecked.add("burp.task.SensitiveApi" + host + iHttpService.getPort()); //添加检测标记
         }
     }
 }

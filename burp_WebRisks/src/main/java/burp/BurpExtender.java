@@ -48,7 +48,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private String domain = ".*";
     public static String cookie = "Cookie: xxx";
     private String url = "";
-    public List<String> vulsChecked = new ArrayList<>(); //是否已经检测cve漏洞
+    public static List<String> vulsChecked = new ArrayList<>(); //是否已经检测cve漏洞
     private final BlockingQueue<VulTaskImpl> queue = new LinkedBlockingDeque<>(); //任务队列
     JSplitPane splitPane;
 
@@ -787,10 +787,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                             if (oneChecks.contains(taskClass)){
                                 String host = messageInfo.getHttpService().getHost();
                                 int port = messageInfo.getHttpService().getPort();
-                                if (vulsChecked.contains(host + port)){
+                                if (vulsChecked.contains(taskClass + host + port)){
                                     continue; //跳到下一个任务
                                 }
-                                vulsChecked.add(host + port); //没有检查过，则添加标记，并往下走task执行
+                                // 添加标记的动作再具体的task中
                             }
                             Class c = Class.forName(taskClass);
                             Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);

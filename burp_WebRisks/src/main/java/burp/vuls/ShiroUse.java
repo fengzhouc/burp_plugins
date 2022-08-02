@@ -78,7 +78,6 @@ class ShiroUseCallback implements Callback {
         // 检查响应体是否有内容
         String setCookie = response.header("Set-Cookie");
         if (setCookie != null && setCookie.contains("=deleteMe")) {
-            vulTask.callbacks.printError("over");
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             vulTask.message = "ShiroUse";
             vulTask.log(call); // TODO 如果使用了则看下是否用了默认key
