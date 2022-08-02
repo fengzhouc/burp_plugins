@@ -3,6 +3,7 @@ package burp.vuls;
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
+import burp.IHttpService;
 import burp.impl.VulTaskImpl;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,16 +44,19 @@ public class ShiroUse extends VulTaskImpl {
             boolean hasCookie = false;
             //新请求修改origin
             for (String header : request_header_list) {
-                if (!header.toLowerCase(Locale.ROOT).contains("Cookie".toLowerCase(Locale.ROOT))) {
+                if (header.toLowerCase(Locale.ROOT).startsWith("Cookie".toLowerCase(Locale.ROOT))) {
                     new_headers1.add(header + ";" + cookie);
                     hasCookie = true;
+                    continue;
                 }
                 new_headers1.add(header);
             }
             if (!hasCookie){
                 new_headers1.add("Cookie: " + cookie);
             }
-            okHttpRequester.send(url, method, new_headers1, query, request_body_str, contentYtpe, new ShiroUseCallback(this));
+            String url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + "/";
+            okHttpRequester.send(url, "GET", new_headers1, "", "", "", new ShiroUseCallback(this));
+            BurpExtender.vulsChecked.add("burp.vuls.ShiroUse" + host + iHttpService.getPort()); //添加检测标记
         }
     }
 }
@@ -71,13 +75,13 @@ class ShiroUseCallback implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-        if (response.isSuccessful()){
-            // 检查响应体是否有内容
-            if (Objects.requireNonNull(response.header("Set-Cookie")).contains("=deleteMe")) {
-                vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-                vulTask.message = "ShiroUse";
-                vulTask.log(call); // TODO 如果使用了则看下是否用了默认key
-            }
+        // 检查响应体是否有内容
+        String setCookie = response.header("Set-Cookie");
+        if (setCookie != null && setCookie.contains("=deleteMe")) {
+            vulTask.callbacks.printError("over");
+            vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
+            vulTask.message = "ShiroUse";
+            vulTask.log(call); // TODO 如果使用了则看下是否用了默认key
         }
     }
 }
