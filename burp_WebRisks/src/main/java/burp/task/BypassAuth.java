@@ -44,6 +44,13 @@ public class BypassAuth extends VulTaskImpl {
 
                 // 将path拆解
                 List<String> bypass_path = createPath(bypass_str, path);
+                payloads += "\n#TestUrl\n";
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String p :
+                        bypass_path) {
+                    stringBuilder.append("// ").append(p).append("\n");
+                }
+                payloads += stringBuilder;
 
                 for (String bypass : bypass_path) {
                     //url有参数
@@ -67,11 +74,13 @@ public class BypassAuth extends VulTaskImpl {
                     String bypassStr = paths[i] + str;
                     StringBuilder sb = new StringBuilder();
                     for (int j = 0; j < paths.length; j++) {
-                        if (i == j) {
-                            sb.append("/").append(bypassStr);
-                            continue;
+                        if (!"".equalsIgnoreCase(paths[j])) { //为空则跳过，split分割字符串，分割符头尾会出现空字符
+                            if (i == j) {
+                                sb.append("/").append(bypassStr);
+                                continue;
+                            }
+                            sb.append("/").append(paths[j]);
                         }
-                        sb.append("/").append(paths[j]);
                     }
                     bypass_path.add(sb.toString());
                 }
