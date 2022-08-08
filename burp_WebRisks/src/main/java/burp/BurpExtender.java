@@ -692,8 +692,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 case "XssReflect":
                     taskClass = "burp.task.XssReflect";
                     break;
-                case "SeesionInvalid":
-                    taskClass = "burp.task.SeesionInvalid";
+                case "SessionInvalid":
+                    taskClass = "burp.task.SessionInvalid";
                     break;
                 case "SmsEmailBoom":
                     taskClass = "burp.task.SmsEmailBoom";
