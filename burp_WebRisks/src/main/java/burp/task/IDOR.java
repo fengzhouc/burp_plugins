@@ -3,6 +3,7 @@ package burp.task;
 import burp.*;
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.CommonMess;
 import burp.util.HeaderTools;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
@@ -81,6 +82,9 @@ class IDORCallback implements Callback {
                 vulTask.log(call);
             }
 
+        } else {
+            // 不存在未授权就保存url及cookie信息
+            CommonMess.authMessageInfo = vulTask.messageInfo;
         }
     }
 }
