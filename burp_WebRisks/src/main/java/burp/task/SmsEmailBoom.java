@@ -47,7 +47,7 @@ public class SmsEmailBoom extends VulTaskImpl {
                 Matcher matcherEmail_query = patternEmail.matcher(query);
                 if (matcherEmail_body.find() || matcherEmail_query.find()
                         || matcherPhone_body.find() || matcherPhone_query.find()){
-                    for (int i = 0 ; i < 5 ; i++) { //重放5次
+                    for (int i = 0 ; i < 10 ; i++) { //重放10次
                         //新的请求包
                         okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SmsEmailBoomCallback(this));
                     }
@@ -77,7 +77,7 @@ class SmsEmailBoomCallback implements Callback {
             if (vulTask.status == vulTask.ok_code
                     && vulTask.resp_body_str.equalsIgnoreCase(vulTask.ok_respBody)) {
                 CommonMess.SmsEmailBoomCount += 1; //判断存在问题则次数+1
-                if (CommonMess.SmsEmailBoomCount == 5) { //重放5次都判断有问题，则极大可能存在轰炸风险
+                if (CommonMess.SmsEmailBoomCount == 10) { //重放5次都判断有问题，则极大可能存在轰炸风险
                     vulTask.message = "SmsEmailBoom？？check device sms.";
                     vulTask.log(call);
                 }

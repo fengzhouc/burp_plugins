@@ -311,6 +311,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("XmlMaybe",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SeesionInvalid",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("SmsEmailBoom",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("LandrayOa",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("ShiroUse",options,gbaglayout,constraints);
@@ -333,38 +337,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 callbacks.printOutput("#Author: "+author);
                 callbacks.printOutput("#Github: https://github.com/fengzhouc/burp_plugins");
-                callbacks.printOutput("    ");
-                callbacks.printOutput("##Web Basic");
-                callbacks.printOutput("#Task: JsonCsrf");
-                callbacks.printOutput("#Task: Cors");
-                callbacks.printOutput("#Task: IDOR");
-                callbacks.printOutput("#Task: IDOR_xy"); // 横纵向越权
-                callbacks.printOutput("#Task: Jsonp");
-                callbacks.printOutput("#Task: Https");
-                callbacks.printOutput("#Task: SecureHeader 'X-Frame-Options'");
-                callbacks.printOutput("#Task: SecureCookie");
-                callbacks.printOutput("#Task: Redirect");
-                callbacks.printOutput("#Task: IndexOf");
-                callbacks.printOutput("#Task: SqlInject");
-                callbacks.printOutput("#Task: XssReflect");
-                callbacks.printOutput("#Task: SSRF");
-                callbacks.printOutput("#Task: SensitiveApi");
-                callbacks.printOutput("#Task: SensitiveMessage");
-                callbacks.printOutput("#Task: UploadSecure");
-                callbacks.printOutput("#Task: BeanParanInject");
-                callbacks.printOutput("#Task: WebSocketHijacking");
-                callbacks.printOutput("#Task: BypassAuth");
-                callbacks.printOutput("#Task: BypassAuthXFF");
-                callbacks.printOutput("#Task: Json3rd");
-                callbacks.printOutput("#Task: MethodFuck");
-                callbacks.printOutput("#Task: XssDomSource");
-                callbacks.printOutput("#Task: XmlMaybe");
-                callbacks.printOutput("#Task: formCsrf");
-                callbacks.printOutput("    ");
-                callbacks.printOutput("##CVE");
-//                callbacks.printOutput("#Task: PutJsp[CVE-2017-12615]");
-                callbacks.printOutput("#Task: LandrayOa");
-                callbacks.printOutput("#Task: ShiroUse");
 
                 //注册监听器
                 callbacks.registerHttpListener(BurpExtender.this);
@@ -719,6 +691,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     break;
                 case "XssReflect":
                     taskClass = "burp.task.XssReflect";
+                    break;
+                case "SeesionInvalid":
+                    taskClass = "burp.task.SeesionInvalid";
+                    break;
+                case "SmsEmailBoom":
+                    taskClass = "burp.task.SmsEmailBoom";
                     break;
                 case "LandrayOa":
                     taskClass = "burp.vuls.LandrayOa";

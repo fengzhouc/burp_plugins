@@ -49,7 +49,10 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - MethodFuck, 尝试其他method是否可以请求通，有可能是同一个api不同的method
 - XssDomSource, 仅检测是否有使用污染源的函数
 - xml注入，比较复杂，所以仅把提交xml数据的请求识别出来，然后手搞
+- SeesionInvalid，检测登出后，历史会话是否失效
+- SmsEmailBoom，检测短信/邮件轰炸的业务问题，不过需要去看手机或者邮箱是否接收到大量信息
 
 **CVE**
 - LandrayOa
+- ShiroUse，检测是否使用shiro
 

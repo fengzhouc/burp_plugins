@@ -68,7 +68,7 @@ public class OkHttpRequester {
         Request request = null;
         try {
             request = new Request.Builder()
-                    .url(url + "?" + query)
+                    .url(query != null ? url + "?" + query : url)
                     .method(method, body)
                     .headers(SetHeaders(headerList))
                     .header("Content-Length", String.valueOf(body.contentLength()))
