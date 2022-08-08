@@ -31,9 +31,10 @@ public class SmsEmailBoom extends VulTaskImpl {
         /**
          * 邮箱轰炸
          * */
-
+        List<String> add = new ArrayList<String>();
+        add.add(".js");
         // 后缀检查，静态资源不做测试
-        if (!isStaticSource(path, new ArrayList<>())){
+        if (!isStaticSource(path, add)){
             //如果请求参数中有邮箱，尝试下重放
             if (request_body_str.length() > 0 || query.length() > 0){
                 //先检测是否存在url地址的参数，正则匹配
