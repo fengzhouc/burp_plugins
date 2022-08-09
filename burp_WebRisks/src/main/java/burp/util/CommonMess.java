@@ -2,6 +2,9 @@ package burp.util;
 
 import burp.IHttpRequestResponse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CommonMess {
     /**
      * 用于存储公共数据的
@@ -10,4 +13,6 @@ public class CommonMess {
     public static IHttpRequestResponse authMessageInfo = null;
     // SmsEmailBoom次数计数
     public static int SmsEmailBoomCount = 0;
+    // 记录所有IHttpRequestResponse，用于后续的扫描，比如越权扫描
+    public static List<IHttpRequestResponse> requests = new ArrayList<>();
 }
