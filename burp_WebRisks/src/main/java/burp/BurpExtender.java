@@ -1,5 +1,6 @@
 package burp;
 
+import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import burp.util.CommonMess;
 import burp.util.LRUCache;
@@ -172,7 +173,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 // scan功能，显示所有保存的请求信息，清空列表，将请求都加入到列表中
                 JButton scanshow = new JButton("Show");
                 scanshow.setPreferredSize(new Dimension(70,28)); // 按钮大小
-                scanshow.setToolTipText("显示所有保存的请求信息,将请求都加入到列表中");
+                scanshow.setToolTipText("显示所有保存的请求信息,将请求都加入到列表中,并且会显示当前任务进度，如果执行Scan的话");
                 scanshow.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         BurpExtender.this.Show(); //启动扫描
@@ -430,7 +431,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private void Show(){
         for (IHttpRequestResponse messageInfo :
                 CommonMess.requests) {
-            int row = log.size();
             //返回信息
             IHttpService iHttpService = messageInfo.getHttpService();
             //请求信息
@@ -440,11 +440,28 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             String path = analyzeRequest.getUrl().getPath();
             String method = analyzeRequest.getMethod();
             short status = analyzeResponse.getStatusCode();
-            log.add(new BurpExtender.LogEntry(row, callbacks.saveBuffersToTempFiles(messageInfo),
-                    host, path, method, status, "", ""));
+            boolean inside = false;
+            int row = log.size();
+            // 重复的不显示
+            for (BurpExtender.LogEntry le :
+                    log) {
+                if (le.Host.equalsIgnoreCase(host)
+                        && le.Path.equalsIgnoreCase(path)
+                        && le.Method.equalsIgnoreCase(method)) {
+                    inside = true;
+                    break;
+                }
+            }
+            if (!inside) {
+                log.add(new BurpExtender.LogEntry(row, callbacks.saveBuffersToTempFiles(messageInfo),
+                        host, path, method, status, "", ""));
+            }
+
         }
         //通知表格数据变更了
         refreshTable();
+        // 如果总数跟下表的数据不一致，说明存在重复的请求
+        schedule.setText(CommonMess.requests.size() + " / " + Over);
     }
 
     //通知已刷新表格数据
