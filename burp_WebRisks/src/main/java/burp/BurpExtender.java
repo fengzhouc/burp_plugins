@@ -149,7 +149,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 panel.add(btnClear);
                 JButton btnrefresh = new JButton("RefreshTable");
                 btnrefresh.setPreferredSize(new Dimension(100,28)); // 按钮大小
-                btnrefresh.setToolTipText("刷新下表数据");
+                btnrefresh.setToolTipText("刷新下表数据,执行完任务就刷刷，有时可能没收到数据变更的通知，导致下表没显示");
                 btnrefresh.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         BurpExtender.this.refreshTable();
