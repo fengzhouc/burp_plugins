@@ -187,6 +187,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     public void actionPerformed(ActionEvent arg0) {
                         CommonMess.requests.clear(); //开启的时候清空
                         schedule.setText( "0 / 0");
+                        Over = 0;
                         callbacks.printOutput("Clear all requests");
                     }
                 });
