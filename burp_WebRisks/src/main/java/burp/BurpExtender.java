@@ -432,13 +432,15 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     //批量扫描
     private void Scan(){
+        // 开启扫描会清空以往的结果
+        ClearResult();
         Over = 0; // 启动前初始化未0
         callbacks.printOutput("VulScanner start. all: " + CommonMess.requests.size());
         VulScanner scanner = new VulScanner();
         // 更新进度，https://xuexiyuan.cn/article/detail/239.html
         // UI更新必须在UI的线程中
-        // TODO 还是无法实时更新进度
-        SwingUtilities.invokeLater(scanner);
+        // fix:还是无法实时更新进度 (VulScanner必须继承Thread，如果是Runable就不行，看来这两种方式的多线程有差异)
+        scanner.start();
     }
 
     //显示所有保存的请求
@@ -480,21 +482,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     //通知已刷新表格数据
     public void refreshTable(){
-//        int lastRow = getRowCount();
-//        /*
-//         * 1、无结果, row == lastRow
-//         * 2、1个或以上结果,row < lastRow
-//         * 所以，有添加的时候在通过有添加数据
-//         * */
-//        if (row < lastRow) {
-//            /*
-//             * fix：java.lang.IndexOutOfBoundsException: Invalid range
-//             * 没有添加数据还通知有数据被添加，会导致setAutoCreateRowSorter排序出现Invalid range异常
-//             */
-//            //通知所有的listener在这个表格中第firstrow行至lastrow列已经被加入了
-//            fireTableRowsInserted(row, lastRow - 1);
-//        }
-//        Collections.sort(log); //排序结果,会自动排序，所以就不刷了
         fireTableDataChanged();
     }
 
@@ -817,7 +804,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }else if (!taskClass.equalsIgnoreCase("no task")) {
                     tasks.put(key, taskClass);
-                    callbacks.printError("put " + taskClass);
                 }else {
                     switch (key) {
                         case "proxy":
@@ -913,7 +899,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
     }
 
-    private class VulScanner implements Runnable {
+    private class VulScanner extends Thread {
 
         List<Future<?>> threads; //线程状态记录
         //线程池
