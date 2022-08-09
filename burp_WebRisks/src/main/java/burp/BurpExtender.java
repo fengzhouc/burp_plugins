@@ -1,6 +1,7 @@
 package burp;
 
 import burp.impl.VulTaskImpl;
+import burp.util.CommonMess;
 import burp.util.LRUCache;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,32 +41,29 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JPanel contentPane;
     private boolean kg = false; //默认关闭
     private JLabel lbConnectStatus; //插件运行状态
+    private JLabel schedule; //Scan扫描任务的进度，all/over
+    private int Over = 0; //Scan扫描任务完成的请求数
     private Table logTable; //视图table对象
     private TableRowSorter<TableModel> sorter; //table排序对象
     private JTextField tfFilterText; //过滤的条件输入框
     private JTextField tfFilterText_c; //Cookie
-    private JTextField tfFilterText_cve; //cve 漏洞扫描
     private String domain = ".*";
     public static String cookie = "Cookie: xxx";
-    private String url = "";
     public static List<String> vulsChecked = new ArrayList<>(); //是否已经检测cve漏洞
-    private final BlockingQueue<VulTaskImpl> queue = new LinkedBlockingDeque<>(); //任务队列
-    JSplitPane splitPane;
+    private JSplitPane splitPane;
 
-    private HashMap<String, Integer> intercepts = new HashMap<>();
+    private final HashMap<String, Integer> intercepts = new HashMap<>();
 
     //本地缓存，存放已检测过的请求，检测过就不检测了
     private final LRUCache localCache = new LRUCache(10000);
     private final MessageDigest md = MessageDigest.getInstance("MD5");
 
     //创建任务map
-    private HashMap<String, String> tasks = new HashMap<>();
+    private final HashMap<String, String> tasks = new HashMap<>();
     //请求队列
-    private ArrayBlockingQueue<IHttpRequestResponse> reqQueue = new ArrayBlockingQueue<>(2000);
+    private final ArrayBlockingQueue<IHttpRequestResponse> reqQueue = new ArrayBlockingQueue<>(2000);
     //线程池
     private ExecutorService threadPool;
-    //任务管理线程
-    private Thread taskManager;
     private boolean STATUS = false; //taskManager的运行控制
 
 
@@ -120,7 +118,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 JButton btnConn = new JButton("On-Off");
                 btnConn.setPreferredSize(new Dimension(70,28)); // 按钮大小
-                btnConn.setToolTipText("基础Web漏洞扫描器开关");
+                btnConn.setToolTipText("实时被动扫描器开关");
                 btnConn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         BurpExtender.this.OpenOrClose();
@@ -136,7 +134,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 JButton btnClear = new JButton("Clear");
                 btnClear.setPreferredSize(new Dimension(70,28)); // 按钮大小
-                btnClear.setToolTipText("clear all the result.");
+                btnClear.setToolTipText("清除数据，包含下表数据/请求队列/已测标记/请求缓存");
                 btnClear.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         BurpExtender.this.ClearResult();
@@ -145,17 +143,42 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 panel.add(btnClear);
                 JButton btnrefresh = new JButton("Refresh");
                 btnrefresh.setPreferredSize(new Dimension(70,28)); // 按钮大小
-                btnrefresh.setToolTipText("refresh the ui");
+                btnrefresh.setToolTipText("刷新下表数据");
                 btnrefresh.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         BurpExtender.this.refreshTable();
                     }
                 });
                 panel.add(btnrefresh);
-
-//                JLabel note = new JLabel("注: 如有验证码类的业务,会出现业务功能异常,因为测试是重复发包，所以验证码失效，这类功能需要手测.");
-//                note.setForeground(new Color(255, 0, 0));
-//                panel.add(note);
+                // scan功能
+                JButton btnrescan = new JButton("Scan");
+                btnrescan.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                btnrescan.setToolTipText("将以往记录的请求进行批量检测,检测勾选的task,会关闭被动扫描任务 (可通过'Show'查看已保存的请求)");
+                btnrescan.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        if (lbConnectStatus.getText().equalsIgnoreCase("true")) {
+                            BurpExtender.this.OpenOrClose(); //关闭代理模式的扫描任务,前提是任务开启了（不要一边采集请求，一边扫描）
+                        }
+                        BurpExtender.this.Scan(); //启动扫描
+                    }
+                });
+                panel.add(btnrescan);
+                // 进度展示 all/over
+                JLabel scantInfo = new JLabel("schedule:");
+                panel.add(scantInfo);
+                schedule = new JLabel(CommonMess.requests.size() + " / " + Over);
+                schedule.setForeground(new Color(0, 255, 0));
+                panel.add(schedule);
+                // scan功能，显示所有保存的请求信息，清空列表，将请求都加入到列表中
+                JButton scanshow = new JButton("Show");
+                scanshow.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                scanshow.setToolTipText("显示所有保存的请求信息,将请求都加入到列表中");
+                scanshow.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BurpExtender.this.Show(); //启动扫描
+                    }
+                });
+                panel.add(scanshow);
 
                 // cookie设置
                 JPanel panel_c = new JPanel();
@@ -368,19 +391,49 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             lbConnectStatus.setForeground(new Color(0,255,0));
             //开启扫描器任务线程
             STATUS = true; //状态设置为true，死循环
-            taskManager = new TaskManager();
-            taskManager.start();
+            //任务管理线程启动
+            new TaskManager().start();
+            CommonMess.requests.clear(); //开启的时候清空
         }
     }
     //清空数据
     private void ClearResult(){
         log.clear();
         //通知表格数据变更了
-        fireTableDataChanged();
+        refreshTable();
         vulsChecked.clear(); //清空标记
         localCache.clear(); //清空时清空缓存
         reqQueue.clear(); //清空待检的请求队列
         callbacks.printOutput("clear cache success.");
+    }
+
+    //批量扫描
+    private void Scan(){
+        VulScanner scanner = new VulScanner();
+        // 更新进度，https://xuexiyuan.cn/article/detail/239.html
+        // UI更新必须在UI的线程中
+        SwingUtilities.invokeLater(scanner);
+    }
+
+    //显示所有保存的请求
+    private void Show(){
+        for (IHttpRequestResponse messageInfo :
+                CommonMess.requests) {
+            int row = log.size();
+            //返回信息
+            IHttpService iHttpService = messageInfo.getHttpService();
+            //请求信息
+            IRequestInfo analyzeRequest = this.helpers.analyzeRequest(messageInfo);
+            IResponseInfo analyzeResponse = this.helpers.analyzeResponse(messageInfo.getResponse());
+            String host = iHttpService.getHost();
+            String path = analyzeRequest.getUrl().getPath();
+            String method = analyzeRequest.getMethod();
+            short status = analyzeResponse.getStatusCode();
+            log.add(new BurpExtender.LogEntry(row, callbacks.saveBuffersToTempFiles(messageInfo),
+                    host, path, method, status, "", ""));
+        }
+        //通知表格数据变更了
+        refreshTable();
     }
 
     //通知已刷新表格数据
@@ -434,6 +487,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     // 将请求放入队列
                     try {
                         reqQueue.put(messageInfo); //这里会阻塞
+                        CommonMess.requests.add(messageInfo); //保存IHttpRequestResponse，用于批量扫描
                     } catch (InterruptedException e) {
                         callbacks.printOutput("reqQueue.put -> " + e);
                     }
@@ -802,6 +856,61 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     callbacks.printError("reqQueue.take() -> " + e);
                 }
             }
+        }
+    }
+
+    private class VulScanner implements Runnable {
+
+        List<Future<?>> threads; //线程状态记录
+        //线程池
+        private final ExecutorService threadPool;
+        public VulScanner(){
+            // 创建一个固定大小5的线程池:
+            threadPool = Executors.newFixedThreadPool(5);
+            threads = new ArrayList<>();
+        }
+        @Override
+        public void run() {
+            callbacks.printOutput("VulScanner start. all: " + CommonMess.requests.size());
+            // 遍历保存的所有请求
+            for (IHttpRequestResponse messageInfo : CommonMess.requests) {
+                // 并发控制，okhttp的并发太高了，不限制下，burp会很卡
+                for (String taskClass : tasks.values()) {
+                    try {
+                        Class c = Class.forName(taskClass);
+                        Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);
+                        VulTaskImpl t = (VulTaskImpl) method.invoke(null, helpers, callbacks, log);
+                        // callbacks.printError("cehck " + task.getClass().getName());
+                        t.init(messageInfo); //初始化task的请求信息
+                        callbacks.printOutput("VulScanner Check: " + t.path);
+                        Future<?> future = threadPool.submit(t); //添加到线程池执行
+                        threads.add(future);
+
+                    } catch (Exception e) {
+                        callbacks.printError("Class.forName -> " + e);
+                    }
+                }
+                // 这里控制单个请求检测完之后，才会进入下一个请求的检测
+                while (true) {
+                    boolean allDone = true;
+                    for (Future<?> thread : threads) {
+                        if (!thread.isDone()) {
+                            // 只要有一个没完成就设置为false
+                            allDone = false;
+                            break;
+                        }
+                        //都完成了就会是true
+                    }
+                    if (allDone) {
+                        // 更新scan进度
+                        schedule.setText(CommonMess.requests.size() + " / " + (++Over));
+                        refreshTable(); //刷新ui数据，以实时显示检测出得问题
+                        // 全部完成就退出while
+                        break;
+                    }
+                }
+            }
+            callbacks.printOutput("VulScanner over");
         }
     }
 }
