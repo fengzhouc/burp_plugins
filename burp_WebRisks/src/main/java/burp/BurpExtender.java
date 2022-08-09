@@ -883,7 +883,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         VulTaskImpl t = (VulTaskImpl) method.invoke(null, helpers, callbacks, log);
                         // callbacks.printError("cehck " + task.getClass().getName());
                         t.init(messageInfo); //初始化task的请求信息
-                        callbacks.printOutput("VulScanner Check: " + t.path);
                         Future<?> future = threadPool.submit(t); //添加到线程池执行
                         threads.add(future);
 
@@ -911,7 +910,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }
             }
-            callbacks.printOutput("VulScanner over");
         }
     }
 }
