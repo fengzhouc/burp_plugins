@@ -19,6 +19,10 @@ Cookie：测试越权所需的他人的会话凭证cookie，会话token也可以
 
 Refresh: 刷新表格数据
 
+Scan: 批量扫描任务，会保存目标的请求，然后勾选task进行批量检测，比如检测越权IDRO_xy
+
+Show: 显示已保存的请求信息
+
 右边是选择开启哪些检查项
 
 Payload：列出漏洞的payload列表，供手工测试参考
