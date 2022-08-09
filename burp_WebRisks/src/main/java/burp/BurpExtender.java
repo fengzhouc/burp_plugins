@@ -84,6 +84,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         callbacks.setExtensionName("WebRisks");
 
         //创建UI，更新ui必须在ui的线程中
+        // UI操作原则
+        // 1.不要阻塞UI线程，也就是不要在主线程中操作UI
+        // 2.另起线程操作UI，比如是继承Thread的哈，不要Runable
+        // 3.所有UI操作都在SwingUtilities.invokeLater中进行
         SwingUtilities.invokeLater(new Runnable()
         {
             @Override
