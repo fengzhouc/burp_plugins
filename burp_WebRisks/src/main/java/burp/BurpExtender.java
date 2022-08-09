@@ -409,6 +409,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     //批量扫描
     private void Scan(){
+        Over = 0; // 启动前初始化未0
         VulScanner scanner = new VulScanner();
         // 更新进度，https://xuexiyuan.cn/article/detail/239.html
         // UI更新必须在UI的线程中
