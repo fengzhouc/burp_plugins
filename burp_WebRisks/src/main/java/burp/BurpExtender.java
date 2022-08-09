@@ -173,7 +173,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 JLabel scantInfo = new JLabel("schedule:");
                 panel.add(scantInfo);
                 schedule = new JLabel(CommonMess.requests.size() + " / " + Over);
-                schedule.setForeground(new Color(0, 255, 0));
+                schedule.setForeground(new Color(255, 0, 0));
                 panel.add(schedule);
                 // scan功能，显示所有保存的请求信息，清空列表，将请求都加入到列表中
                 JButton scanshow = new JButton("Show");
@@ -436,6 +436,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     //批量扫描
     private void Scan(){
+        schedule.setForeground(new Color(0, 255, 0));
         // 开启扫描会清空以往的结果
         ClearResult();
         Over = 0; // 启动前初始化未0
@@ -957,6 +958,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }
             }
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    // 跟改运行状态
+                    schedule.setForeground(new Color(255, 0, 0));
+                }
+            });
         }
     }
 }
