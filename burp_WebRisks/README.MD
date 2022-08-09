@@ -13,15 +13,17 @@ Domain：可指定测试的域名，限制测试范围
 
 On-Off：插件开关
 
-Clear：清空结果
+ClearTable：清空数据，包含下表数据/请求缓存/已测标记/检测请求队列
 
 Cookie：测试越权所需的他人的会话凭证cookie，会话token也可以
 
-Refresh: 刷新表格数据
+RefreshTable: 刷新表格数据
 
 Scan: 批量扫描任务，会保存目标的请求，然后勾选task进行批量检测，比如检测越权IDRO_xy
 
 Show: 显示已保存的请求信息
+
+Clear: 清空保存的请求
 
 右边是选择开启哪些检查项
 

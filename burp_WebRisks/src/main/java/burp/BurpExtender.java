@@ -132,8 +132,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 lbConnectStatus.setForeground(new Color(255, 0, 0));
                 panel.add(lbConnectStatus);
 
-                JButton btnClear = new JButton("Clear");
-                btnClear.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                JButton btnClear = new JButton("ClearTable");
+                btnClear.setPreferredSize(new Dimension(90,28)); // 按钮大小
                 btnClear.setToolTipText("清除数据，包含下表数据/请求队列/已测标记/请求缓存");
                 btnClear.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
@@ -141,8 +141,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 });
                 panel.add(btnClear);
-                JButton btnrefresh = new JButton("Refresh");
-                btnrefresh.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                JButton btnrefresh = new JButton("RefreshTable");
+                btnrefresh.setPreferredSize(new Dimension(100,28)); // 按钮大小
                 btnrefresh.setToolTipText("刷新下表数据");
                 btnrefresh.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
@@ -179,7 +179,15 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 });
                 panel.add(scanshow);
-
+                JButton scanClear = new JButton("Clear");
+                scanClear.setPreferredSize(new Dimension(70,28)); // 按钮大小
+                scanClear.setToolTipText("清除保存的request");
+                scanClear.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        CommonMess.requests.clear(); //开启的时候清空
+                    }
+                });
+                panel.add(scanClear);
                 // cookie设置
                 JPanel panel_c = new JPanel();
                 FlowLayout flowLayout_c = (FlowLayout) panel_c.getLayout();
@@ -393,7 +401,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             STATUS = true; //状态设置为true，死循环
             //任务管理线程启动
             new TaskManager().start();
-            CommonMess.requests.clear(); //开启的时候清空
         }
     }
     //清空数据
@@ -468,7 +475,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     @Override
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         //勾选了intercepts，及勾选了检查项，才采集请求
-        if (!messageIsRequest && intercepts.containsValue(toolFlag) && !tasks.isEmpty()) {
+        if (!messageIsRequest && intercepts.containsValue(toolFlag)) {
             URL urlo = this.helpers.analyzeRequest(messageInfo).getUrl();
             String url = urlo.toString();
             byte[] requestInfo = messageInfo.getRequest();
