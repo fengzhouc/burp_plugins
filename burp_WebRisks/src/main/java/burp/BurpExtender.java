@@ -185,6 +185,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 scanClear.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
                         CommonMess.requests.clear(); //开启的时候清空
+                        schedule.setText( "0 / 0");
+                        callbacks.printOutput("Clear all requests");
                     }
                 });
                 panel.add(scanClear);
@@ -417,6 +419,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     //批量扫描
     private void Scan(){
         Over = 0; // 启动前初始化未0
+        callbacks.printOutput("VulScanner start. all: " + CommonMess.requests.size());
         VulScanner scanner = new VulScanner();
         // 更新进度，https://xuexiyuan.cn/article/detail/239.html
         // UI更新必须在UI的线程中
@@ -879,7 +882,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
         @Override
         public void run() {
-            callbacks.printOutput("VulScanner start. all: " + CommonMess.requests.size());
             // 遍历保存的所有请求
             for (IHttpRequestResponse messageInfo : CommonMess.requests) {
                 // 并发控制，okhttp的并发太高了，不限制下，burp会很卡
