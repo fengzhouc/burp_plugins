@@ -54,13 +54,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JSplitPane splitPane;
 
     private final HashMap<String, Integer> intercepts = new HashMap<>();
-
+    //创建任务map
+    private final HashMap<String, String> tasks = new HashMap<>();
+    private final List<JCheckBox> taskJBS = new ArrayList<>();
     //本地缓存，存放已检测过的请求，检测过就不检测了
     private final LRUCache localCache = new LRUCache(10000);
     private final MessageDigest md = MessageDigest.getInstance("MD5");
 
-    //创建任务map
-    private final HashMap<String, String> tasks = new HashMap<>();
+
     //请求队列
     private final ArrayBlockingQueue<IHttpRequestResponse> reqQueue = new ArrayBlockingQueue<>(2000);
     //线程池
@@ -82,7 +83,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
         callbacks.setExtensionName("WebRisks");
 
-        //创建UI
+        //创建UI，更新ui必须在ui的线程中
         SwingUtilities.invokeLater(new Runnable()
         {
             @Override
@@ -287,15 +288,17 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 gbaglayout.setConstraints(intercept,constraints);
                 options.add(intercept);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-                makeButton("proxy",options,gbaglayout,constraints);
+                makeItercept("proxy",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-                makeButton("repeater",options,gbaglayout,constraints);
+                makeItercept("repeater",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 JLabel task = new JLabel("Tasks");
                 gbaglayout.setConstraints(task,constraints);
                 options.add(task);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 // 添加复选框按钮
+                makeButton("All",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("JsonCsrf",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("Cors",options,gbaglayout,constraints);
@@ -379,6 +382,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         });
     }
 
+    public void makeItercept(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints)
+    {
+        JCheckBox button=new JCheckBox(title);
+        button.setSelected(false); //默认不选中
+        button.addItemListener(new MyItemListener()); //加入监听
+        gridBagLayout.setConstraints(button,constraints);
+        jPanel.add(button);
+    }
     public void makeButton(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints)
     {
         JCheckBox button=new JCheckBox(title);
@@ -386,6 +397,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         button.addItemListener(new MyItemListener()); //加入监听
         gridBagLayout.setConstraints(button,constraints);
         jPanel.add(button);
+        taskJBS.add(button);
     }
 
     private void OpenOrClose(){
@@ -425,6 +437,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         VulScanner scanner = new VulScanner();
         // 更新进度，https://xuexiyuan.cn/article/detail/239.html
         // UI更新必须在UI的线程中
+        // TODO 还是无法实时更新进度
         SwingUtilities.invokeLater(scanner);
     }
 
@@ -700,6 +713,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             String taskClass = ""; //task的类名
             //task跟类的映射
             switch (key) {
+                case "All":
+                    taskClass = "all";
+                    break;
                 case "BeanParamInject":
                     taskClass = "burp.task.BeanParamInject";
                     break;
@@ -795,8 +811,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
             if (jcb.isSelected()) {// 判断是否被选择
                 // 选中则创建对象，存入检查列表
-                if (!taskClass.equalsIgnoreCase("no task")) {
+                if (taskClass.equalsIgnoreCase("all")){
+                    for (JCheckBox t : taskJBS) {
+                        t.setSelected(true);
+                    }
+                }else if (!taskClass.equalsIgnoreCase("no task")) {
                     tasks.put(key, taskClass);
+                    callbacks.printError("put " + taskClass);
                 }else {
                     switch (key) {
                         case "proxy":
@@ -809,7 +830,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }
             } else {
                 // 去勾选，则从列表中删除
-                if (!taskClass.equalsIgnoreCase("no task")) {
+                if (taskClass.equalsIgnoreCase("all")){
+                    for (JCheckBox t : taskJBS) {
+                        t.setSelected(false);
+                    }
+                }else if (!taskClass.equalsIgnoreCase("no task")) {
                     tasks.remove(key);
                 }else {
                     intercepts.remove(key);
@@ -929,9 +954,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         //都完成了就会是true
                     }
                     if (allDone) {
-                        // 更新scan进度
-                        schedule.setText(CommonMess.requests.size() + " / " + (++Over));
-                        refreshTable(); //刷新ui数据，以实时显示检测出得问题
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                // 更新scan进度
+                                schedule.setText(CommonMess.requests.size() + " / " + (++Over));
+                                refreshTable(); //刷新ui数据，以实时显示检测出得问题
+                            }
+                        });
                         // 全部完成就退出while
                         break;
                     }
