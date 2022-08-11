@@ -1,9 +1,8 @@
-package burp.vuls;
+package burp.vuls.shiro;
 
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
-import burp.IHttpService;
 import burp.impl.VulTaskImpl;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class ShiroUse extends VulTaskImpl {
 
@@ -56,7 +54,7 @@ public class ShiroUse extends VulTaskImpl {
             }
             String url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + "/";
             okHttpRequester.send(url, "GET", new_headers1, "", "", "", new ShiroUseCallback(this));
-            BurpExtender.vulsChecked.add("burp.vuls.ShiroUse" + host + iHttpService.getPort()); //添加检测标记
+            BurpExtender.vulsChecked.add("burp.vuls.shiro.ShiroUse" + host + iHttpService.getPort()); //添加检测标记
         }
     }
 }

@@ -1,9 +1,7 @@
-package burp.vuls;
+package burp.vuls.tomcat;
 
 import burp.*;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
-import burp.task.BeanParamInject;
 
 import java.util.List;
 import java.util.Locale;

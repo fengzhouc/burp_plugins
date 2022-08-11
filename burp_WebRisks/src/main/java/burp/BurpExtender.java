@@ -359,7 +359,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("LandrayOa",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-                makeButton("ShiroUse",options,gbaglayout,constraints);
+                makeButton("Shiro",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("Tomcat",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 // 添加到总UI
                 contentPane.add(options, BorderLayout.EAST);
@@ -793,10 +795,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     taskClass = "burp.vuls.LandrayOa";
                     break;
                 case "PutJsp":
-                    taskClass = "burp.vuls.PutJsp";
+                    taskClass = "burp.vuls.tomcat.PutJsp";
                     break;
-                case "ShiroUse":
-                    taskClass = "burp.vuls.ShiroUse";
+                case "Shiro":
+                    taskClass = "Shiro";
+                    break;
+                case "Tomcat":
+                    taskClass = "Tomcat";
                     break;
                 default:
                     taskClass = "intercepts";
@@ -810,6 +815,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
                     tasks.put("Swagger", "burp.task.SwaggerApi");
+                }else if (taskClass.equalsIgnoreCase("Shiro")){
+                    // 框架漏洞集合
+                    tasks.put("ShiroUse", "burp.vuls.shiro.ShiroUse");
+                }else if (taskClass.equalsIgnoreCase("Tomcat")){
+                    // 框架漏洞集合
+                    tasks.put("CVE-2017-12615", "burp.vuls.tomcat.PutJsp");
                 }else if (taskClass.equalsIgnoreCase("burp.task.SessionInvalid")) {
                     // 绑定IDOR跟SessionInvalid的关系，如果SessionInvalid开了，那IDOR也必须开
                     tasks.remove(key);
@@ -839,7 +850,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
-                    tasks.remove("Swagger");
+                    tasks.remove("Swagger", "burp.task.SwaggerApi");
+                }else if (taskClass.equalsIgnoreCase("Shiro")){
+                    // 框架漏洞集合
+                    tasks.remove("ShiroUse", "burp.vuls.shiro.ShiroUse");
+                }else if (taskClass.equalsIgnoreCase("Tomcat")){
+                    // 框架漏洞集合
+                    tasks.remove("CVE-2017-12615", "burp.vuls.tomcat.PutJsp");
                 }else if (taskClass.equalsIgnoreCase("burp.task.IDOR")) {
                     // 绑定IDOR跟SessionInvalid的关系，如果IDOR关了，就把SessionInvalid也关了
                     tasks.remove(key);
@@ -870,7 +887,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             threadPool = Executors.newFixedThreadPool(5);
             threads = new ArrayList<>();
             oneChecks.add("burp.vuls.LandrayOa");
-            oneChecks.add("burp.vuls.ShiroUse");
+            oneChecks.add("burp.vuls.shiro.ShiroUse");
             oneChecks.add("burp.task.Https");
             oneChecks.add("burp.task.SwaggerApi");
         }
