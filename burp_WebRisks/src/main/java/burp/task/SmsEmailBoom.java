@@ -38,7 +38,7 @@ public class SmsEmailBoom extends VulTaskImpl {
             //如果请求参数中有邮箱，尝试下重放
             if (request_body_str.length() > 0 || query.length() > 0){
                 //先检测是否存在url地址的参数，正则匹配
-                String phoneRegex = "['\"&<;\\s/,=]+?1(3\\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\\d|9[0-35-9])\\d{8}['\"&<;\\s/,]+?"; //手机号的正则
+                String phoneRegex = "['\"&>;\\s/,=]+?1(3\\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\\d|9[0-35-9])\\d{8}['\"&<;\\s/,]+?"; //手机号的正则
                 String emailRegex = "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*"; //邮箱的正则
                 Pattern patternPhone = Pattern.compile(phoneRegex);
                 Pattern patternEmail = Pattern.compile(emailRegex);
