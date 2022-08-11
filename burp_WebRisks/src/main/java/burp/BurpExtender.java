@@ -529,6 +529,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
             //通知数据可能变更，刷新全表格数据，该用okhttp异步发包后，没办法同步调用fireTableRowsInserted通知刷新数据，因为一直row=lastRow
             fireTableDataChanged();
+            // TODO https://github.com/ilmila/J2EEScan.git 漏洞检测加入
+            // TODO 请求走私检测 https://xz.aliyun.com/t/6299
+            // TODO 缓存投毒
         }
     }
 
@@ -754,7 +757,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     taskClass = "burp.task.SecureHeader";
                     break;
                 case "SensitiveApi":
-                    taskClass = "burp.task.SensitiveApi";
+                    taskClass = "SensitiveApi";
                     break;
                 case "SensitiveMessage":
                     taskClass = "burp.task.SensitiveMessage";
@@ -804,6 +807,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     for (JCheckBox t : taskJBS) {
                         t.setSelected(true);
                     }
+                }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
+                    // api探测的集合
+                    tasks.put("Swagger", "burp.task.SwaggerApi");
                 }else if (!taskClass.equalsIgnoreCase("no task")) {
                     tasks.put(key, taskClass);
                 }else {
@@ -845,7 +851,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             oneChecks.add("burp.vuls.LandrayOa");
             oneChecks.add("burp.vuls.ShiroUse");
             oneChecks.add("burp.task.Https");
-            oneChecks.add("burp.task.SensitiveApi");
+            oneChecks.add("burp.task.SwaggerApi");
         }
         @Override
         public void run() {
