@@ -45,7 +45,7 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - 反射型XSS
 - SQL注入-字符型
 - SSRF
-- SensitiveApi, eg: /v2/api-docs
+- SensitiveApi（Swagger/SpringbootActuator/Liferay）
 - SensitiveMessage, 敏感信息检测: 身份证/手机号/邮箱
 - UploadSecure, 上传文件类型限制检测
 - BeanParanInject, bean参数注入
@@ -61,4 +61,5 @@ Payload：列出漏洞的payload列表，供手工测试参考
 **CVE**
 - LandrayOa
 - ShiroUse，检测是否使用shiro
+- SnoopXSS
 
