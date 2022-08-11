@@ -353,7 +353,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("XmlMaybe",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-                makeButton("SeesionInvalid",options,gbaglayout,constraints);
+                makeButton("SessionInvalid",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("SmsEmailBoom",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
@@ -799,7 +799,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     taskClass = "burp.vuls.ShiroUse";
                     break;
                 default:
-                    taskClass = "no task";
+                    taskClass = "intercepts";
             }
             if (jcb.isSelected()) {// 判断是否被选择
                 // 选中则创建对象，存入检查列表
@@ -810,7 +810,16 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
                     tasks.put("Swagger", "burp.task.SwaggerApi");
-                }else if (!taskClass.equalsIgnoreCase("no task")) {
+                }else if (taskClass.equalsIgnoreCase("burp.task.SessionInvalid")) {
+                    // 绑定IDOR跟SessionInvalid的关系，如果SessionInvalid开了，那IDOR也必须开
+                    tasks.remove(key);
+                    for (JCheckBox t : taskJBS) {
+                        if (t.getText().equalsIgnoreCase("IDOR")) {
+                            t.setSelected(true);
+                            break;
+                        }
+                    }
+                }else if (!taskClass.equalsIgnoreCase("intercepts")) {
                     tasks.put(key, taskClass);
                 }else {
                     switch (key) {
@@ -831,7 +840,16 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
                     tasks.remove("Swagger");
-                }else if (!taskClass.equalsIgnoreCase("no task")) {
+                }else if (taskClass.equalsIgnoreCase("burp.task.IDOR")) {
+                    // 绑定IDOR跟SessionInvalid的关系，如果IDOR关了，就把SessionInvalid也关了
+                    tasks.remove(key);
+                    for (JCheckBox t : taskJBS) {
+                        if (t.getText().equalsIgnoreCase("SessionInvalid")) {
+                            t.setSelected(false);
+                            break;
+                        }
+                    }
+                }else if (!taskClass.equalsIgnoreCase("intercepts")) {
                     tasks.remove(key);
                 }else {
                     intercepts.remove(key);
