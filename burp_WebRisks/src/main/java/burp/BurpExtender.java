@@ -828,6 +828,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     for (JCheckBox t : taskJBS) {
                         t.setSelected(false);
                     }
+                }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
+                    // api探测的集合
+                    tasks.remove("Swagger");
                 }else if (!taskClass.equalsIgnoreCase("no task")) {
                     tasks.remove(key);
                 }else {
