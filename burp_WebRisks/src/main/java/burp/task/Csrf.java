@@ -46,7 +46,7 @@ public class Csrf extends VulTaskImpl {
                     //新请求修改origin
                     for (String header : request_header_list) {
                         // 剔除掉csrf头部
-                        if (HeaderTools.inNormal(header.split(":")[0].toLowerCase(Locale.ROOT))) {
+                        if (HeaderTools.inNormal(header.split(":")[0])) {
                             if (!header.toLowerCase(Locale.ROOT).contains("Origin".toLowerCase(Locale.ROOT))) {
                                 new_headers1.add(header);
                             }

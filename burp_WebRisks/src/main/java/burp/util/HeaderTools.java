@@ -2,6 +2,7 @@ package burp.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class HeaderTools {
 
@@ -53,7 +54,7 @@ public class HeaderTools {
         normalHeaderName.add("sec-websocket-extensions");
         normalHeaderName.add("upgrade");
 
-        return normalHeaderName.contains(headerName);
+        return normalHeaderName.contains(headerName.toLowerCase(Locale.ROOT));
     }
 
     //认证的请求头
@@ -62,7 +63,7 @@ public class HeaderTools {
         authHeaderName.add("authorization");
         authHeaderName.add("cookie");
 
-        return authHeaderName.contains(headerName);
+        return authHeaderName.contains(headerName.toLowerCase(Locale.ROOT));
     }
 
     //websocket的请求头
@@ -75,7 +76,7 @@ public class HeaderTools {
         wssHeaderName.add("sec-websocket-extensions");
         wssHeaderName.add("upgrade");
 
-        return wssHeaderName.contains(headerName);
+        return wssHeaderName.contains(headerName.toLowerCase(Locale.ROOT));
     }
 
     //cors的响应头
@@ -88,7 +89,7 @@ public class HeaderTools {
         corsHeaderName.add("access-control-expose-headers");
         corsHeaderName.add("access-control-max-age");
 
-        return corsHeaderName.contains(headerName);
+        return corsHeaderName.contains(headerName.toLowerCase(Locale.ROOT));
     }
 
     public static List<String> setXFF(){
