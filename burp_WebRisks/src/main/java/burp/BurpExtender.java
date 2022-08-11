@@ -814,7 +814,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
-                    tasks.put("Swagger", "burp.task.SwaggerApi");
+                    tasks.put("Swagger", "burp.task.api.SwaggerApi");
+                    tasks.put("Liferay", "burp.task.api.LiferayAPI");
+                    tasks.put("SpringBootActuator", "burp.task.api.SpringBootActuator");
                 }else if (taskClass.equalsIgnoreCase("Shiro")){
                     // 框架漏洞集合
                     tasks.put("ShiroUse", "burp.vuls.shiro.ShiroUse");
@@ -850,7 +852,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
-                    tasks.remove("Swagger", "burp.task.SwaggerApi");
+                    tasks.remove("Swagger", "burp.task.api.SwaggerApi");
+                    tasks.remove("Liferay", "burp.task.api.LiferayAPI");
+                    tasks.remove("SpringBootActuator", "burp.task.api.SpringBootActuator");
                 }else if (taskClass.equalsIgnoreCase("Shiro")){
                     // 框架漏洞集合
                     tasks.remove("ShiroUse", "burp.vuls.shiro.ShiroUse");
@@ -889,7 +893,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             oneChecks.add("burp.vuls.LandrayOa");
             oneChecks.add("burp.vuls.shiro.ShiroUse");
             oneChecks.add("burp.task.Https");
-            oneChecks.add("burp.task.SwaggerApi");
+            oneChecks.add("burp.task.api.SwaggerApi");
         }
         @Override
         public void run() {

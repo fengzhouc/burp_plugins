@@ -1,4 +1,4 @@
-package burp.task;
+package burp.task.api;
 
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
@@ -36,7 +36,7 @@ public class SwaggerApi extends VulTaskImpl {
                 String url = String.format("%s://%s:%d%s", iHttpService.getProtocol(), iHttpService.getHost(), iHttpService.getPort(), api);
                 okHttpRequester.send(url, method, request_header_list, query, request_body_str, contentYtpe, new SwaggerApiCallback(this));
             }
-            BurpExtender.vulsChecked.add("burp.task.SwaggerApi" + host + iHttpService.getPort()); //添加检测标记
+            BurpExtender.vulsChecked.add("burp.task.api.SwaggerApi" + host + iHttpService.getPort()); //添加检测标记
         }
     }
 }
