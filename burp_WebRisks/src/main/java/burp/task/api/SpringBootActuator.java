@@ -89,6 +89,7 @@ class SpringBootActuatorCallback implements Callback {
                 if (vulTask.ok_respBody.contains(b)) {
                     vulTask.message = "SpringBootActuator";
                     vulTask.log(call);
+                    break;
                 }
             }
         }
