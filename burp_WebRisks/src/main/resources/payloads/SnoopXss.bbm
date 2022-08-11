@@ -1,0 +1,6 @@
+"/snoop.jsp?" + XSS_PAYLOAD,
+"/examples/jsp/snp/snoop.jsp?" + XSS_PAYLOAD,
+"/examples/servlet/SnoopServlet?" + XSS_PAYLOAD,
+"/servlet/SnoopServlet?" + XSS_PAYLOAD,
+"/j2ee/servlet/SnoopServlet?" + XSS_PAYLOAD,
+"/jsp-examples/snp/snoop.jsp?" + XSS_PAYLOAD

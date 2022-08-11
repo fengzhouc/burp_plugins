@@ -363,6 +363,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("Tomcat",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("OtherVul",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 // 添加到总UI
                 contentPane.add(options, BorderLayout.EAST);
 
@@ -803,6 +805,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 case "Tomcat":
                     taskClass = "Tomcat";
                     break;
+                case "OtherVul":
+                    taskClass = "OtherVul";
+                    break;
                 default:
                     taskClass = "intercepts";
             }
@@ -823,6 +828,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }else if (taskClass.equalsIgnoreCase("Tomcat")){
                     // 框架漏洞集合
                     tasks.put("CVE-2017-12615", "burp.vuls.tomcat.PutJsp");
+                }else if (taskClass.equalsIgnoreCase("OtherVul")){
+                    // 其他杂七杂八的
+                    tasks.put("SnoopXss", "burp.vuls.other.SnoopXss");
                 }else if (taskClass.equalsIgnoreCase("burp.task.SessionInvalid")) {
                     // 绑定IDOR跟SessionInvalid的关系，如果SessionInvalid开了，那IDOR也必须开
                     tasks.remove(key);
@@ -861,6 +869,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }else if (taskClass.equalsIgnoreCase("Tomcat")){
                     // 框架漏洞集合
                     tasks.remove("CVE-2017-12615", "burp.vuls.tomcat.PutJsp");
+                }else if (taskClass.equalsIgnoreCase("OtherVul")){
+                    // 其他杂七杂八的
+                    tasks.remove("SnoopXss", "burp.vuls.other.SnoopXss");
                 }else if (taskClass.equalsIgnoreCase("burp.task.IDOR")) {
                     // 绑定IDOR跟SessionInvalid的关系，如果IDOR关了，就把SessionInvalid也关了
                     tasks.remove(key);
