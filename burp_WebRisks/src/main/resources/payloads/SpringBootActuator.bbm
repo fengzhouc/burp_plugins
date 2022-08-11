@@ -1,0 +1,6 @@
+/health"
+/manager/health
+/actuator
+/actuator/jolokia/list
+/jolokia/list
+/env

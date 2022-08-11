@@ -1,0 +1,11 @@
+"/api/jsonws",  //JSON
+- https://help.liferay.com/hc/en-us/articles/360018151631-JSON-Web-Services
+- https://help.liferay.com/hc/en-us/articles/360017872472-Service-Security-Layers
+"/api/axis",    //SOAP
+- https://help.liferay.com/hc/en-us/articles/360017872492-SOAP-Web-Services
+- https://help.liferay.com/hc/en-us/articles/360017872472-Service-Security-Layers
+"/api/liferay", //Liferay tunnel servlet
+- https://help.liferay.com/hc/en-us/articles/360017872472-Service-Security-Layers
+"/webdav"       //WebDAV servlet
+- https://help.liferay.com/hc/en-us/articles/360018172711-Desktop-Access-to-Documents-and-Media
+- https://help.liferay.com/hc/en-us/articles/360017872472-Service-Security-Layers
