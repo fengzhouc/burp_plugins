@@ -31,6 +31,7 @@ public class Spring4Shell extends VulTaskImpl{
     }
 
     private String checkurl = "";
+    private String checkMethod = "";
 
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
         return new Spring4Shell(helpers, callbacks, log);
@@ -46,7 +47,13 @@ public class Spring4Shell extends VulTaskImpl{
     @Override
     public void run() {
         if ("".equalsIgnoreCase(checkurl) || !isCheck) {
+            if (method.equalsIgnoreCase("get")){
+                return;
+            }
             this.checkurl = url;
+            this.checkMethod = method;
+        }else {
+            this.checkMethod = "GET";
         }
         List<String> c_heaers = new ArrayList<>();
         c_heaers.add("suffix:%>//");
@@ -71,7 +78,7 @@ public class Spring4Shell extends VulTaskImpl{
                 new_headers1.add(header);
             }
             new_headers1.addAll(c_heaers);
-            okHttpRequester.send(this.checkurl, "POST", new_headers1, "", data, "application/x-www-form-urlencoded", new Spring4ShellCallback(this));
+            okHttpRequester.send(this.checkurl, this.checkMethod, new_headers1, "", data, "application/x-www-form-urlencoded", new Spring4ShellCallback(this));
         }
     }
 }
