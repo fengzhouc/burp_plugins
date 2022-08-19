@@ -49,6 +49,8 @@ public class OkHttpRequester {
     // 工作流 https://cloud.tencent.com/developer/article/1667339
     // 根据method进行选择不同的发送函数，也可以直接调用对应的
     public void send(String url, String method, List<String> headerList, String query, String bodyParam, String contentType, Callback callback){
+        // 根据query的情况进行组装url
+        url = query != null ? url + "?" + query : url;
         switch (method){
             case "GET":
                 get(url, headerList, query, callback);
@@ -68,7 +70,7 @@ public class OkHttpRequester {
         Request request = null;
         try {
             request = new Request.Builder()
-                    .url(query != null ? url + "?" + query : url)
+                    .url(url)
                     .method(method, body)
                     .headers(SetHeaders(headerList))
                     .header("Content-Length", String.valueOf(body.contentLength()))
@@ -85,7 +87,7 @@ public class OkHttpRequester {
     public void get(String url, List<String> headerList, String query, Callback callback){
         //新的请求包
         Request request = new Request.Builder()
-                .url(url + "?" + query)
+                .url(url)
                 .get()
                 .headers(SetHeaders(headerList))
                 .build();

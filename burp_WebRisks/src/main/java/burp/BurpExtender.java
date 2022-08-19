@@ -361,6 +361,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("Shiro",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+                makeButton("Spring",options,gbaglayout,constraints);
+                constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("Tomcat",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("OtherVul",options,gbaglayout,constraints);
@@ -802,6 +804,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 case "Shiro":
                     taskClass = "Shiro";
                     break;
+                case "Spring":
+                    taskClass = "Spring";
+                    break;
                 case "Tomcat":
                     taskClass = "Tomcat";
                     break;
@@ -825,6 +830,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }else if (taskClass.equalsIgnoreCase("Shiro")){
                     // 框架漏洞集合
                     tasks.put("ShiroUse", "burp.vuls.shiro.ShiroUse");
+                }else if (taskClass.equalsIgnoreCase("Spring")){
+                    // 框架漏洞集合
+                    tasks.put("Spring4Shell", "burp.vuls.spring.Spring4Shell");
                 }else if (taskClass.equalsIgnoreCase("Tomcat")){
                     // 框架漏洞集合
                     tasks.put("CVE-2017-12615", "burp.vuls.tomcat.PutJsp");
