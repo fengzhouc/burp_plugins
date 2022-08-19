@@ -57,9 +57,10 @@ class SwaggerApiCallback implements Callback {
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         if (response.isSuccessful()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-            if (vulTask.ok_respBody.contains("<title>Swagge"))
-            vulTask.message = "SwaggerApi";
-            vulTask.log(call);
+            if (vulTask.ok_respBody.contains("<title>Swagge")) {
+                vulTask.message = "SwaggerApi";
+                vulTask.log(call);
+            }
         }
     }
 }
