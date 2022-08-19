@@ -62,4 +62,5 @@ Payload：列出漏洞的payload列表，供手工测试参考
 - LandrayOa
 - ShiroUse，检测是否使用shiro
 - SnoopXSS
+- Spring4Shell（CVE-2022-22965）
 
