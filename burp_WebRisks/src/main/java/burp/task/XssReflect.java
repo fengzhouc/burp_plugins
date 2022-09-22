@@ -6,7 +6,10 @@ import burp.impl.VulTaskImpl;
 import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
 import okhttp3.Response;
+import okhttp3.internal.http2.Header;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -67,10 +70,19 @@ class XssReflectCallback implements Callback {
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-        // 检查响应中是否存在flag
-        if (vulTask.ok_respBody.contains("_<xss/>'\"flag")) {
-            vulTask.message = "XssReflect";
-            vulTask.log(call);
+        String ct = vulTask.ok_respHeaders.get("Content-Type");
+        // 反射性仅存在于响应content-type是页面等会被浏览器渲染的资源，比如json响应是没有的，有也是dom型
+        if(ct != null && (
+            ct.contains("text.html") 
+            || ct.contains("application/xhtml+xml")
+            || ct.contains("application/x-www-form-urlencoded")
+            || ct.contains("image/svg+xml")
+            )){
+            // 检查响应中是否存在flag
+            if (vulTask.ok_respBody.contains("_<xss/>'\"flag")) {
+                vulTask.message = "XssReflect";
+                vulTask.log(call);
+            }
         }
     }
 }

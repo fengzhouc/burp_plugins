@@ -115,7 +115,7 @@ class SqlInjectCallback implements Callback {
                 // 检查响应中是否存在sql报错信息
                 // TODO 关键字是否全
                 if (vulTask.ok_respBody.contains("SQL syntax")) {
-                    vulTask.message = "SqlInject";
+                    vulTask.message = "SqlInject, has Error";
                     vulTask.log(call);
                 } else {
                     // 避免死循环，只深入检测一次
@@ -128,7 +128,7 @@ class SqlInjectCallback implements Callback {
                         for (Map.Entry<String, String> entry : injects.entrySet()) {
                             String form = vulTask.helpers.urlEncode(entry.getKey());
                             String json = vulTask.helpers.urlEncode(entry.getValue());
-                            // 不存在爆破信息，则尝试下布尔型，如果跟源响应一致，则可能存在问题
+                            // 不存在爆破信息，则尝试下布尔型，如果跟源响应一致，则不存在问题
                             SqlInject sqlInject = (SqlInject) SqlInject.getInstance(vulTask.helpers, vulTask.callbacks, vulTask.log);
                             sqlInject.setInjectStr(form);
                             sqlInject.setInjectJsonStr(json);

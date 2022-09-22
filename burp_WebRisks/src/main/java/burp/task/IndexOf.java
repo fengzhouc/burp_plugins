@@ -29,7 +29,7 @@ public class IndexOf extends VulTaskImpl {
         //只检测get请求
         if (method.equalsIgnoreCase("get")){
             //如果就是/，则直接检查响应
-            if (resp_body_str.contains("Index of")) {
+            if (resp_body_str.contains("<title>Index of")) {
                 message = "Index of /";
                 result = logAdd(messageInfo_r, host, path, method, status_code, message, payloads);
             }else {
@@ -67,7 +67,7 @@ class IndexOfCallback implements Callback {
         if (response.isSuccessful()){
             vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
             //如果状态码相同则可能存在问题
-            if (vulTask.ok_respBody.contains("Index of")) {
+            if (vulTask.ok_respBody.contains("<title>Index of")) {
                 vulTask.message = "Index of ";
                 vulTask.log(call);
             }

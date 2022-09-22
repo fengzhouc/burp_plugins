@@ -357,7 +357,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("SmsEmailBoom",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-                makeButton("LandrayOa",options,gbaglayout,constraints);
+                makeButton("Oa",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
                 makeButton("Shiro",options,gbaglayout,constraints);
                 constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
@@ -795,8 +795,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 case "SmsEmailBoom":
                     taskClass = "burp.task.SmsEmailBoom";
                     break;
-                case "LandrayOa":
-                    taskClass = "burp.vuls.LandrayOa";
+                case "Oa":
+                    taskClass = "Oa";
                     break;
                 case "PutJsp":
                     taskClass = "burp.vuls.tomcat.PutJsp";
@@ -827,6 +827,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     tasks.put("Swagger", "burp.task.api.SwaggerApi");
                     tasks.put("Liferay", "burp.task.api.LiferayAPI");
                     tasks.put("SpringBootActuator", "burp.task.api.SpringBootActuator");
+                }else if (taskClass.equalsIgnoreCase("Oa")){
+                    // 框架漏洞集合
+                    tasks.put("LandrayOa", "burp.vuls.oa.landray.LandrayOa");
+                    tasks.put("LandrayOaTreexmlRce", "burp.vuls.oa.landray.LandrayOaTreexmlRce");
                 }else if (taskClass.equalsIgnoreCase("Shiro")){
                     // 框架漏洞集合
                     tasks.put("ShiroUse", "burp.vuls.shiro.ShiroUse");
@@ -871,6 +875,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     tasks.remove("Swagger", "burp.task.api.SwaggerApi");
                     tasks.remove("Liferay", "burp.task.api.LiferayAPI");
                     tasks.remove("SpringBootActuator", "burp.task.api.SpringBootActuator");
+                }else if (taskClass.equalsIgnoreCase("Oa")){
+                    // 框架漏洞集合
+                    tasks.remove("LandrayOa", "burp.vuls.oa.landray.LandrayOa");
+                    tasks.remove("LandrayOaTreexmlRce", "burp.vuls.oa.landray.LandrayOaTreexmlRce");
                 }else if (taskClass.equalsIgnoreCase("Shiro")){
                     // 框架漏洞集合
                     tasks.remove("ShiroUse", "burp.vuls.shiro.ShiroUse");
@@ -909,7 +917,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // 创建一个固定大小4的线程池:
             threadPool = Executors.newFixedThreadPool(5);
             threads = new ArrayList<>();
-            oneChecks.add("burp.vuls.LandrayOa");
+            oneChecks.add("burp.vuls.oa.landray.LandrayOa");
             oneChecks.add("burp.vuls.shiro.ShiroUse");
             oneChecks.add("burp.task.Https");
             oneChecks.add("burp.task.api.SwaggerApi");
