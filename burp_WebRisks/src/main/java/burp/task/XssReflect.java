@@ -73,7 +73,7 @@ class XssReflectCallback implements Callback {
         String ct = vulTask.ok_respHeaders.get("Content-Type");
         // 反射性仅存在于响应content-type是页面等会被浏览器渲染的资源，比如json响应是没有的，有也是dom型
         if(ct != null && (
-            ct.contains("text.html") 
+            ct.contains("text/html") 
             || ct.contains("application/xhtml+xml")
             || ct.contains("application/x-www-form-urlencoded")
             || ct.contains("image/svg+xml")
