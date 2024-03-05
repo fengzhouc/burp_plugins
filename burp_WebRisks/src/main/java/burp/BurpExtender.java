@@ -1,6 +1,5 @@
 package burp;
 
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import burp.util.ClassNameGet;
 import burp.util.CommonMess;

@@ -21,6 +21,8 @@ public class OkHttpRequester {
         this.client = new OkHttpClient.Builder()
                 .followRedirects(false) //不跳转
                 .followSslRedirects(false) //不跳转
+                .sslSocketFactory(SSLSocketClient.getSSLSocketFactory(), SSLSocketClient.getX509TrustManager()) // 忽略https证书
+                .hostnameVerifier(SSLSocketClient.getHostnameVerifier()) // 忽略https证书
                 .build();
     }
 
@@ -66,7 +68,7 @@ public class OkHttpRequester {
 
     public void defSend(String url, String method, List<String> headerList, String query, String bodyParam, String contentType, Callback callback){
         MediaType content_Type = MediaType.parse(contentType);
-        RequestBody body = RequestBody.create(content_Type, bodyParam);
+        RequestBody body = RequestBody.Companion.create(bodyParam, content_Type);
         Request request = null;
         try {
             request = new Request.Builder()
