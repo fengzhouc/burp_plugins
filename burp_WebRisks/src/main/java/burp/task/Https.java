@@ -1,23 +1,18 @@
 package burp.task;
 
 import burp.*;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
-import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 public class Https extends VulTaskImpl {
-    private static VulTaskImpl instance = null;
     public static VulTaskImpl getInstance(IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<BurpExtender.LogEntry> log){
         return new Https(helpers, callbacks, log);
     }

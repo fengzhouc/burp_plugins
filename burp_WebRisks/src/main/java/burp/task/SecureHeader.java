@@ -1,9 +1,7 @@
 package burp.task;
 
 import burp.*;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
-import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -12,9 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SecureHeader extends VulTaskImpl {
 

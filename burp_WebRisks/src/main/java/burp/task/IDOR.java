@@ -1,11 +1,9 @@
 package burp.task;
 
 import burp.*;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import burp.util.CommonMess;
 import burp.util.HeaderTools;
-import burp.util.HttpRequestResponseFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;

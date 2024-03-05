@@ -3,8 +3,6 @@ package burp.task;
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
-import burp.IHttpRequestResponse;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -67,11 +65,8 @@ class MethodFuckCallback implements Callback {
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         vulTask.setOkhttpMessage(call, response); //保存okhttp的请求响应信息
-        if (vulTask.ok_code != 404
-                && vulTask.ok_code != 405
-                && vulTask.ok_code != 400
-                && vulTask.ok_code != 500
-                && vulTask.ok_code != 403) {
+        if (vulTask.ok_code == 200
+                && vulTask.ok_code == 302) {
             vulTask.message = "MethodFuck-" + call.request().method();
             vulTask.log(call);
         }

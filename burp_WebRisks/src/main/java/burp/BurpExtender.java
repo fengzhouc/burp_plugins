@@ -2,6 +2,7 @@ package burp;
 
 import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
+import burp.util.ClassNameGet;
 import burp.util.CommonMess;
 import burp.util.LRUCache;
 import org.jetbrains.annotations.NotNull;
@@ -54,8 +55,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JSplitPane splitPane;
 
     private final HashMap<String, Integer> intercepts = new HashMap<>();
-    //创建任务map
-    private final HashMap<String, String> tasks = new HashMap<>();
+    // 开启的任务列表
+    private final ArrayList<String> tasks = new ArrayList<String>();
     private final List<JCheckBox> taskJBS = new ArrayList<>();
     //本地缓存，存放已检测过的请求，检测过就不检测了
     private final LRUCache localCache = new LRUCache(10000);
@@ -654,12 +655,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     @Override
     public byte[] getRequest() {
-        return new byte[0];
+        return currentlyDisplayedItem.getRequest();
     }
 
     @Override
     public byte[] getResponse() {
-        return new byte[0];
+        return currentlyDisplayedItem.getResponse();
     }
 
     //存在漏洞的url信息类
@@ -824,43 +825,53 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
-                    tasks.put("Swagger", "burp.task.api.SwaggerApi");
-                    tasks.put("Liferay", "burp.task.api.LiferayAPI");
-                    tasks.put("SpringBootActuator", "burp.task.api.SpringBootActuator");
+                    for (String task : ClassNameGet.getClazzName("burp.task.api", false)) {
+                        tasks.add(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("Oa")){
                     // 框架漏洞集合
-                    tasks.put("LandrayOa", "burp.vuls.oa.landray.LandrayOa");
-                    tasks.put("LandrayOaTreexmlRce", "burp.vuls.oa.landray.LandrayOaTreexmlRce");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.oa", false)) {
+                        tasks.add(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("Shiro")){
                     // 框架漏洞集合
-                    tasks.put("ShiroUse", "burp.vuls.shiro.ShiroUse");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.shiro", false)) {
+                        tasks.add(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("Spring")){
                     // 框架漏洞集合
-                    tasks.put("Spring4Shell", "burp.vuls.spring.Spring4Shell");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.spring", false)) {
+                        tasks.add(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("Tomcat")){
                     // 框架漏洞集合
-                    tasks.put("CVE-2017-12615", "burp.vuls.tomcat.PutJsp");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.tomcat", false)) {
+                        tasks.add(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("OtherVul")){
                     // 其他杂七杂八的
-                    tasks.put("SnoopXss", "burp.vuls.other.SnoopXss");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.other", false)) {
+                        tasks.add(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("burp.task.SessionInvalid")) {
                     // 绑定IDOR跟SessionInvalid的关系，如果SessionInvalid开了，那IDOR也必须开
-                    tasks.remove(key);
+                    tasks.add(taskClass);
                     for (JCheckBox t : taskJBS) {
                         if (t.getText().equalsIgnoreCase("IDOR")) {
                             t.setSelected(true);
                             break;
                         }
                     }
+                // 其他任务就在这里添加到任务清单中
                 }else if (!taskClass.equalsIgnoreCase("intercepts")) {
-                    tasks.put(key, taskClass);
+                    tasks.add(taskClass);
                 }else {
                     switch (key) {
                         case "proxy":
-                            intercepts.put("proxy", callbacks.TOOL_PROXY);
+                            intercepts.put("proxy", IBurpExtenderCallbacks.TOOL_PROXY);
                             break;
                         case "repeater":
-                            intercepts.put("repeater", callbacks.TOOL_REPEATER);
+                            intercepts.put("repeater", IBurpExtenderCallbacks.TOOL_REPEATER);
                             break;
                     }
                 }
@@ -872,25 +883,32 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
                 }else if (taskClass.equalsIgnoreCase("SensitiveApi")){
                     // api探测的集合
-                    tasks.remove("Swagger", "burp.task.api.SwaggerApi");
-                    tasks.remove("Liferay", "burp.task.api.LiferayAPI");
-                    tasks.remove("SpringBootActuator", "burp.task.api.SpringBootActuator");
+                    for (String task : ClassNameGet.getClazzName("burp.task.api", false)) {
+                        tasks.remove(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("Oa")){
                     // 框架漏洞集合
-                    tasks.remove("LandrayOa", "burp.vuls.oa.landray.LandrayOa");
-                    tasks.remove("LandrayOaTreexmlRce", "burp.vuls.oa.landray.LandrayOaTreexmlRce");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.oa", false)) {
+                        tasks.remove(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("Shiro")){
                     // 框架漏洞集合
-                    tasks.remove("ShiroUse", "burp.vuls.shiro.ShiroUse");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.shiro", false)) {
+                        tasks.remove(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("Tomcat")){
                     // 框架漏洞集合
-                    tasks.remove("CVE-2017-12615", "burp.vuls.tomcat.PutJsp");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.tomcat", false)) {
+                        tasks.remove(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("OtherVul")){
                     // 其他杂七杂八的
-                    tasks.remove("SnoopXss", "burp.vuls.other.SnoopXss");
+                    for (String task : ClassNameGet.getClazzName("burp.vuls.other", false)) {
+                        tasks.remove(task);
+                    }
                 }else if (taskClass.equalsIgnoreCase("burp.task.IDOR")) {
                     // 绑定IDOR跟SessionInvalid的关系，如果IDOR关了，就把SessionInvalid也关了
-                    tasks.remove(key);
+                    tasks.remove(taskClass);
                     for (JCheckBox t : taskJBS) {
                         if (t.getText().equalsIgnoreCase("SessionInvalid")) {
                             t.setSelected(false);
@@ -898,7 +916,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         }
                     }
                 }else if (!taskClass.equalsIgnoreCase("intercepts")) {
-                    tasks.remove(key);
+                    tasks.remove(taskClass);
                 }else {
                     intercepts.remove(key);
                 }
@@ -930,7 +948,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     // 这里会阻塞，如果没有请求进来的话
                     IHttpRequestResponse messageInfo = reqQueue.take();
                     // 并发控制，okhttp的并发太高了，不限制下，burp会很卡
-                    for (String taskClass : tasks.values()) {
+                    for (String taskClass : tasks) {
                         try {
                             // 如果是一次性的任务，则按域名加端口进行
                             if (oneChecks.contains(taskClass)){
@@ -941,7 +959,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                 }
                                 // 添加标记的动作再具体的task中
                             }
+                            @SuppressWarnings("rawtypes")
                             Class c = Class.forName(taskClass);
+                            @SuppressWarnings("unchecked")
                             Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);
                             VulTaskImpl t = (VulTaskImpl) method.invoke(null, helpers, callbacks, log);
                             // callbacks.printError("cehck " + task.getClass().getName());
@@ -991,7 +1011,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // 遍历保存的所有请求
             for (IHttpRequestResponse messageInfo : CommonMess.requests) {
                 // 并发控制，okhttp的并发太高了，不限制下，burp会很卡
-                for (String taskClass : tasks.values()) {
+                for (String taskClass : tasks) {
                     try {
                         Class c = Class.forName(taskClass);
                         Method method = c.getMethod("getInstance", IExtensionHelpers.class, IBurpExtenderCallbacks.class, List.class);

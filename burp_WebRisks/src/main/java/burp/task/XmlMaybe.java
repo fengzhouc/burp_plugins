@@ -3,14 +3,10 @@ package burp.task;
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
-import burp.IHttpRequestResponse;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class XmlMaybe extends VulTaskImpl {
 

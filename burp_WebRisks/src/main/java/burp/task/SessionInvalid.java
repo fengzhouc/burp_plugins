@@ -6,7 +6,6 @@ import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.impl.VulTaskImpl;
 import burp.util.CommonMess;
-import burp.util.HeaderTools;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class SessionInvalid extends VulTaskImpl {
 

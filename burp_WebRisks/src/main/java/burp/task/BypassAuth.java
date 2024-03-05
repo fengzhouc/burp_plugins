@@ -1,21 +1,16 @@
 package burp.task;
 
 import burp.*;
-import burp.impl.VulResult;
 import burp.impl.VulTaskImpl;
-import burp.util.HttpRequestResponseFactory;
-import burp.util.OkHttpRequester;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class BypassAuth extends VulTaskImpl {
 
