@@ -86,6 +86,7 @@ class SmsEmailBoomCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SmsEmailBoom.class.getSimpleName(),
             "onFailure", 
             "[SmsEmailBoomCallback-onFailure] " + e.getMessage());
     }
@@ -111,6 +112,7 @@ class SmsEmailBoomCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SmsEmailBoom.class.getSimpleName(),
             message, 
             null);
     }

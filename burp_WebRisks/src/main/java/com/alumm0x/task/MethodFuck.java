@@ -74,6 +74,7 @@ class MethodFuckCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            MethodFuck.class.getSimpleName(),
             "onFailure", 
             "[MethodFuckCallback-onFailure] " + e.getMessage());
     }
@@ -93,6 +94,7 @@ class MethodFuckCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            MethodFuck.class.getSimpleName(),
             message, 
             null);
     }

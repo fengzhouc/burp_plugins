@@ -121,6 +121,7 @@ class SqlInjectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SqlInject.class.getSimpleName(),
             "onFailure", 
             "[SqlInjectCallback-onFailure] " + e.getMessage());
     }
@@ -181,6 +182,7 @@ class SqlInjectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SqlInject.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/SqlInject.bbm")));
     }

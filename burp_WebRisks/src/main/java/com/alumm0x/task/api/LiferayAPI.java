@@ -80,6 +80,7 @@ class LiferayAPICallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            LiferayAPI.class.getSimpleName(),
             "onFailure", 
             "[LiferayAPICallback-onFailure] " + e.getMessage());
     }
@@ -105,6 +106,7 @@ class LiferayAPICallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            LiferayAPI.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/LiferayAPI.bbm")));
     }

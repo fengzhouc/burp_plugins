@@ -100,6 +100,7 @@ class JsonCsrfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            JsonCsrf.class.getSimpleName(),
             "onFailure", 
             "[JsonCsrfCallback-onFailure] " + e.getMessage());
     }
@@ -122,6 +123,7 @@ class JsonCsrfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            JsonCsrf.class.getSimpleName(),
             message, 
             null);
     }

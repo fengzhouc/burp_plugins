@@ -85,6 +85,7 @@ class CsrfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Csrf.class.getSimpleName(),
             "onFailure", 
             "[CsrfCallback-onFailure] " + e.getMessage());
     }
@@ -107,6 +108,7 @@ class CsrfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Csrf.class.getSimpleName(),
             message, 
             null);
     }

@@ -15,7 +15,7 @@ public class MyTableModel extends AbstractTableModel {
     @Override
     public int getColumnCount()
     {
-        return 6;
+        return 7;
     }
 
     //获取数据到面板展示
@@ -38,6 +38,8 @@ public class MyTableModel extends AbstractTableModel {
                 case 4:
                     return logEntry.Status;
                 case 5:
+                    return logEntry.Plugin;
+                case 6:
                     return logEntry.Risk;
                 default:
                     return "";
@@ -64,6 +66,8 @@ public class MyTableModel extends AbstractTableModel {
             case 4:
                 return "Status";
             case 5:
+                return "Plugin";
+            case 6:
                 return "Risk";
             default:
                 return "";
@@ -79,6 +83,7 @@ public class MyTableModel extends AbstractTableModel {
             case 2:
             case 3:
             case 5:
+            case 6:
                 return String.class;
             case 4:
                 return short.class;

@@ -1,4 +1,4 @@
-package com.alumm0x.task;
+package com.alumm0x.task.config;
 
 import burp.*;
 
@@ -43,6 +43,7 @@ public class SecureHeader extends VulTaskImpl {
                     BurpReqRespTools.getUrlPath(requestResponse),
                     BurpReqRespTools.getMethod(requestResponse), 
                     BurpReqRespTools.getStatus(requestResponse), 
+                    SecureHeader.class.getSimpleName(),
                     "without X-Frame-Options", 
                     String.join("\n", FIX));
             }

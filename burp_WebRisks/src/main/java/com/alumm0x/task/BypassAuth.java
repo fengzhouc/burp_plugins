@@ -111,6 +111,7 @@ class BypassAuthCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            BypassAuth.class.getSimpleName(),
              "onFailure", 
              "[BypassAuthCallback-onFailure] " + e.getMessage());
     }
@@ -130,6 +131,7 @@ class BypassAuthCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            BypassAuth.class.getSimpleName(),
             message, 
             String.join("/n", SourceLoader.loadSources("/payloads/BypassAuth.bbm")));
     }

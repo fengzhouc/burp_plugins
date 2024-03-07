@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import burp.BurpExtender;
+
 public class ClassNameGet {
     
     private static final String CLASS_SUFFIX = ".class";
+	private static final String CALLBACK_CLASS_SUFFIX = "Callback.class";
 	private static final String CLASS_FILE_PREFIX = File.separator + "classes"  + File.separator;
 	private static final String PACKAGE_SEPARATOR = ".";
 	
@@ -28,7 +31,9 @@ public class ClassNameGet {
 	public static List<String> getClazzName(String packageName, boolean showChildPackageFlag ) {
 		List<String> result = new ArrayList<>();
 		String suffixPath = packageName.replaceAll("\\.", "/");
-		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		// ClassLoader loader = Thread.currentThread().getContextClassLoader(); 
+		// fix: 打包成jar的话，上面的loader获取不到classes目录的数据，只能到jar，需要通过jvm去获取才可以
+		ClassLoader loader = ClassNameGet.class.getClassLoader();
 		try {
 			Enumeration<URL> urls = loader.getResources(suffixPath);
 			while(urls.hasMoreElements()) {
@@ -44,7 +49,7 @@ public class ClassNameGet {
 						try{
 			                jarFile = ((JarURLConnection) url.openConnection()).getJarFile();
 						} catch(Exception e){
-							e.printStackTrace();
+							BurpExtender.callbacks.printError("[ClassNameGet.getClazzName.jar] " + e.getMessage());
 						}
 						if(jarFile != null) {
 							result.addAll(getAllClassNameByJar(jarFile, packageName, showChildPackageFlag));
@@ -53,7 +58,7 @@ public class ClassNameGet {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			BurpExtender.callbacks.printError("[ClassNameGet.getClazzName] " + e.getMessage());
 		}
 		return result;
 	}
@@ -73,7 +78,7 @@ public class ClassNameGet {
 		if(file.isFile()) {
 			String path = file.getPath();
 			// 注意：这里替换文件分割符要用replace。因为replaceAll里面的参数是正则表达式,而windows环境中File.separator="\\"的,因此会有问题
-			if(path.endsWith(CLASS_SUFFIX)) {
+			if(path.endsWith(CLASS_SUFFIX) && !path.endsWith(CALLBACK_CLASS_SUFFIX)) {
 				path = path.replace(CLASS_SUFFIX, "");
 				// 从"/classes/"后面开始截取
 				String clazzName = path.substring(path.indexOf(CLASS_FILE_PREFIX) + CLASS_FILE_PREFIX.length())
@@ -93,7 +98,7 @@ public class ClassNameGet {
 					} else {
 						if(f.isFile()){
 							String path = f.getPath();
-							if(path.endsWith(CLASS_SUFFIX)) {
+							if(path.endsWith(CLASS_SUFFIX) && !path.endsWith(CALLBACK_CLASS_SUFFIX)) {
 								path = path.replace(CLASS_SUFFIX, "");
 								// 从"/classes/"后面开始截取
 								String clazzName = path.substring(path.indexOf(CLASS_FILE_PREFIX) + CLASS_FILE_PREFIX.length())
@@ -125,7 +130,7 @@ public class ClassNameGet {
 			JarEntry jarEntry = entries.nextElement();
 			String name = jarEntry.getName();
 			// 判断是不是class文件
-			if(name.endsWith(CLASS_SUFFIX)) {
+			if(name.endsWith(CLASS_SUFFIX) && !name.endsWith(CALLBACK_CLASS_SUFFIX)) {
 				name = name.replace(CLASS_SUFFIX, "").replace("/", ".");
 				if(flag) {
 					// 如果要子包的文件,那么就只要开头相同且不是内部类就ok
@@ -144,9 +149,10 @@ public class ClassNameGet {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		List<String> list = getClazzName("burp.task", false);
+		List<String> list = getClazzName("com.alumm0x.task", false);
 		for (String string : list) {
-			System.out.println(string);
+			String[] l = string.split("\\.");
+			System.out.println(l[l.length - 1] + "   " + string);
 		}
 	}
 }

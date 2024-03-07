@@ -1,4 +1,4 @@
-package com.alumm0x.task;
+package com.alumm0x.task.config;
 
 import burp.*;
 import okhttp3.Call;
@@ -55,6 +55,7 @@ public class Cors extends VulTaskImpl {
                             BurpReqRespTools.getUrlPath(requestResponse),
                             BurpReqRespTools.getMethod(requestResponse), 
                             BurpReqRespTools.getStatus(requestResponse), 
+                            Cors.class.getSimpleName(),
                             "CORS Any", 
                             null);
                     }else {
@@ -103,6 +104,7 @@ class CorsCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Cors.class.getSimpleName(),
             "onFailure", 
             "[CorsCallback-onFailure] " + e.getMessage());
     }
@@ -120,6 +122,7 @@ class CorsCallback implements Callback {
                 BurpReqRespTools.getUrlPath(requestResponse),
                 BurpReqRespTools.getMethod(requestResponse), 
                 BurpReqRespTools.getStatus(requestResponse), 
+                Cors.class.getSimpleName(),
                 message, 
                 null);
     }

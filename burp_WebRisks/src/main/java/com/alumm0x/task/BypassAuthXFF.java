@@ -71,6 +71,7 @@ class BypassAuthXFFCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            BypassAuthXFF.class.getSimpleName(),
             "onFailure", 
             "[BypassAuthXFFCallback-onFailure] " + e.getMessage());
     }
@@ -90,6 +91,7 @@ class BypassAuthXFFCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            BypassAuthXFF.class.getSimpleName(),
             message, 
             null);
     }

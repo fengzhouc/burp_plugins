@@ -93,6 +93,7 @@ class SpringBootActuatorCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SpringBootActuator.class.getSimpleName(),
              "onFailure", 
              "[SpringBootActuatorCallback-onFailure] " + e.getMessage());
     }
@@ -117,6 +118,7 @@ class SpringBootActuatorCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SpringBootActuator.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/SpringBootActuator.bbm")));
     }

@@ -75,6 +75,7 @@ class SessionInvalidCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SessionInvalid.class.getSimpleName(),
             "onFailure", 
             "[SeesionInvalidCallback-onFailure] " + e.getMessage());
     }
@@ -97,6 +98,7 @@ class SessionInvalidCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SessionInvalid.class.getSimpleName(),
             message, 
             null);
     }

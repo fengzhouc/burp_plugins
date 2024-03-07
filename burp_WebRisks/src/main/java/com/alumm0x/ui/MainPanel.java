@@ -3,6 +3,7 @@ package com.alumm0x.ui;
 import com.alumm0x.engine.TaskManager;
 import com.alumm0x.engine.VulScanner;
 import com.alumm0x.listensers.HttpListener;
+import com.alumm0x.util.ClassNameGet;
 import com.alumm0x.util.CommonMess;
 
 import burp.BurpExtender;
@@ -248,6 +249,12 @@ public class MainPanel {
         status.setMaxWidth(100);
         status.setMinWidth(50);
         status.setResizable(false);
+        TableColumn plugin = cm.getColumn(5);
+        plugin.setCellRenderer(render);
+        plugin.setPreferredWidth(150);
+        plugin.setMaxWidth(150);
+        plugin.setMinWidth(50);
+        plugin.setResizable(false);
 
 //         //自定义排序逻辑，搞不明白算了，直接从数据源排序搞起
 //         sorter = new TableRowSorter<>(BurpExtender.this);
@@ -313,68 +320,22 @@ public class MainPanel {
         // 添加复选框按钮
         makeButton("All",options,gbaglayout,constraints);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("JsonCsrf",options,gbaglayout,constraints);
+        makeButton("Collect",options,gbaglayout,constraints);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Cors",options,gbaglayout,constraints);
+        makeButton("Api",options,gbaglayout,constraints);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("formCsrf",options,gbaglayout,constraints);
+        makeButton("Config",options,gbaglayout,constraints);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("IDOR",options,gbaglayout,constraints);
+        makeButton("WebBasic",options,gbaglayout,constraints);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("IDOR_xy",options,gbaglayout,constraints);
+        makeButton("Cve",options,gbaglayout,constraints);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Jsonp",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Https",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SecureHeader",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SecureCookie",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Redirect",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("IndexOf",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SqlInject",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("XssReflect",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SSRF",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SensitiveApi",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SensitiveMessage",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("UploadSecure",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("BeanParanInject",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("WebSocketHijacking",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("BypassAuthXFF",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("BypassAuth",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Json3rd",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("MethodFuck",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("XssDomSource",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("XmlMaybe",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SessionInvalid",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("SmsEmailBoom",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Oa",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Shiro",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Spring",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("OtherVul",options,gbaglayout,constraints);
-        constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+        for (String t : ClassNameGet.getClazzName("com.alumm0x.task", false)) {
+            String[] l = t.split("\\.");
+            constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
+            makeButton(l[l.length - 1],options,gbaglayout,constraints);
+        }
+
         // 添加到总UI
         contentPane.add(options, BorderLayout.EAST);
 
@@ -425,6 +386,8 @@ public class MainPanel {
         TaskManager.vulsChecked.clear(); //清空标记
         HttpListener.localCache.clear(); //清空时清空缓存
         TaskManager.reqQueue.clear(); //清空待检的请求队列
+        // 清空请求响应tab
+        currentlyDisplayedItem = null;
         BurpExtender.callbacks.printOutput("clear cache success.");
     }
 
@@ -465,8 +428,8 @@ public class MainPanel {
                 }
             }
             if (!inside) {
-                log.add(new LogEntry(row, BurpExtender.callbacks.saveBuffersToTempFiles(messageInfo),
-                        host, path, method, status, "", ""));
+                // log.add(new LogEntry(row, BurpExtender.callbacks.saveBuffersToTempFiles(messageInfo),
+                //         host, path, method, status, "", ""));
             }
 
         }
@@ -479,13 +442,13 @@ public class MainPanel {
     // 添加面板展示数据
     // 已经在列表的不添加
     // 添加synchronized防止多线程竞态
-    public static synchronized void logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, short status, String risk, String payloads) {
+    public static synchronized void logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, short status, String plugin, String risk, String payloads) {
         int row = log.size();
         // debug模式则记录所有
         if (DEBUG) {
             try {
             log.add(new LogEntry(row, BurpExtender.callbacks.saveBuffersToTempFiles(requestResponse),
-                    host, path, method, status, risk, payloads));
+                    host, path, method, status, plugin, risk, payloads));
             } catch (Exception e) {
                 BurpExtender.callbacks.printError("[Debug] MainPanel.logAdd " + e.getMessage());
             }
@@ -506,7 +469,7 @@ public class MainPanel {
             }
             if (!inside) {
                 log.add(new LogEntry(row, BurpExtender.callbacks.saveBuffersToTempFiles(requestResponse),
-                        host, path, method, status, risk, payloads));
+                        host, path, method, status, plugin, risk, payloads));
                 //通知数据可能变更，刷新全表格数据，该用okhttp异步发包后，没办法同步调用fireTableRowsInserted通知刷新数据，因为一直row=lastRow
                 MainPanel.logTable.refreshTable();
             }

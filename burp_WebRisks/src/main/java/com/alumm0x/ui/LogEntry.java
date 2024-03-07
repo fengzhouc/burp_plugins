@@ -16,21 +16,25 @@ public class LogEntry implements Comparable
     public final String Path;
     public final String Method;
     public final short Status;
+    public final String Plugin;
     public final String Risk;
     public final String Desc;
 
 
-    public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, short status, String risk, String desc)
+    public LogEntry(int id, IHttpRequestResponsePersisted requestResponse, String host, String path, String method, short status, String plugin, String risk, String desc)
     {
-        this.Status = status;
+        // table tab
         this.id = id;
-        this.requestResponse = requestResponse;
-        //this.Url = url;
-        this.Method = method;
-        this.Path = path;
         this.Host = host;
+        this.Path = path;
+        this.Method = method;
+        this.Status = status;
+        this.Plugin = plugin;
         this.Risk = risk;
+        // payload tab
         this.Desc = desc;
+
+        this.requestResponse = requestResponse;
     }
 
     @Override

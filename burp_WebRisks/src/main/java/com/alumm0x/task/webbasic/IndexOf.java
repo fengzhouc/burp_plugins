@@ -1,4 +1,4 @@
-package com.alumm0x.task;
+package com.alumm0x.task.webbasic;
 
 import burp.*;
 import okhttp3.Call;
@@ -37,6 +37,7 @@ public class IndexOf extends VulTaskImpl {
                     BurpReqRespTools.getUrlPath(requestResponse),
                     BurpReqRespTools.getMethod(requestResponse), 
                     BurpReqRespTools.getStatus(requestResponse), 
+                    IndexOf.class.getSimpleName(),
                     "Index of /", 
                     null);
             }else {
@@ -80,6 +81,7 @@ class IndexOfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            IndexOf.class.getSimpleName(),
             "onFailure", 
             "[IndexOfCallback-onFailure] " + e.getMessage());
     }
@@ -101,6 +103,7 @@ class IndexOfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            IndexOf.class.getSimpleName(),
             message, 
             null);
     }

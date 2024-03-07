@@ -89,6 +89,7 @@ class WebSocketHijackingCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            WebSocketHijacking.class.getSimpleName(),
             "onFailure", 
             "[WebSocketHijackingCallback-onFailure] " + e.getMessage());
     }
@@ -107,6 +108,7 @@ class WebSocketHijackingCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            WebSocketHijacking.class.getSimpleName(),
             message, 
             null);
     }

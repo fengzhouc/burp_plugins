@@ -1,4 +1,4 @@
-package com.alumm0x.vuls.spring;
+package com.alumm0x.task.cves.spring;
 
 
 import burp.IHttpRequestResponse;
@@ -111,6 +111,7 @@ class Spring4ShellCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Spring4Shell.class.getSimpleName(),
             "onFailure", 
             "[Spring4ShellCallback-onFailure] " + e.getMessage());
     }
@@ -142,6 +143,7 @@ class Spring4ShellCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Spring4Shell.class.getSimpleName(),
             message, 
             null);
     }

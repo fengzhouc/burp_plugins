@@ -1,4 +1,4 @@
-package com.alumm0x.task;
+package com.alumm0x.task.collect;
 
 import burp.IHttpRequestResponse;
 
@@ -78,6 +78,7 @@ public class SensitiveMessage extends VulTaskImpl {
                         BurpReqRespTools.getUrlPath(requestResponse),
                         BurpReqRespTools.getMethod(requestResponse), 
                         BurpReqRespTools.getStatus(requestResponse), 
+                        SensitiveMessage.class.getSimpleName(),
                         String.join(",", types), 
                         String.join("\n", SourceLoader.loadSources("/payloads/SensitiveMessageRegex.bbm")));
                 }

@@ -79,6 +79,7 @@ class XssReflectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            XssReflect.class.getSimpleName(),
             "onFailure", 
             "[XssReflectCallback-onFailure] " + e.getMessage());
     }
@@ -108,6 +109,7 @@ class XssReflectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            XssReflect.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/XssReflect.bbm")));
     }

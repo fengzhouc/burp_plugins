@@ -74,6 +74,7 @@ class Json3rdCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Json3rd.class.getSimpleName(),
             "onFailure", 
             "[Json3rdCallback-onFailure] " + e.getMessage());
     }
@@ -98,6 +99,7 @@ class Json3rdCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Json3rd.class.getSimpleName(),
             message, 
             null);
     }

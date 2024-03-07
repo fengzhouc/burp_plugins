@@ -1,4 +1,4 @@
-package com.alumm0x.task;
+package com.alumm0x.task.config;
 
 import burp.*;
 
@@ -57,6 +57,7 @@ public class SecureCookie extends VulTaskImpl {
                     BurpReqRespTools.getUrlPath(requestResponse),
                     BurpReqRespTools.getMethod(requestResponse), 
                     BurpReqRespTools.getStatus(requestResponse), 
+                    SecureCookie.class.getSimpleName(),
                     String.join(",", l), 
                     null);
             }

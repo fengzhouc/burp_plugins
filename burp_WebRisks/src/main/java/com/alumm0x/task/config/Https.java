@@ -1,4 +1,4 @@
-package com.alumm0x.task;
+package com.alumm0x.task.config;
 
 import burp.*;
 import okhttp3.Call;
@@ -79,6 +79,7 @@ class HttpsCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Https.class.getSimpleName(),
             "onFailure", 
             "[HttpsCallback-onFailure] " + e.getMessage());
     }
@@ -100,6 +101,7 @@ class HttpsCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Https.class.getSimpleName(),
             ((Https)vulTask).message, 
             null);
     }

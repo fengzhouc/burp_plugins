@@ -162,6 +162,7 @@ class RedirectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Redirect.class.getSimpleName(),
             "onFailure", 
             "[RedirectCallback-onFailure] " + e.getMessage());
     }
@@ -192,6 +193,7 @@ class RedirectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Redirect.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/RedirectPayloadsTemplete.bbm")));
     }

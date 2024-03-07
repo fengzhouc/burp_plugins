@@ -50,6 +50,7 @@ public class Jsonp extends VulTaskImpl {
                             BurpReqRespTools.getUrlPath(requestResponse),
                             BurpReqRespTools.getMethod(requestResponse), 
                             BurpReqRespTools.getStatus(requestResponse), 
+                            Jsonp.class.getSimpleName(),
                             "Jsonp, has query", 
                             null);
                     }
@@ -96,6 +97,7 @@ class JsonpCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Jsonp.class.getSimpleName(),
             "onFailure", 
             "[JsonpCallback-onFailure] " + e.getMessage());
     }
@@ -118,6 +120,7 @@ class JsonpCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Jsonp.class.getSimpleName(),
             message, 
             null);
     }

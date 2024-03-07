@@ -66,6 +66,7 @@ class SwaggerApiCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SwaggerApi.class.getSimpleName(),
             "onFailure", 
             "[SwaggerApiCallback-onFailure] " + e.getMessage());
     }
@@ -86,6 +87,7 @@ class SwaggerApiCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SwaggerApi.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/SwaggerApi.bbm")));
     }

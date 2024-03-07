@@ -1,4 +1,4 @@
-package com.alumm0x.task;
+package com.alumm0x.task.collect;
 
 import burp.IHttpRequestResponse;
 
@@ -72,6 +72,7 @@ public class XssDomSource extends VulTaskImpl {
                     BurpReqRespTools.getUrlPath(requestResponse),
                     BurpReqRespTools.getMethod(requestResponse), 
                     BurpReqRespTools.getStatus(requestResponse), 
+                    XssDomSource.class.getSimpleName(),
                     String.join(",", message), 
                     String.join("\n", SourceLoader.loadSources("/payloads/XssDomSourceSink.bbm")));
             }

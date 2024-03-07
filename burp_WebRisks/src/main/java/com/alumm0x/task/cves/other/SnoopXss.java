@@ -1,4 +1,4 @@
-package com.alumm0x.vuls.other;
+package com.alumm0x.task.cves.other;
 
 import burp.IHttpRequestResponse;
 import okhttp3.Call;
@@ -89,6 +89,7 @@ class SnoopXssCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SnoopXss.class.getSimpleName(),
             "onFailure", 
             "[SnoopXssCallback-onFailure] " + e.getMessage());
     }
@@ -111,6 +112,7 @@ class SnoopXssCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            SnoopXss.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/SnoopXss.bbm")));
     }

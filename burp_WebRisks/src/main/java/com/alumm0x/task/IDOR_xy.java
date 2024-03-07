@@ -84,6 +84,7 @@ class IDORxyCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            IDOR_xy.class.getSimpleName(),
             "onFailure", 
             "[IDORxyCallback-onFailure] " + e.getMessage());
     }
@@ -106,6 +107,7 @@ class IDORxyCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            IDOR_xy.class.getSimpleName(),
             message, 
             null);
     }

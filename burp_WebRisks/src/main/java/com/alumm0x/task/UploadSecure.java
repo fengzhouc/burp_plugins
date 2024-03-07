@@ -97,6 +97,7 @@ class UploadSecureCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            UploadSecure.class.getSimpleName(),
             "onFailure", 
             "[UploadSecureCallback-onFailure] " + e.getMessage());
     }
@@ -116,6 +117,7 @@ class UploadSecureCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            UploadSecure.class.getSimpleName(),
             message, 
             null);
     }

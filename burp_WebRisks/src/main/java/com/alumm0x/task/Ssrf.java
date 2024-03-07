@@ -107,6 +107,7 @@ class SsrfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Ssrf.class.getSimpleName(),
             "onFailure", 
             "[SsrfCallback-onFailure] " + e.getMessage());
     }
@@ -129,6 +130,7 @@ class SsrfCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            Ssrf.class.getSimpleName(),
             message, 
             String.join("\n", SourceLoader.loadSources("/payloads/SsrfRegex.bbm")));
     }

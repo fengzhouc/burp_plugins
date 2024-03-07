@@ -223,6 +223,7 @@ class BeanParamInjectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            BeanParamInject.class.getSimpleName(),
              "onFailure", 
              "[BeanParamInjectCallback-onFailure] " + e.getMessage());
     }
@@ -248,6 +249,7 @@ class BeanParamInjectCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            BeanParamInject.class.getSimpleName(),
             message, 
             null);
     }

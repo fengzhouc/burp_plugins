@@ -1,4 +1,4 @@
-package com.alumm0x.vuls.shiro;
+package com.alumm0x.task.cves.shiro;
 
 import burp.IHttpRequestResponse;
 import okhttp3.Call;
@@ -86,6 +86,7 @@ class ShiroUseCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            ShiroUse.class.getSimpleName(),
             "onFailure", 
             "[ShiroUseCallback-onFailure] " + e.getMessage());
     }
@@ -107,6 +108,7 @@ class ShiroUseCallback implements Callback {
             BurpReqRespTools.getUrlPath(requestResponse),
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getStatus(requestResponse), 
+            ShiroUse.class.getSimpleName(),
             message, 
             null);
     }
