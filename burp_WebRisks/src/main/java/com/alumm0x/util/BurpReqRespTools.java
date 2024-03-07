@@ -383,14 +383,14 @@ public class BurpReqRespTools {
     }
 
     /**
-     * 获取请求的url，不带urlpath，如https://xxx.com/sdfasd -> https://xxx.com/
+     * 获取请求的url，不带urlpath，如https://xxx.com/sdfasd -> https://xxx.com
      * @param requestResponse  burp的IHttpRequestResponse
      * @return String
      */
     public static String getRootUrl(IHttpRequestResponse requestResponse){
         if (requestResponse != null) {
             StringBuffer url = new StringBuffer();
-            url.append(requestResponse.getHttpService().getProtocol()).append("://").append(requestResponse.getHttpService().getHost()).append("/");
+            url.append(requestResponse.getHttpService().getProtocol()).append("://").append(requestResponse.getHttpService().getHost());
             return url.toString().replace(":443/", "/").replace(":80/", "/");
         }
         return "";
