@@ -11,15 +11,19 @@ import burp.IBurpExtenderCallbacks;
 
 public class MyItemListener implements ItemListener {
 
+    // 标记是否全部勾选
+    boolean isAll = true;
+
     public void itemStateChanged(ItemEvent e) {
         JCheckBox jcb = (JCheckBox) e.getItem();// 将得到的事件强制转化为JCheckBox类
         String key = jcb.getText(); //任务的名称
-        
         if (jcb.isSelected()) {// 判断是否被选择
             // 选中则创建对象，存入检查列表
             if (key.equalsIgnoreCase("All")){
                 for (JCheckBox t : MainPanel.taskJBS) {
-                    t.setSelected(true);
+                    if (!t.isSelected()) {
+                        t.setSelected(true);   
+                    }
                 }
             }else if (key.equalsIgnoreCase("Collect")){
                 // 信息采集的类
@@ -69,9 +73,15 @@ public class MyItemListener implements ItemListener {
                     }
                 }
             }
+            // 检查是否全部勾选
+            for (JCheckBox t : MainPanel.taskJBS) {
+                if (t.isSelected()) {
+                    isAll = true; // 设置标签
+                }
+            }
         } else {
             // 去勾选，则从列表中删除
-            if (key.equalsIgnoreCase("All")){
+            if (key.equalsIgnoreCase("All") && isAll){
                 for (JCheckBox t : MainPanel.taskJBS) {
                     t.setSelected(false);
                 }
@@ -120,6 +130,15 @@ public class MyItemListener implements ItemListener {
                 }
             }else {
                 MainPanel.intercepts.remove(key);
+            }
+            // all勾选过才会触发，勾选过才需要任意去勾选时去勾选all
+            if (!key.equalsIgnoreCase("all")) {
+                for (JCheckBox t : MainPanel.taskJBS) {
+                    if (t.getText().equalsIgnoreCase("all")) {
+                        isAll = false; // 设置标签
+                        t.setSelected(false);   
+                    }
+                }
             }
         }
     }

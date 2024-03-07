@@ -324,32 +324,34 @@ public class MainPanel {
         JLabel intercept = new JLabel("Itercept");
         gbaglayout.setConstraints(intercept,constraints);
         options.add(intercept);
+        // 复选框事件监听器
+        MyItemListener myItemListener = new MyItemListener();
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeItercept("proxy",options,gbaglayout,constraints);
+        makeItercept("proxy",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeItercept("repeater",options,gbaglayout,constraints);
+        makeItercept("repeater",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
         JLabel task = new JLabel("Tasks");
         gbaglayout.setConstraints(task,constraints);
         options.add(task);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
         // 添加复选框按钮
-        makeButton("All",options,gbaglayout,constraints);
+        makeButton("All",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Collect",options,gbaglayout,constraints);
+        makeButton("Collect",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Api",options,gbaglayout,constraints);
+        makeButton("Api",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Config",options,gbaglayout,constraints);
+        makeButton("Config",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("WebBasic",options,gbaglayout,constraints);
+        makeButton("WebBasic",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-        makeButton("Cve",options,gbaglayout,constraints);
+        makeButton("Cve",options,gbaglayout,constraints, myItemListener);
         constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
         for (String t : ClassNameGet.getClazzName("com.alumm0x.task", false)) {
             String[] l = t.split("\\.");
             constraints.gridwidth = GridBagConstraints.REMAINDER;    //结束行
-            makeButton(l[l.length - 1],options,gbaglayout,constraints);
+            makeButton(l[l.length - 1],options,gbaglayout,constraints, myItemListener);
         }
 
         // 添加到总UI
@@ -358,19 +360,19 @@ public class MainPanel {
         return contentPane;
     }
 
-    public static void makeItercept(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints)
+    public static void makeItercept(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints, MyItemListener itemListener)
     {
         JCheckBox button=new JCheckBox(title);
         button.setSelected(false); //默认不选中
-        button.addItemListener(new MyItemListener()); //加入监听
+        button.addItemListener(itemListener); //加入监听
         gridBagLayout.setConstraints(button,constraints);
         jPanel.add(button);
     }
-    public static void makeButton(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints)
+    public static void makeButton(String title,JPanel jPanel,GridBagLayout gridBagLayout,GridBagConstraints constraints, MyItemListener itemListener)
     {
         JCheckBox button=new JCheckBox(title);
         button.setSelected(false); //默认不选中
-        button.addItemListener(new MyItemListener()); //加入监听
+        button.addItemListener(itemListener); //加入监听
         gridBagLayout.setConstraints(button,constraints);
         jPanel.add(button);
         taskJBS.add(button);

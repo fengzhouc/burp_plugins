@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class SourceLoader {
 
     /**
-     * 从classpath下获取文件内容
+     * 从classpath下获取文件内容，不带#注释内容
      * @param filepath 文件路径，相对classpath根目录，如根目录直接文件名即可，如果/api/test.txt则api/test.txt
      * @return List
      */
@@ -24,6 +24,24 @@ public class SourceLoader {
                 if (!line.startsWith("#")) {
                     payloads.add(line.trim());
                 }
+            }
+        }
+        return payloads;
+    }
+
+    /**
+     * 从classpath下获取文件内容，带#注释内容
+     * @param filepath 文件路径，相对classpath根目录，如根目录直接文件名即可，如果/api/test.txt则api/test.txt
+     * @return List
+     */
+    public static List<String> loadSourcesWithNote(String filepath){
+        List<String> payloads = new ArrayList<>();
+        InputStream inStream = SourceLoader.class.getResourceAsStream(filepath);
+        assert inStream != null;
+        try(Scanner scanner = new Scanner(inStream)){
+            while (scanner.hasNextLine()){
+                String line = scanner.nextLine();
+                payloads.add(line.trim());
             }
         }
         return payloads;
