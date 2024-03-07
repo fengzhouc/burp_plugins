@@ -1,0 +1,6 @@
+sec-websocket-key
+sec-websocket-version
+sec-websocket-accept
+sec-websocket-protocol
+sec-websocket-extensions
+upgrade

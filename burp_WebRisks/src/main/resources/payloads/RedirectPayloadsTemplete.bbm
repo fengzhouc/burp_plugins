@@ -1,0 +1,33 @@
+# 一般防御就是根据传入的url，检测其域名是否在白名单内，这里主要目的是影响解析，获取到错误的域名,或者获取异常，有可能会异常放行
+# 域名格式
+http://evil.com./
+http://evil.com.:/
+http://evil.com.:80/
+http://@evil.com.:80/
+# 端口部分
+http://evil.com:/
+# username部分,
+http://@evil.com/
+http://#domain#@evil.com.:80/
+# username:password部分
+http://:@evil.com/
+http://:#domain#@evil.com.:80/
+http://#domain#:#domain#@evil.com.:80/
+# url其他特殊字符
+http://evil.com?@#domain#
+http://evil.com#@#domain#
+# 浏览器特性（如果跳转是通过浏览器的，则可以利用下）
+# 1.协议部分，浏览器跳转支持//，延续上一页面的协议进行访问
+//evil.com/
+# 2.重复特殊字符的部分
+/////////evil.com///
+http://@@@@@evil.com///
+http://@#domain#@@@@evil.com///
+http://:::::@@@@@evil.com///
+http://:::::#domain#@#domain#@@@@evil.com///
+http://#domain#::::::#domain#@#domain#@@@@evil.com///
+http://:::::@@@@@evil.com...///
+http://#domain#:::::#domain#@#domain#@@@@evil.com...///
+# 3.编码特殊字符，很多框架都自带url解码过滤器，但需要保证解码后的url浏览器上是可以访问的（host部分，浏览器访问是支持url编码的，也就是上面2的部分了）
+http://#encode#:#encode#@#domain#@evil.com/
+http://#domain##encode#:#encode#@#domain#@evil.com/

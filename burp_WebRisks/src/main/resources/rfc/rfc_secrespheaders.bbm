@@ -1,0 +1,6 @@
+strict-transport-security
+http-strict-transport-security
+x-xss-protection
+x-frame-options
+x-content-type-options
+content-type-options
