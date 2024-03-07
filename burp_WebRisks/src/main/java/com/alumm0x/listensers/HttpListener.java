@@ -7,7 +7,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.SwingUtilities;
+
 import com.alumm0x.engine.TaskManager;
+import com.alumm0x.engine.VulScanner;
 import com.alumm0x.ui.MainPanel;
 import com.alumm0x.util.CommonMess;
 import com.alumm0x.util.LRUCache;
@@ -75,6 +78,15 @@ public class HttpListener implements IHttpListener, IMessageEditorController {
                     try {
                         TaskManager.reqQueue.put(messageInfo); //这里会阻塞
                         CommonMess.requests.add(messageInfo); //保存IHttpRequestResponse，用于批量扫描
+                        // 同步刷新UI
+                        SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            // 更新scan进度
+                            VulScanner.schedule.setText(CommonMess.requests.size() + " / 0");
+                            MainPanel.logTable.refreshTable(); //刷新ui数据，以实时显示检测出得问题
+                        }
+                    });
                     } catch (InterruptedException e) {
                         BurpExtender.callbacks.printOutput("reqQueue.put -> " + e);
                     }

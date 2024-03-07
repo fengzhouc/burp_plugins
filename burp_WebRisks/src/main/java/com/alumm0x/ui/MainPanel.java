@@ -199,6 +199,20 @@ public class MainPanel {
         CookieText.setText("Cookie: xxx");
         CookieText.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         panel_c.add(CookieText);
+        // 清空cookie数据的按钮
+        JButton cookie_clear = new JButton("Clear");
+        cookie_clear.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CookieText.setText("Cookie: xxx");
+                cookies.clear(); // 清空数据
+            }
+            
+        });
+        cookie_clear.setToolTipText("清空Cookie的数据, 设置默认值Cookie: xxxxxx");
+        cookie_clear.setPreferredSize(new Dimension(70,28)); // 按钮大小
+        panel_c.add(cookie_clear);
         JLabel note_c = new JLabel("注: 测试需要他人的会话凭证, eg:'Cookie: xxxxxx' 或是 'x-auth-token: xxx'.");
         note_c.setForeground(new Color(255, 0, 0));
         panel_c.add(note_c);
