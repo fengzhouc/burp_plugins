@@ -54,7 +54,7 @@ public class UploadSecure extends VulTaskImpl {
                             BurpReqRespTools.getQuery(requestResponse), 
                             req_body, 
                             BurpReqRespTools.getContentType(requestResponse), 
-                            new SsrfCallback(this));
+                            new UploadSecureCallback(this));
                     //2.修改content-type
                     String regex1 = "Content-Type:\\s(.*?)\\s"; //分组获取文件名
                     Pattern pattern1 = Pattern.compile(regex1);
@@ -71,7 +71,7 @@ public class UploadSecure extends VulTaskImpl {
                             BurpReqRespTools.getQuery(requestResponse), 
                             req_body1, 
                             BurpReqRespTools.getContentType(requestResponse), 
-                            new SsrfCallback(this));
+                            new UploadSecureCallback(this));
                     }
                 }
             }

@@ -42,7 +42,7 @@ public class SwaggerApi extends VulTaskImpl {
                     null, 
                     null, 
                     BurpReqRespTools.getContentType(requestResponse), 
-                    new LiferayAPICallback(this));
+                    new SwaggerApiCallback(this));
             }
             TaskManager.vulsChecked.add(String.format("burp.task.api.SwaggerApi_%s_%s",BurpReqRespTools.getHost(requestResponse),BurpReqRespTools.getPort(requestResponse))); //添加检测标记
         }

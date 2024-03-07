@@ -56,7 +56,7 @@ public class XssReflect extends VulTaskImpl {
                 new_query, 
                 new String(BurpReqRespTools.getReqBody(requestResponse)), 
                 BurpReqRespTools.getContentType(requestResponse), 
-                new SsrfCallback(this));
+                new XssReflectCallback(this));
 
         }
     }

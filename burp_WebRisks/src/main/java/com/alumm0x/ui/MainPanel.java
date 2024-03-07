@@ -116,6 +116,12 @@ public class MainPanel {
             }
         });
         panel.add(btnrefresh);
+        // 进度展示 all/over
+        JLabel scantInfo = new JLabel("schedule:");
+        panel.add(scantInfo);
+        VulScanner.schedule = new JLabel(CommonMess.requests.size() + " / " + VulScanner.Over);
+        VulScanner.schedule.setForeground(new Color(255, 0, 0));
+        panel.add(VulScanner.schedule);
         // scan功能
         JButton btnrescan = new JButton("Scan");
         btnrescan.setPreferredSize(new Dimension(70,28)); // 按钮大小
@@ -129,12 +135,6 @@ public class MainPanel {
             }
         });
         panel.add(btnrescan);
-        // 进度展示 all/over
-        JLabel scantInfo = new JLabel("schedule:");
-        panel.add(scantInfo);
-        VulScanner.schedule = new JLabel(CommonMess.requests.size() + " / " + VulScanner.Over);
-        VulScanner.schedule.setForeground(new Color(255, 0, 0));
-        panel.add(VulScanner.schedule);
         // scan功能，显示所有保存的请求信息，清空列表，将请求都加入到列表中
         JButton scanshow = new JButton("Show");
         scanshow.setPreferredSize(new Dimension(70,28)); // 按钮大小
