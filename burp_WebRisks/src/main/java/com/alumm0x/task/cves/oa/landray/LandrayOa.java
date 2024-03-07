@@ -38,7 +38,7 @@ public class LandrayOa extends VulTaskImpl {
             url, 
             BurpReqRespTools.getMethod(requestResponse), 
             BurpReqRespTools.getReqHeaders(requestResponse), 
-            BurpReqRespTools.getQuery(requestResponse), 
+            null, 
             poc_body, 
             BurpReqRespTools.getContentType(requestResponse), 
             new LandrayOaCallback(this));

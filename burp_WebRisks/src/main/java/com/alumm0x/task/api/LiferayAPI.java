@@ -43,13 +43,13 @@ public class LiferayAPI extends VulTaskImpl {
 
             // 构造url
             for (String api : PATHS) {
-                String url = String.format("%s://%s:%d%s", BurpReqRespTools.getProtocol(requestResponse), BurpReqRespTools.getHost(requestResponse), BurpReqRespTools.getPort(requestResponse), api);
+                String url = String.format("%s%s", BurpReqRespTools.getRootUrl(requestResponse), api);
                 okHttpRequester.send(
                     url, 
-                    BurpReqRespTools.getMethod(requestResponse), 
+                    "GET", 
                     BurpReqRespTools.getReqHeaders(requestResponse), 
-                    BurpReqRespTools.getQuery(requestResponse), 
-                    new String(BurpReqRespTools.getReqBody(requestResponse)), 
+                    null, 
+                    null, 
                     BurpReqRespTools.getContentType(requestResponse), 
                     new LiferayAPICallback(this));
             }

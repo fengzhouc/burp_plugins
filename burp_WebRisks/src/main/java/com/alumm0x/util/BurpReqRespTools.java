@@ -53,25 +53,29 @@ public class BurpReqRespTools {
     public static byte[] okhttpReqToburpReq(Call call, IHttpRequestResponse requestResponse){
         RequestBody ok_requestBodyObj = call.request().body();
         String ok_method = call.request().method();
-        String ok_url = call.request().url().url().getPath() + "?" + call.request().url().url().getQuery();
+        String query = call.request().url().url().getQuery();
+        String ok_url = query != null ? call.request().url().url().getPath() + "?" + query : call.request().url().url().getPath();
         String ok_protocol = BurpReqRespTools.getReqHeaderProtocol(requestResponse);//HTTP/1.1、HTTP/2
         Headers ok_reqHeaders = call.request().headers();
         String ok_reqBody = "";
         //获取requestBody
         Buffer buffer = new Buffer();
-        try {//为空会报错，但是get请求体就是为空的
-            Objects.requireNonNull(ok_requestBodyObj).writeTo(buffer);
-            //编码设为UTF-8
-            Charset charset = StandardCharsets.UTF_8; //默认UTF-8
-            MediaType contentType = ok_requestBodyObj.contentType();
-            if (contentType != null) {
-                Charset charset0 = contentType.charset(StandardCharsets.UTF_8);
-                if (charset0 != null){ //有些contentType是没带charset的
-                    charset = charset0;
+        try {
+            //为空会报错，但是get请求体就是为空的
+            if (ok_requestBodyObj != null) {
+                ok_requestBodyObj.writeTo(buffer);   
+                //编码设为UTF-8
+                Charset charset = StandardCharsets.UTF_8; //默认UTF-8
+                MediaType contentType = ok_requestBodyObj.contentType();
+                if (contentType != null) {
+                    Charset charset0 = contentType.charset(StandardCharsets.UTF_8);
+                    if (charset0 != null){ //有些contentType是没带charset的
+                        charset = charset0;
+                    }
                 }
+                //拿到requestBody
+                ok_reqBody = buffer.readString(charset);
             }
-            //拿到requestBody
-            ok_reqBody = buffer.readString(charset);
         } catch (Exception e) {
             //保持默认值空字符串即可
             BurpExtender.callbacks.printError("[okhttpReqToburpReq] ok_reqBody -> " + e.getMessage());
@@ -106,7 +110,10 @@ public class BurpReqRespTools {
             // okhttp响应正文乱码,因为没法处理压缩内容的解码
             // https://wenku.baidu.com/view/6d3d3afda68da0116c175f0e7cd184254b351b68.html
             // https://blog.csdn.net/xx326664162/article/details/81661861?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_ecpm_v1~rank_v31_ecpm-3-81661861-null-null.pc_agg_new_rank&utm_term=okhttp%E5%93%8D%E5%BA%94%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B9%B1%E7%A0%81&spm=1000.2123.3001.4430
-            ok_respBody = Objects.requireNonNull(response.body()).string(); //只能调用一次，即关闭response,所以最后调用
+            ResponseBody responseBody = response.body();
+            if (responseBody != null) {
+                ok_respBody = responseBody.string(); //只能调用一次，即关闭response,所以最后调用   
+            }
         } catch (IOException e) {
             BurpExtender.callbacks.printError("[okhttpRespToburpResp]response.body() -> " + e.getMessage());
         }

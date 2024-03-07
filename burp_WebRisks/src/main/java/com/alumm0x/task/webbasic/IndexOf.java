@@ -55,8 +55,8 @@ public class IndexOf extends VulTaskImpl {
                     url, 
                     BurpReqRespTools.getMethod(requestResponse), 
                     BurpReqRespTools.getReqHeaders(requestResponse), 
-                    BurpReqRespTools.getQuery(requestResponse), 
-                    new String(BurpReqRespTools.getReqBody(requestResponse)), 
+                    null, 
+                    null, 
                     BurpReqRespTools.getContentType(requestResponse), 
                     new IndexOfCallback(this));
             }

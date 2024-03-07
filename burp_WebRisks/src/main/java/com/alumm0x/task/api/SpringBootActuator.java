@@ -55,14 +55,14 @@ public class SpringBootActuator extends VulTaskImpl {
             // 构造url
             for (String api :
                     SPRINGBOOT_ACTUATOR_PATHS) {
-                String url = String.format("%s://%s:%d%s", BurpReqRespTools.getProtocol(requestResponse), BurpReqRespTools.getHost(requestResponse), BurpReqRespTools.getPort(requestResponse), api);
+                String url = String.format("%s%s", BurpReqRespTools.getRootUrl(requestResponse), api);
                 okHttpRequester.send(
                     url, 
-                    BurpReqRespTools.getMethod(requestResponse), 
+                    "GET", 
                     BurpReqRespTools.getReqHeaders(requestResponse), 
-                    BurpReqRespTools.getQuery(requestResponse), 
-                    new String(BurpReqRespTools.getReqBody(requestResponse)), 
-                    BurpReqRespTools.getContentType(requestResponse), 
+                    null, 
+                    null, 
+                    null, 
                     new SpringBootActuatorCallback(this));
             }
             TaskManager.vulsChecked.add(String.format("burp.task.api.SpringBootActuator_%s_%s",BurpReqRespTools.getHost(requestResponse),BurpReqRespTools.getPort(requestResponse))); //添加检测标记

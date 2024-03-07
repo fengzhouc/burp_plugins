@@ -27,12 +27,12 @@ public class SnoopXss extends VulTaskImpl {
     private static final String XSS_PAYLOAD = "<h1>WebRisks";
 
     private static final List<String> SNOOP_PATHS = Arrays.asList(
-            "/snoop.jsp?" + XSS_PAYLOAD,
-            "/examples/jsp/snp/snoop.jsp?" + XSS_PAYLOAD,
-            "/examples/servlet/SnoopServlet?" + XSS_PAYLOAD,
-            "/servlet/SnoopServlet?" + XSS_PAYLOAD,
-            "/j2ee/servlet/SnoopServlet?" + XSS_PAYLOAD,
-            "/jsp-examples/snp/snoop.jsp?" + XSS_PAYLOAD
+            "/snoop.jsp",
+            "/examples/jsp/snp/snoop.jsp",
+            "/examples/servlet/SnoopServlet",
+            "/servlet/SnoopServlet",
+            "/j2ee/servlet/SnoopServlet",
+            "/jsp-examples/snp/snoop.jsp"
     );
 
     public static VulTaskImpl getInstance(IHttpRequestResponse requestResponse){
@@ -57,8 +57,8 @@ public class SnoopXss extends VulTaskImpl {
                     url, 
                     BurpReqRespTools.getMethod(requestResponse), 
                     BurpReqRespTools.getReqHeaders(requestResponse), 
-                    BurpReqRespTools.getQuery(requestResponse), 
-                    new String(BurpReqRespTools.getReqBody(requestResponse)), 
+                    XSS_PAYLOAD, 
+                    null, 
                     BurpReqRespTools.getContentType(requestResponse), 
                     new SnoopXssCallback(this));
             }

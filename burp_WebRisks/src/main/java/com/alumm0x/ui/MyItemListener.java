@@ -43,7 +43,7 @@ public class MyItemListener implements ItemListener {
                 }
             }else if (key.equalsIgnoreCase("Cve")){
                 // Cve漏洞的检测类
-                for (String task : ClassNameGet.getClazzName("com.alumm0x.task.cves", false)) {
+                for (String task : ClassNameGet.getClazzName("com.alumm0x.task.cves", true)) {
                     TaskManager.tasks.add(task);
                 }
             }else if (key.equalsIgnoreCase("SessionInvalid")) {
@@ -55,9 +55,9 @@ public class MyItemListener implements ItemListener {
                         break;
                     }
                 }
-            }else if (!key.equalsIgnoreCase("proxy")) {
+            }else if (key.equalsIgnoreCase("proxy")) {
                 MainPanel.intercepts.put("proxy", IBurpExtenderCallbacks.TOOL_PROXY);
-            }else if (!key.equalsIgnoreCase("repeater")) {
+            }else if (key.equalsIgnoreCase("repeater")) {
                 MainPanel.intercepts.put("repeater", IBurpExtenderCallbacks.TOOL_REPEATER);
             }else {
                 // 其他勾选的就在这里处理，也就是task这个包下的检测类了（不含子包的）

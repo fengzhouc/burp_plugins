@@ -66,7 +66,7 @@ public class LandrayOaTreexmlRce extends VulTaskImpl {
             url, 
             "POST", 
             BurpReqRespTools.getReqHeaders(requestResponse), 
-            BurpReqRespTools.getQuery(requestResponse), 
+            null, 
             poc_body, 
             BurpReqRespTools.getContentType(requestResponse), 
             new LandrayOaTreexmlRceCallback(this));

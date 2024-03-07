@@ -52,7 +52,7 @@ public class OkHttpRequester {
     // 根据method进行选择不同的发送函数，也可以直接调用对应的
     public void send(String url, String method, List<String> headerList, String query, String bodyParam, String contentType, Callback callback){
         // 根据query的情况进行组装url
-        url = query != null ? url + "?" + query : url;
+        url = query != null || !"".equals(query) ? url + "?" + query : url;
         switch (method){
             case "GET":
                 get(url, headerList, query, callback);

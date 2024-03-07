@@ -422,14 +422,25 @@ public class MainPanel {
                     log) {
                 if (le.Host.equalsIgnoreCase(host)
                         && le.Path.equalsIgnoreCase(path)
-                        && le.Method.equalsIgnoreCase(method)) {
+                        && le.Method.equalsIgnoreCase(method)
+                        && le.Status == status) {
                     inside = true;
                     break;
                 }
             }
             if (!inside) {
-                // log.add(new LogEntry(row, BurpExtender.callbacks.saveBuffersToTempFiles(messageInfo),
-                //         host, path, method, status, "", ""));
+                log.add(new LogEntry(
+                    row, 
+                    BurpExtender.callbacks.saveBuffersToTempFiles(messageInfo),
+                    host, 
+                    path, 
+                    method, 
+                    status, 
+                    "", 
+                    "", 
+                    ""));
+                //通知数据可能变更，刷新全表格数据，该用okhttp异步发包后，没办法同步调用fireTableRowsInserted通知刷新数据，因为一直row=lastRow
+                MainPanel.logTable.refreshTable();
             }
 
         }
@@ -443,6 +454,10 @@ public class MainPanel {
     // 已经在列表的不添加
     // 添加synchronized防止多线程竞态
     public static synchronized void logAdd(IHttpRequestResponse requestResponse, String host, String path, String method, short status, String plugin, String risk, String payloads) {
+        // payload tab会调用getBytes，需要防止空指针
+        if (payloads == null) {
+            payloads = "";
+        }
         int row = log.size();
         // debug模式则记录所有
         if (DEBUG) {

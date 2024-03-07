@@ -39,7 +39,6 @@ public class Https extends VulTaskImpl {
                 message = "use https";
             }
             // 检查是否同时开启http/https
-            String url = "http://" + BurpReqRespTools.getHost(requestResponse) + ":80" + BurpReqRespTools.getUrlPath(requestResponse);
             List<String> new_headers = new ArrayList<>();
             for (String header :
                     BurpReqRespTools.getReqHeaders(requestResponse)) {
@@ -48,6 +47,7 @@ public class Https extends VulTaskImpl {
                 }
             }
             new_headers.add("Host: " + BurpReqRespTools.getHost(requestResponse) + ":80");
+            String url = "http://" + BurpReqRespTools.getHost(requestResponse) + BurpReqRespTools.getUrlPath(requestResponse);
             // 检测80端口
             okHttpRequester.send(
                 url, 

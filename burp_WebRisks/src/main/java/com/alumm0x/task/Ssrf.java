@@ -44,7 +44,7 @@ public class Ssrf extends VulTaskImpl {
             String evilHost = "evil6666.com";
             String query = BurpReqRespTools.getQuery(requestResponse);
             String request_body_str = new String(BurpReqRespTools.getReqBody(requestResponse));
-            //如果有body参数，需要多body参数进行测试
+            //如果有body参数，需要对body参数进行测试
             if (request_body_str.length() > 0){
                 //1.先检测是否存在url地址的参数，正则匹配
                 Pattern pattern = Pattern.compile(regex);
