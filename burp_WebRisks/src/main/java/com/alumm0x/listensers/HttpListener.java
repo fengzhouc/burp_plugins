@@ -80,13 +80,13 @@ public class HttpListener implements IHttpListener, IMessageEditorController {
                         CommonMess.requests.add(messageInfo); //保存IHttpRequestResponse，用于批量扫描
                         // 同步刷新UI
                         SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            // 更新scan进度
-                            VulScanner.schedule.setText(CommonMess.requests.size() + " / 0");
-                            MainPanel.logTable.refreshTable(); //刷新ui数据，以实时显示检测出得问题
-                        }
-                    });
+                            @Override
+                            public void run() {
+                                // 更新scan进度
+                                VulScanner.schedule.setText(CommonMess.requests.size() + " / 0");
+                                MainPanel.logTable.refreshTable(); //刷新ui数据，以实时显示检测出得问题
+                            }
+                        });
                     } catch (InterruptedException e) {
                         BurpExtender.callbacks.printOutput("reqQueue.put -> " + e);
                     }
