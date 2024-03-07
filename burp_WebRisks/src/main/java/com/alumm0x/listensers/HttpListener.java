@@ -1,7 +1,6 @@
 package com.alumm0x.listensers;
 
 import java.math.BigInteger;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
@@ -12,6 +11,7 @@ import javax.swing.SwingUtilities;
 import com.alumm0x.engine.TaskManager;
 import com.alumm0x.engine.VulScanner;
 import com.alumm0x.ui.MainPanel;
+import com.alumm0x.util.BurpReqRespTools;
 import com.alumm0x.util.CommonMess;
 import com.alumm0x.util.LRUCache;
 
@@ -58,20 +58,19 @@ public class HttpListener implements IHttpListener, IMessageEditorController {
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         //勾选了intercepts，及勾选了检查项，才采集请求
         if (!messageIsRequest && MainPanel.intercepts.containsValue(toolFlag)) {
-            URL urlo = BurpExtender.helpers.analyzeRequest(messageInfo).getUrl();
-            String url = urlo.toString();
-            byte[] requestInfo = messageInfo.getRequest();
-            //计算MD5
-            md.update(requestInfo);
-            String md5 = new BigInteger(1, md.digest()).toString(16);
-
             //检查插件是否开启
-            String host = urlo.getHost();
+            String host = BurpReqRespTools.getHost(messageInfo);
             // callbacks.printOutput(host);
             Pattern pattern = Pattern.compile(MainPanel.domain);
             Matcher m = pattern.matcher(host);
             boolean m_host = m.find();
             if (MainPanel.kg && m_host) { //是否开启插件，开启后匹配设置的domain才会进行扫描
+                String url = BurpReqRespTools.getUrl(messageInfo);
+                // 构造请求的唯一标识
+                String in = String.format("method_%s_url_%s_status_%d_body_%s", BurpReqRespTools.getMethod(messageInfo), url, BurpReqRespTools.getStatus(messageInfo), new String(BurpReqRespTools.getReqBody(messageInfo)));
+                //计算MD5
+                md.update(in.getBytes());
+                String md5 = new BigInteger(1, md.digest()).toString(16);
                 // 检查是否在缓存中
                 if (localCache.get(md5) == null) { //如果在缓存中则返回
                     // 将请求放入队列
@@ -88,7 +87,7 @@ public class HttpListener implements IHttpListener, IMessageEditorController {
                             }
                         });
                     } catch (InterruptedException e) {
-                        BurpExtender.callbacks.printOutput("reqQueue.put -> " + e);
+                        BurpExtender.callbacks.printError("reqQueue.put -> " + e.getMessage());
                     }
                     //存入缓存中
                     localCache.put(md5, "in");
