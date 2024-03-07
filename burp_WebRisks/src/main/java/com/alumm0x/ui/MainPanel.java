@@ -78,6 +78,7 @@ public class MainPanel {
         panel.add(btnFilter);
         tfFilterText = new JTextField();
         tfFilterText.setColumns(20);
+        tfFilterText.setPreferredSize(new Dimension(20, 27));
         tfFilterText.setText(".*");
         panel.add(tfFilterText);
 
