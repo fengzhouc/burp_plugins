@@ -34,7 +34,7 @@ public class IDOR_xy extends VulTaskImpl {
          * 2、填充cookie重放，比对响应
          * */
         // 没有设置越权测试的cookie则不测试
-        if (!MainPanel.cookie.equalsIgnoreCase("Cookie: xxx")){
+        if (MainPanel.cookies.size() != 0){
             // 后缀检查，静态资源不做测试
             List<String> add = new ArrayList<String>();
             add.add(".js");
@@ -45,11 +45,14 @@ public class IDOR_xy extends VulTaskImpl {
                 for (String header :
                         BurpReqRespTools.getReqHeaders(requestResponse)) {
                     //替换cookie
-                    String[] auth = MainPanel.cookie.split(":");
-                    String key = auth[0];
-                    String value = auth[1];
-                    if (header.toLowerCase(Locale.ROOT).startsWith(key.toLowerCase(Locale.ROOT))) {
-                        header = key + ":" + value;
+                    for (String cookie : MainPanel.cookies) {
+                        String[] auth = cookie.split(":");
+                        String key = auth[0];
+                        String value = auth[1];
+                        if (header.toLowerCase(Locale.ROOT).startsWith(key.toLowerCase(Locale.ROOT))) {
+                            header = key + ":" + value;
+                            break;
+                        }
                     }
                     new_headers.add(header);
                 }

@@ -41,9 +41,9 @@ public class MainPanel {
     public static boolean kg = false; //默认关闭
     public static JLabel lbConnectStatus; //插件运行状态
     public static JTextField tfFilterText; //过滤的条件输入框
-    public static JTextField tfFilterText_c; //Cookie
+    public static JTextArea CookieText; //Cookie
     public static String domain = ".*";
-    public static String cookie = "Cookie: xxx";
+    public static List<String> cookies = new ArrayList<>();
     // // 开启的任务列表-复选框
     public static final HashMap<String, Integer> intercepts = new HashMap<>();
     public static final List<JCheckBox> taskJBS = new ArrayList<>();
@@ -184,19 +184,21 @@ public class MainPanel {
         btnFilter_c.setPreferredSize(new Dimension(70,28)); // 按钮大小
         btnFilter_c.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                String d = tfFilterText_c.getText();
-                if (null != d) {
-                    cookie = d;
-                }else {
-                    cookie = "Cookie: xxx";
+                String cookieTextString = CookieText.getText();
+                if (null != cookieTextString) {
+                    for (String cookie : cookieTextString.split("\n")) {
+                        cookies.add(cookie);
+                    }
                 }
             }
         });
         panel_c.add(btnFilter_c);
-        tfFilterText_c = new JTextField();
-        tfFilterText_c.setColumns(45);
-        tfFilterText_c.setText("");
-        panel_c.add(tfFilterText_c);
+        CookieText = new JTextArea();
+        CookieText.setRows(2);
+        CookieText.setColumns(50);
+        CookieText.setText("Cookie: xxx");
+        CookieText.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        panel_c.add(CookieText);
         JLabel note_c = new JLabel("注: 测试需要他人的会话凭证, eg:'Cookie: xxxxxx' 或是 'x-auth-token: xxx'.");
         note_c.setForeground(new Color(255, 0, 0));
         panel_c.add(note_c);
